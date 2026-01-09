@@ -31,6 +31,48 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
+### Option 1: Deploy Directly from Vercel
+
+1. Go to [https://vercel.com](https://vercel.com)
+2. Click "Log in" and sign up with your GitHub, GitLab, or Bitbucket account
+3. Click "New Project" and select your Crawdwall frontend repository
+4. Vercel will automatically detect that it's a Next.js project and configure the build settings
+5. Click "Deploy" and your application will be live within minutes
+
+### Option 2: Deploy Using Vercel CLI
+
+1. Install the Vercel CLI globally:
+
+```bash
+npm install -g vercel
+```
+
+2. Navigate to your project directory and run:
+
+```bash
+vercel
+```
+
+3. Follow the prompts to link your project to a Vercel account
+4. The CLI will build and deploy your application
+
+### Build Configuration
+
+Your project is already configured for Vercel deployment with:
+- Next.js 16.1.1
+- Automatic optimization for static export
+- Proper image configuration for external sources
+- TypeScript support
+- Tailwind CSS integration
+
+### Environment Variables
+
+If you have environment variables, you can add them in the Vercel dashboard under Settings > Environment Variables.
+
+### Custom Domain
+
+After deployment, you can add a custom domain in the Vercel dashboard under Settings > Domains.
+
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

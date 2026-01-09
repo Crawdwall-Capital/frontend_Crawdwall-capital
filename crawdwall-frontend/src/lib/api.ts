@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { AUTH_TOKEN_KEY } from '@/constants';
+const AUTH_TOKEN_KEY = 'crawdwall_auth_token';
 import { ApiResponse, AuthResponse, OtpLoginRequest, OtpVerifyRequest, User, Proposal, CreateProposalRequest } from '@/types';
 import { mockAPI } from '@/__mocks__/data';
 

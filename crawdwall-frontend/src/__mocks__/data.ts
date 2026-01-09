@@ -38,6 +38,15 @@ let mockUsers: UserWithPassword[] = [
     createdAt: '2023-04-05T09:20:00Z',
     updatedAt: '2023-04-05T09:20:00Z',
   },
+  {
+    id: '5',
+    email: 'officer1@crawdwall.com',
+    name: 'David Wilson',
+    role: 'officer',
+    password: 'officer123',
+    createdAt: '2023-05-10T13:45:00Z',
+    updatedAt: '2023-05-10T13:45:00Z',
+  },
 ];
 
 // Function to get all users
@@ -74,6 +83,28 @@ export const validateAdmin = (email: string, password: string): boolean => {
   const adminUser = mockUsers.find(user => user.email === email && user.role === 'admin');
   return adminUser ? adminUser.password === password : false;
 };
+
+// Mock investors
+export const mockInvestors: User[] = [
+  { id: '1', email: 'investor1@crawdwall.com', name: 'Robert Johnson', role: 'investor', createdAt: '2023-04-05T16:20:00Z', updatedAt: '2023-04-05T16:20:00Z' },
+  { id: '2', email: 'investor2@crawdwall.com', name: 'Emily Davis', role: 'investor', createdAt: '2023-05-12T11:30:00Z', updatedAt: '2023-05-12T11:30:00Z' },
+  { id: '3', email: 'investor3@crawdwall.com', name: 'Michael Brown', role: 'investor', createdAt: '2023-06-18T09:45:00Z', updatedAt: '2023-06-18T09:45:00Z' },
+];
+
+// Mock organizations (funded proposals)
+export const mockOrganizations: Proposal[] = [
+  { id: '1', title: 'Music Festival in Lagos', description: 'A large-scale music festival', amount: 50000, status: 'FUNDED', organizerId: '2', organizerName: 'John Smith', organizerEmail: 'organizer1@crawdwall.com', createdAt: '2023-05-15T11:30:00Z', updatedAt: '2023-07-20T16:45:00Z' },
+  { id: '2', title: 'Art Exhibition in Accra', description: 'Contemporary African art exhibition', amount: 25000, status: 'FUNDED', organizerId: '3', organizerName: 'Sarah Johnson', organizerEmail: 'organizer2@crawdwall.com', createdAt: '2023-06-20T14:20:00Z', updatedAt: '2023-08-10T09:15:00Z' },
+  { id: '3', title: 'Film Production Workshop', description: 'Training workshop for young filmmakers', amount: 15000, status: 'FUNDED', organizerId: '2', organizerName: 'John Smith', organizerEmail: 'organizer1@crawdwall.com', createdAt: '2023-07-05T09:45:00Z', updatedAt: '2023-08-25T14:30:00Z' },
+];
+
+// Mock officers
+export const mockOfficers: User[] = [
+  { id: '1', email: 'officer1@crawdwall.com', name: 'David Wilson', role: 'officer', createdAt: '2023-05-10T13:45:00Z', updatedAt: '2023-05-10T13:45:00Z' },
+  { id: '2', email: 'officer2@crawdwall.com', name: 'Lisa Thompson', role: 'officer', createdAt: '2023-06-15T09:30:00Z', updatedAt: '2023-06-15T09:30:00Z' },
+  { id: '3', email: 'officer3@crawdwall.com', name: 'James Rodriguez', role: 'officer', createdAt: '2023-07-22T14:20:00Z', updatedAt: '2023-07-22T14:20:00Z' },
+  { id: '4', email: 'officer4@crawdwall.com', name: 'Maria Garcia', role: 'officer', createdAt: '2023-08-30T11:15:00Z', updatedAt: '2023-08-30T11:15:00Z' },
+];
 
 // Mock proposals
 export const mockProposals: Proposal[] = [

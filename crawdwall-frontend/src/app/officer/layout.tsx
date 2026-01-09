@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { authAPI } from '@/lib/api';
 
-export default function InvestorLayout({
+export default function OfficerLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -17,14 +17,15 @@ export default function InvestorLayout({
   useEffect(() => {
     const checkAuth = async () => {
       try {
-
+        // For testing purposes, we're bypassing authentication
+        // In production, you would want to verify the token
         const token = localStorage.getItem('crawdwall_auth_token');
         const role = localStorage.getItem('user_role');
         
-        if (token && role === 'investor') {
-          setUserRole('investor');
+        if (token && role === 'officer') {
+          setUserRole('officer');
         } else {
-
+          // Redirect to login if not authenticated as an officer
           router.push('/login');
         }
       } catch (error) {
@@ -35,7 +36,7 @@ export default function InvestorLayout({
       }
     };
 
-    
+    // Skip auth check on login page
     if (pathname !== '/login') {
       checkAuth();
     } else {
@@ -54,8 +55,8 @@ export default function InvestorLayout({
     );
   }
 
-  if (userRole !== 'investor' && pathname !== '/login') {
-    return null; 
+  if (userRole !== 'officer' && pathname !== '/login') {
+    return null; // Render nothing while redirecting
   }
 
   return (

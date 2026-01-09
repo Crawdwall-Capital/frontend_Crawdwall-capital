@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ROUTES, ROLES } from '@/constants';
 
 export default function OrganizerLayout({
   children,
@@ -45,25 +44,25 @@ export default function OrganizerLayout({
               <div className="hidden md:block">
                 <div className="ml-10 flex items-baseline space-x-4">
                   <Link
-                    href={ROUTES.ORGANIZER_DASHBOARD}
+                    href="/organizer/dashboard"
                     className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Dashboard
                   </Link>
                   <Link
-                    href={ROUTES.ORGANIZER_PROPOSALS}
+                    href="/organizer/proposals"
                     className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                   >
                     My Proposals
                   </Link>
                   <Link
-                    href={ROUTES.ORGANIZER_PROPOSAL_NEW}
+                    href="/organizer/proposals/new"
                     className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Submit Proposal
                   </Link>
                   <Link
-                    href={ROUTES.ORGANIZER_NOTIFICATIONS}
+                    href="/organizer/notifications"
                     className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Notifications
@@ -76,7 +75,7 @@ export default function OrganizerLayout({
                 onClick={() => {
                   localStorage.removeItem('crawdwall_auth_token');
                   localStorage.removeItem('user_role');
-                  router.push(ROUTES.LOGIN);
+                  router.push('/login');
                 }}
                 className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               >
