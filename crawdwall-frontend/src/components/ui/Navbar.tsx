@@ -106,7 +106,7 @@ const Navbar = () => {
               Contact
             </Link>
             <Link 
-              href="/signup/organizer" 
+              href="/signup" 
               className="flex h-10 items-center justify-center rounded-lg bg-primary hover:bg-primary-dark transition-colors px-6 text-white text-sm font-bold shadow-lg shadow-blue-900/20 mt-2"
               onClick={() => setMobileMenuOpen(false)}
             >

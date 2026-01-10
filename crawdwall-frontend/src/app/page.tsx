@@ -188,7 +188,9 @@ export default function Home() {
       <main>
         <HeroSection
           badgeText="Revolutionizing Event Finance"
-          title="Africa's First Investment Bank for Events"
+          title={<>
+            Africa's First <span className="text-primary font-bold">Investment Bank</span> for Events
+          </>}
           subtitle="We make events investable. From creators to investors to businesses, we structure, fund, and unlock value in the world's creative economy."
           backgroundImageUrl="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop"
         />

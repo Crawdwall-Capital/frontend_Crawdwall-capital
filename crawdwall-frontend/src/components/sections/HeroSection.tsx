@@ -1,5 +1,7 @@
+import { ReactNode } from 'react';
+
 interface HeroSectionProps {
-  title: string;
+  title: ReactNode;
   subtitle?: string;
   badgeText?: string;
   backgroundImageUrl?: string;
