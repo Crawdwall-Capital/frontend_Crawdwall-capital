@@ -26,8 +26,8 @@ const ServicesCard = ({
     : 'bg-white dark:bg-transparent border-2 border-primary text-primary hover:bg-primary hover:text-white';
   
   return (
-    <div className="lg:grid lg:grid-cols-2 lg:gap-16 items-center">
-      <div className="relative mb-10 lg:mb-0">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      <div className="relative mb-6 lg:mb-0">
         <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-slate-100 dark:bg-surface-dark relative shadow-2xl shadow-primary/10 group">
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent mix-blend-overlay"></div>
           <img 
@@ -48,7 +48,7 @@ const ServicesCard = ({
           <span className="material-symbols-outlined">{icon}</span>
           {title}
         </div>
-        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
           {description}
         </h2>
         <ul className="space-y-4 my-4">
@@ -59,12 +59,6 @@ const ServicesCard = ({
             </li>
           ))}
         </ul>
-        <div className="pt-4">
-          <button className={`inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-bold shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${buttonClasses}`}>
-            {buttonText}
-            <span className="material-symbols-outlined ml-2 text-sm">{buttonIcon}</span>
-          </button>
-        </div>
       </div>
     </div>
   );

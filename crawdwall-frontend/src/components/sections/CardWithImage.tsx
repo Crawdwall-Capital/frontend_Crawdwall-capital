@@ -8,19 +8,19 @@ interface CardWithImageProps {
 
 const CardWithImage = ({ title, description, imageUrl, icon, features }: CardWithImageProps) => {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
       <div 
-        className="h-48 bg-cover bg-center relative"
+        className="h-40 sm:h-48 bg-cover bg-center relative"
         style={{ backgroundImage: `url('${imageUrl}')` }}
       >
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
           <div className="text-center text-white p-4">
-            <span className="material-symbols-outlined text-4xl mb-2">{icon}</span>
-            <h3 className="text-xl font-bold">{title}</h3>
+            <span className="material-symbols-outlined text-3xl sm:text-4xl mb-2">{icon}</span>
+            <h3 className="text-lg sm:text-xl font-bold">{title}</h3>
           </div>
         </div>
       </div>
-      <div className="p-6">
+      <div className="p-4 sm:p-6 flex-1">
         <p className="text-slate-600 dark:text-slate-300 mb-4">
           {description}
         </p>

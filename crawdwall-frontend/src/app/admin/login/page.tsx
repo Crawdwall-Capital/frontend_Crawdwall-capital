@@ -112,7 +112,7 @@ export default function AdminLoginPage() {
       <div className="flex-grow flex items-center justify-center m-0 p-0">
         <div className="w-full max-w-md m-0 p-0">
           <div className="text-center mb-8 mt-0">
-            <div className="h-8 w-8 text-primary mx-auto">
+            <div className="h-16 w-20 text-primary mx-auto">
               <img src="/image/C capital logo 2.svg" alt="Crawdwall Capital Logo" className="h-full w-full object-contain" />
             </div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 dark:text-white">

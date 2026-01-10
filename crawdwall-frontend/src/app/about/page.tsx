@@ -19,6 +19,7 @@ export default function AboutPage() {
         badgeText="Investment Banking for the Creative Economy"
         title="Who We Are"
         subtitle="We transform events from simple gatherings into structured investment opportunities that generate returns for all stakeholders."
+        backgroundImageUrl="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2070&auto=format&fit=crop"
       />
 
       {/* Mission & Vision Cards */}
@@ -119,24 +120,10 @@ export default function AboutPage() {
                 className="w-full h-48 object-cover"
               />
             </div>
-            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md mt-8">
+            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md">
               <img 
                 src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" 
                 alt="Investment presentation"
-                className="w-full h-48 object-cover"
-              />
-            </div>
-            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md">
-              <img 
-                src="https://images.unsplash.com/photo-1556761229-51bf736b30c6?q=80&w=1974&auto=format&fit=crop" 
-                alt="Event venue"
-                className="w-full h-48 object-cover"
-              />
-            </div>
-            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-md mt-8">
-              <img 
-                src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop" 
-                alt="Business professionals networking"
                 className="w-full h-48 object-cover"
               />
             </div>

@@ -23,17 +23,17 @@ const CTACard = ({ title, description, buttonText, buttonLink, icon, colorScheme
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700 text-center hover:border-primary dark:hover:border-primary transition-colors duration-300">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 text-center hover:border-primary dark:hover:border-primary transition-colors duration-300 flex flex-col h-full">
       <div className="flex justify-center mb-6">
-        <div className={`w-16 h-16 rounded-full ${colorClasses[colorScheme]} flex items-center justify-center`}>
-          <span className="material-symbols-outlined text-3xl">{icon}</span>
+        <div className={`w-14 sm:w-16 h-14 sm:h-16 rounded-full ${colorClasses[colorScheme]} flex items-center justify-center`}>
+          <span className="material-symbols-outlined text-2xl sm:text-3xl">{icon}</span>
         </div>
       </div>
       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">{title}</h3>
-      <p className="text-slate-600 dark:text-slate-300 mb-6">
+      <p className="text-slate-600 dark:text-slate-300 mb-6 flex-grow">
         {description}
       </p>
-      <Link href={buttonLink} className={`inline-block px-6 py-3 ${bgColorClasses[colorScheme]} text-white font-medium rounded-lg transition-colors`}>
+      <Link href={buttonLink} className={`inline-block px-6 py-3 ${bgColorClasses[colorScheme]} text-white font-medium rounded-lg transition-colors mt-auto cursor-default`}>
         {buttonText}
       </Link>
     </div>

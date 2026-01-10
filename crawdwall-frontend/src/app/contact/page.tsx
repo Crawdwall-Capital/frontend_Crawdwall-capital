@@ -15,31 +15,34 @@ export default function ContactPage() {
       <HeroSection 
         title="Let's Make Your Event Work as an Investment"
         subtitle="We transform events from simple gatherings into structured investment opportunities that generate returns for all stakeholders."
+        backgroundImageUrl="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2070&auto=format&fit=crop"
       />
 
-      {/* Choose Your Path Section */}
-      <section className="py-16 bg-slate-50 dark:bg-slate-800/50">
+      {/* Choose Your Path Section - Enhanced Responsiveness */}
+
+      {/* Choose Your Path Section - Enhanced Responsiveness */}
+      <section className="py-12 sm:py-16 bg-slate-50 dark:bg-slate-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Choose Your Path</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4">Choose Your Path</h2>
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
               Whether you're creating, investing, or growing your business, we have the right path for you.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Card 1 - Event Creators */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300 hover:-translate-y-1">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300 hover:-translate-y-1 flex flex-col h-full">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-blue-600 dark:text-blue-400">campaign</span>
                 </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-4">Event Creators</h3>
-              <p className="text-slate-600 dark:text-slate-300 text-center mb-6">
+              <p className="text-slate-600 dark:text-slate-300 text-center mb-6 flex-grow">
                 Turn your event concept into a scalable investment vehicle with structured funding and financial planning.
               </p>
-              <div className="text-center">
+              <div className="text-center mt-auto">
                 <Link href="#" className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-800 dark:hover:text-blue-300">
                   Apply for Capital
                   <span className="material-symbols-outlined text-sm ml-2">arrow_forward</span>
@@ -48,17 +51,17 @@ export default function ContactPage() {
             </div>
             
             {/* Card 2 - Investors */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300 hover:-translate-y-1">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300 hover:-translate-y-1 flex flex-col h-full">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-green-600 dark:text-green-400">trending_up</span>
                 </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-4">Investors</h3>
-              <p className="text-slate-600 dark:text-slate-300 text-center mb-6">
+              <p className="text-slate-600 dark:text-slate-300 text-center mb-6 flex-grow">
                 Access curated event investment opportunities with transparent risk profiles and measurable returns.
               </p>
-              <div className="text-center">
+              <div className="text-center mt-auto">
                 <Link href="#" className="inline-flex items-center text-green-600 dark:text-green-400 font-medium hover:text-green-800 dark:hover:text-green-300">
                   View Opportunities
                 </Link>
@@ -66,17 +69,17 @@ export default function ContactPage() {
             </div>
             
             {/* Card 3 - Businesses & SMEs */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300 hover:-translate-y-1">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow duration-300 hover:-translate-y-1 flex flex-col h-full">
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-amber-600 dark:text-amber-400">storefront</span>
                 </div>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white text-center mb-4">Businesses & SMEs</h3>
-              <p className="text-slate-600 dark:text-slate-300 text-center mb-6">
+              <p className="text-slate-600 dark:text-slate-300 text-center mb-6 flex-grow">
                 Leverage event platforms for high-impact sponsorships that drive real customer acquisition and brand growth.
               </p>
-              <div className="text-center">
+              <div className="text-center mt-auto">
                 <Link href="#" className="inline-flex items-center text-amber-600 dark:text-amber-400 font-medium hover:text-amber-800 dark:hover:text-amber-300">
                   Become a Sponsor
                 </Link>
@@ -86,12 +89,12 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* General Inquiries Section */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+      {/* General Inquiries Section - Side by Side Layout */}
+      <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16">
           {/* Left Column - Contact Info */}
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">General Inquiries</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-8">General Inquiries</h2>
             
             <div className="space-y-8">
               <ContactCard 
@@ -112,7 +115,7 @@ export default function ContactPage() {
                 content={["Lagos, Nigeria", "West Africa's Financial Hub"]}
               />
               
-              <div className="flex items-center space-x-6 pt-4">
+              <div className="flex items-center justify-center sm:justify-start space-x-6 pt-4">
                 <a href="#" className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
                   <span className="sr-only">LinkedIn</span>
                   <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -136,8 +139,8 @@ export default function ContactPage() {
           </div>
           
           {/* Right Column - Map Card */}
-          <div>
-            <div className="rounded-xl h-96 relative overflow-hidden group">
+          <div className="order-first lg:order-last">
+            <div className="rounded-xl h-80 lg:h-96 relative overflow-hidden group w-full">
               <div 
                 className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700"
                 data-alt="Map of financial district in Lagos, Nigeria showing location of Crawdwall Capital"
@@ -153,32 +156,27 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Final CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900/50 my-16">
+      {/* Final CTA Section - Enhanced Responsiveness */}
+      <section className="py-16 sm:py-20 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900/50 my-12 sm:my-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
             Start Turning Your Event Into an Investment Today
           </h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 mb-10 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 sm:mb-10 max-w-2xl mx-auto">
             Join hundreds of creators, investors, and businesses who trust Crawdwall Capital to structure their event investments.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="#" className="px-8 py-4 bg-primary text-white font-bold rounded-lg shadow-lg hover:bg-primary-dark transition-colors">
+            <Link href="#" className="px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white font-bold rounded-lg shadow-lg hover:bg-primary-dark transition-colors min-w-[180px]">
               Apply for Funding
             </Link>
-            <Link href="#" className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-lg shadow hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors border border-slate-300 dark:border-slate-600">
+            <Link href="#" className="px-6 sm:px-8 py-3 sm:py-4 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold rounded-lg shadow hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors border border-slate-300 dark:border-slate-600 min-w-[180px]">
               Invest Now
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 text-center">
-        <p className="text-slate-600 dark:text-slate-400 text-sm">
-          © 2024 Crawdwall Capital. All rights reserved.
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }
