@@ -1,179 +1,321 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { proposalAPI, authAPI } from '@/lib/api';
-import { Proposal } from '@/types';
-import StatusBadge from '@/components/StatusBadge';
+import Link from 'next/link';
+import { useState } from 'react';
+import { Fragment } from 'react';
+import Head from 'next/head';
+import InvestorNavbar from '@/components/ui/InvestorNavbar';
+import Footer from '@/components/ui/Footer';
 
-export default function InvestorPortfolio() {
-  const router = useRouter();
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function InvestorPortfolioPage() {
+  const [expandedItems, setExpandedItems] = useState<number[]>([]);
 
-  useEffect(() => {
-    const fetchInvestorProposals = async () => {
-      try {
-        // For mock data, we'll get all proposals that are funded
-        const response = await proposalAPI.getAllProposals();
-        if (response.data.success) {
-          // Filter to only show funded proposals for the investor portfolio
-          const fundedProposals = (response.data.data || []).filter(
-            proposal => proposal.status === 'FUNDED'
-          );
-          setProposals(fundedProposals);
-        } else {
-          setError(response.data.message || 'Failed to fetch proposals');
-        }
-      } catch (err) {
-        setError('An error occurred while fetching portfolio data');
-        console.error('Error fetching investor portfolio:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInvestorProposals();
-  }, []);
-
-  const handleLogout = () => {
-    authAPI.logout();
-    router.push('/login');
+  const toggleAccordion = (index: number) => {
+    if (expandedItems.includes(index)) {
+      setExpandedItems(expandedItems.filter(item => item !== index));
+    } else {
+      setExpandedItems([...expandedItems, index]);
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading portfolio...</p>
-        </div>
-      </div>
-    );
-  }
+  // Mock data for portfolio
+  const portfolioItems = [
+    {
+      id: 1,
+      eventName: "Afrobeats Festival 2024",
+      eventDate: "June 15, 2024",
+      investmentAmount: "$15,000",
+      projectedReturn: "18%",
+      actualReturn: "$2,700",
+      status: "Active",
+      progress: 75,
+      category: "Music & Entertainment",
+      location: "Lagos, Nigeria"
+    },
+    {
+      id: 2,
+      eventName: "Tech Innovation Summit",
+      eventDate: "August 22, 2024",
+      investmentAmount: "$25,000",
+      projectedReturn: "22%",
+      actualReturn: "$3,200",
+      status: "Active",
+      progress: 30,
+      category: "Technology",
+      location: "Nairobi, Kenya"
+    },
+    {
+      id: 3,
+      eventName: "Cultural Heritage Expo",
+      eventDate: "March 10, 2024",
+      investmentAmount: "$10,000",
+      projectedReturn: "15%",
+      actualReturn: "$1,500",
+      status: "Completed",
+      progress: 100,
+      category: "Arts & Culture",
+      location: "Accra, Ghana"
+    },
+    {
+      id: 4,
+      eventName: "Food & Wine Festival",
+      eventDate: "October 5, 2024",
+      investmentAmount: "$8,000",
+      projectedReturn: "16%",
+      actualReturn: "$0",
+      status: "Upcoming",
+      progress: 10,
+      category: "Food & Beverage",
+      location: "Cape Town, South Africa"
+    }
+  ];
+
+  // Mock data for investment summary
+  const investmentSummary = {
+    totalInvested: "$58,000",
+    totalReturns: "$7,400",
+    netValue: "$65,400",
+    portfolioGrowth: "+12.7%"
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Investor Portfolio</h1>
-              <p className="text-gray-600">Track your funded creative events</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <nav className="flex space-x-4">
-                <a 
-                  href="/investor/dashboard" 
-                  className="text-gray-700 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Dashboard
-                </a>
-                <a 
-                  href="/investor/portfolio" 
-                  className="text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md text-sm font-medium bg-blue-100"
-                >
-                  Portfolio
-                </a>
-                <a 
-                  href="/investor/profile" 
-                  className="text-gray-700 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Profile
-                </a>
-              </nav>
-              <span className="text-gray-700">Investor Account</span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-              >
-                Logout
+    <Fragment>
+      <Head>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        />
+      </Head>
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-white">
+        <InvestorNavbar />
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Portfolio Overview */}
+          <section className="mb-12">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                Your Investment Portfolio
+              </h1>
+              <button className="px-4 py-2 bg-primary hover:bg-primary-dark rounded-lg text-white text-sm font-medium transition-colors">
+                Download Report
               </button>
             </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
-
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Summary</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="border rounded-lg p-4">
-              <p className="text-sm text-gray-500">Total Investments</p>
-              <p className="text-2xl font-bold text-gray-900">
-                ${proposals.reduce((sum, prop) => sum + prop.amount, 0).toLocaleString()}
-              </p>
+            
+            <p className="text-slate-400 mb-8">
+              Track the performance of your event investments and monitor returns.
+            </p>
+            
+            {/* Portfolio Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <p className="text-slate-400 text-sm mb-1">Total Invested</p>
+                <p className="text-2xl font-bold text-white">{investmentSummary.totalInvested}</p>
+              </div>
+              
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <p className="text-slate-400 text-sm mb-1">Total Returns</p>
+                <p className="text-2xl font-bold text-white">{investmentSummary.totalReturns}</p>
+              </div>
+              
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <p className="text-slate-400 text-sm mb-1">Net Portfolio Value</p>
+                <p className="text-2xl font-bold text-white">{investmentSummary.netValue}</p>
+              </div>
+              
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <p className="text-slate-400 text-sm mb-1">Portfolio Growth</p>
+                <p className="text-2xl font-bold text-green-500">{investmentSummary.portfolioGrowth}</p>
+              </div>
             </div>
-            <div className="border rounded-lg p-4">
-              <p className="text-sm text-gray-500">Active Projects</p>
-              <p className="text-2xl font-bold text-gray-900">{proposals.length}</p>
-            </div>
-            <div className="border rounded-lg p-4">
-              <p className="text-sm text-gray-500">Average Investment</p>
-              <p className="text-2xl font-bold text-gray-900">
-                ${proposals.length > 0 
-                  ? Math.round(proposals.reduce((sum, prop) => sum + prop.amount, 0) / proposals.length).toLocaleString() 
-                  : '0'}
-              </p>
-            </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">Funded Events</h2>
-          </div>
-
-          {proposals.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No funded events in your portfolio yet.</p>
-              <p className="text-gray-400 mt-2">Start exploring funding opportunities to build your portfolio.</p>
-            </div>
-          ) : (
-            <div className="bg-white shadow overflow-hidden sm:rounded-md">
-              <ul className="divide-y divide-gray-200">
-                {proposals.map((proposal) => (
-                  <li key={proposal.id}>
-                    <div className="px-4 py-4 sm:px-6 hover:bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-medium text-blue-600 truncate">
-                          {proposal.title}
-                        </div>
-                        <StatusBadge status={proposal.status} />
-                      </div>
-                      <div className="mt-2 sm:flex sm:justify-between">
-                        <div className="sm:flex">
-                          <div className="mr-6">
-                            <p className="text-sm text-gray-500">Organizer</p>
-                            <p className="text-sm text-gray-900">{proposal.organizerName}</p>
+          {/* Portfolio Table */}
+          <section className="mb-12">
+            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-white/10">
+                  <thead className="bg-white/5">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        Event
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        Investment
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        Projected Return
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        Actual Return
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        Progress
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {portfolioItems.map((item) => (
+                      <tr key={item.id} className="hover:bg-white/5">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-white">{item.eventName}</div>
+                            <div className="text-sm text-slate-400">{item.category} • {item.location}</div>
                           </div>
-                          <div className="mt-2 sm:mt-0">
-                            <p className="text-sm text-gray-500">Investment</p>
-                            <p className="text-sm text-gray-900">${proposal.amount.toLocaleString()}</p>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-white">{item.investmentAmount}</div>
+                          <div className="text-sm text-slate-400">{item.eventDate}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          {item.projectedReturn}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          {item.actualReturn}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            item.status === 'Active' ? 'bg-blue-500/20 text-blue-400' :
+                            item.status === 'Upcoming' ? 'bg-amber-500/20 text-amber-400' :
+                            'bg-green-500/20 text-green-400'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="w-24 mr-2">
+                              <div className="w-full bg-slate-700 rounded-full h-2">
+                                <div 
+                                  className="bg-primary h-2 rounded-full" 
+                                  style={{ width: `${item.progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            <span className="text-sm text-slate-400">{item.progress}%</span>
                           </div>
-                        </div>
-                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                          <p className="text-gray-900">
-                            {new Date(proposal.updatedAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <Link href={`/investor/portfolio/${item.id}`} className="text-primary hover:underline mr-4">
+                            Details
+                          </Link>
+                          <Link href="#" className="text-slate-400 hover:text-white">
+                            Documents
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
-        </div>
-      </main>
-    </div>
+          </section>
+
+          {/* Performance Chart Placeholder */}
+          <section className="mb-12">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <h2 className="text-xl font-bold text-white mb-6">Portfolio Performance</h2>
+              <div className="h-80 flex items-center justify-center bg-slate-900/50 rounded-lg">
+                <p className="text-slate-400">Performance chart visualization would appear here</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Recent Transactions */}
+          <section>
+            <h2 className="text-xl font-bold text-white mb-6">Recent Transactions</h2>
+            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+              <table className="min-w-full divide-y divide-white/10">
+                <thead className="bg-white/5">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      Event
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                      Afrobeats Festival 2024
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                      Return Payment
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-green-500">
+                      +$2,700
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                      May 15, 2024
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                        Completed
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                      Tech Innovation Summit
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                      Investment
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-500">
+                      -$25,000
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                      Mar 22, 2024
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+                        Active
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                      Cultural Heritage Expo
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                      Return Payment
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-green-500">
+                      +$1,500
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
+                      Apr 10, 2024
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                        Completed
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <Footer />
+      </div>
+    </Fragment>
   );
 }

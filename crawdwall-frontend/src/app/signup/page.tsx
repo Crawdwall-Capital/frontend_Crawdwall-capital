@@ -36,6 +36,7 @@ export default function SignupPage() {
       email: '',
       phone: '',
       password: '',
+      role: 'investor',
     },
   });
 
@@ -43,21 +44,17 @@ export default function SignupPage() {
     setIsLoading(true);
     setError(null);
 
-    // Validate role selection
-    if (!data.role) {
-      setError('Please select a role');
-      setIsLoading(false);
-      return;
-    }
+    // Set role to investor if not selected
+    const selectedRole = data.role || 'investor';
 
     // For testing purposes, simulate successful registration
     setTimeout(() => {
       // Store mock token and role
       localStorage.setItem('crawdwall_auth_token', 'mock-token');
-      localStorage.setItem('user_role', data.role);
+      localStorage.setItem('user_role', selectedRole);
 
       // Redirect based on selected role
-      if (data.role === 'organizer') {
+      if (selectedRole === 'organizer') {
         router.push('/organizer/dashboard');
       } else {
         router.push('/investor/dashboard');

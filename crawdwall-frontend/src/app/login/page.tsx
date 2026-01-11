@@ -35,6 +35,8 @@ export default function LoginPage() {
     },
   });
 
+  const [role, setRole] = useState<'organizer' | 'investor'>('investor');
+
   const onSubmit = (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
@@ -44,9 +46,13 @@ export default function LoginPage() {
       // Store mock token and role
       localStorage.setItem('crawdwall_auth_token', 'mock-token');
       
-      // For testing, we'll default to organizer role
-      localStorage.setItem('user_role', 'organizer');
-      router.push('/organizer/dashboard');
+      // Store selected role
+      localStorage.setItem('user_role', role);
+      if (role === 'organizer') {
+        router.push('/organizer/dashboard');
+      } else {
+        router.push('/investor/dashboard');
+      }
       
       setIsLoading(false);
     }, 1000);
@@ -66,7 +72,7 @@ export default function LoginPage() {
               Sign in to your account
             </h2>
             <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-300">
-              Access your {`{organizer/investor}`} account
+              Access your organizer or investor account
             </p>
           </div>
         </div>
@@ -109,6 +115,25 @@ export default function LoginPage() {
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
                   )}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Login As
+                </label>
+                <div className="mt-1">
+                  <select
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value as 'organizer' | 'investor')}
+                    className={`appearance-none block w-full px-3 py-2 border ${
+                      'border-slate-300 dark:border-slate-600'
+                    } rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-slate-900 dark:text-white dark:bg-slate-700`}
+                  >
+                    <option value="investor">Investor</option>
+                    <option value="organizer">Event Organizer</option>
+                  </select>
                 </div>
               </div>
 

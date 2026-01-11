@@ -1,66 +1,19 @@
-'use client';
+import { Fragment } from 'react';
+import type { Metadata } from 'next';
 
-import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { authAPI } from '@/lib/api';
+export const metadata: Metadata = {
+  title: 'Investor Dashboard | Crawdwall Capital',
+  description: 'Access your event investment portfolio and opportunities on Crawdwall Capital',
+};
 
 export default function InvestorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-
-        const token = localStorage.getItem('crawdwall_auth_token');
-        const role = localStorage.getItem('user_role');
-        
-        if (token && role === 'investor') {
-          setUserRole('investor');
-        } else {
-
-          router.push('/login');
-        }
-      } catch (error) {
-        console.error('Auth check error:', error);
-        router.push('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    
-    if (pathname !== '/login') {
-      checkAuth();
-    } else {
-      setLoading(false);
-    }
-  }, [router, pathname]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (userRole !== 'investor' && pathname !== '/login') {
-    return null; 
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Fragment>
       {children}
-    </div>
+    </Fragment>
   );
 }
