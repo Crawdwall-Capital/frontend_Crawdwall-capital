@@ -132,7 +132,7 @@ export default function LoginPage() {
                     } rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-slate-900 dark:text-white dark:bg-slate-700`}
                   >
                     <option value="investor">Investor</option>
-                    <option value="organizer">Event Organizer</option>
+                    <option value="organizer">Organizer</option>
                   </select>
                 </div>
               </div>

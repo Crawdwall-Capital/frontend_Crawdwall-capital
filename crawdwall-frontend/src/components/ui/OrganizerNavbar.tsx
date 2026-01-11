@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-export default function InvestorNavbar() {
+export default function OrganizerNavbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
@@ -32,9 +32,9 @@ export default function InvestorNavbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
           <Link 
-            href="/investor/dashboard" 
+            href="/organizer/dashboard" 
             className={`text-sm font-medium transition-colors ${
-              isActive('/investor/dashboard') 
+              isActive('/organizer/dashboard') 
                 ? 'text-primary' 
                 : 'text-text-secondary hover:text-white'
             }`}
@@ -42,34 +42,34 @@ export default function InvestorNavbar() {
             Dashboard
           </Link>
           <Link 
-            href="/investor/portfolio" 
+            href="/organizer/proposals" 
             className={`text-sm font-medium transition-colors ${
-              isActive('/investor/portfolio') 
+              isActive('/organizer/proposals') 
                 ? 'text-primary' 
                 : 'text-text-secondary hover:text-white'
             }`}
           >
-            Portfolio
+            My Proposals
           </Link>
           <Link 
-            href="/investor/opportunities" 
+            href="/organizer/proposals/new" 
             className={`text-sm font-medium transition-colors ${
-              isActive('/investor/opportunities') 
+              isActive('/organizer/proposals/new') 
                 ? 'text-primary' 
                 : 'text-text-secondary hover:text-white'
             }`}
           >
-            Opportunities
+            Submit Proposal
           </Link>
           <Link 
-            href="/investor/profile" 
+            href="/organizer/notifications" 
             className={`text-sm font-medium transition-colors ${
-              isActive('/investor/profile') 
+              isActive('/organizer/notifications') 
                 ? 'text-primary' 
                 : 'text-text-secondary hover:text-white'
             }`}
           >
-            Profile
+            Notifications
           </Link>
         </div>
         
@@ -109,9 +109,9 @@ export default function InvestorNavbar() {
         <div className="md:hidden bg-[#111822]/90 backdrop-blur-md border-t border-white/10">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link 
-              href="/investor/dashboard" 
+              href="/organizer/dashboard" 
               className={`block px-3 py-2 rounded-md text-base font-medium ${
-                isActive('/investor/dashboard') 
+                isActive('/organizer/dashboard') 
                   ? 'text-primary bg-white/10' 
                   : 'text-text-secondary hover:text-white hover:bg-white/5'
               }`}
@@ -120,37 +120,37 @@ export default function InvestorNavbar() {
               Dashboard
             </Link>
             <Link 
-              href="/investor/portfolio" 
+              href="/organizer/proposals" 
               className={`block px-3 py-2 rounded-md text-base font-medium ${
-                isActive('/investor/portfolio') 
+                isActive('/organizer/proposals') 
                   ? 'text-primary bg-white/10' 
                   : 'text-text-secondary hover:text-white hover:bg-white/5'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
-              Portfolio
+              My Proposals
             </Link>
             <Link 
-              href="/investor/opportunities" 
+              href="/organizer/proposals/new" 
               className={`block px-3 py-2 rounded-md text-base font-medium ${
-                isActive('/investor/opportunities') 
+                isActive('/organizer/proposals/new') 
                   ? 'text-primary bg-white/10' 
                   : 'text-text-secondary hover:text-white hover:bg-white/5'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
-              Opportunities
+              Submit Proposal
             </Link>
             <Link 
-              href="/investor/profile" 
+              href="/organizer/notifications" 
               className={`block px-3 py-2 rounded-md text-base font-medium ${
-                isActive('/investor/profile') 
+                isActive('/organizer/notifications') 
                   ? 'text-primary bg-white/10' 
                   : 'text-text-secondary hover:text-white hover:bg-white/5'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
-              Profile
+              Notifications
             </Link>
             <button 
               onClick={() => {
