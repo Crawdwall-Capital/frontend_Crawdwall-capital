@@ -1,14 +1,16 @@
+'use client';
+
 import { useState } from 'react';
 
-export default function OfficerProfilePage() {
+export default function AdminProfilePage() {
   const [activeTab, setActiveTab] = useState('profile');
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Officer Profile</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Profile</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Manage your profile and account settings
+          Manage your profile and administrative privileges
         </p>
       </div>
 
@@ -54,7 +56,7 @@ export default function OfficerProfilePage() {
                     id="first-name"
                     autoComplete="given-name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="John"
+                    defaultValue="Admin"
                   />
                 </div>
 
@@ -68,7 +70,7 @@ export default function OfficerProfilePage() {
                     id="last-name"
                     autoComplete="family-name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="Doe"
+                    defaultValue="User"
                   />
                 </div>
 
@@ -82,20 +84,21 @@ export default function OfficerProfilePage() {
                     id="email"
                     autoComplete="email"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="john@example.com"
+                    defaultValue="admin@crawdwall.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Phone
+                  <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Role
                   </label>
                   <input
-                    type="tel"
-                    name="phone"
-                    id="phone"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="+1 (555) 123-4567"
+                    type="text"
+                    name="role"
+                    id="role"
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white bg-gray-100 dark:bg-gray-700"
+                    defaultValue="Administrator"
                   />
                 </div>
 
@@ -108,7 +111,7 @@ export default function OfficerProfilePage() {
                     name="bio"
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="Financial officer specializing in event investments and risk assessment."
+                    defaultValue="Platform administrator with full control and oversight privileges."
                   ></textarea>
                 </div>
               </div>
@@ -131,33 +134,33 @@ export default function OfficerProfilePage() {
 
           {activeTab === 'settings' && (
             <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-6">Account Settings</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-6">Administrative Settings</h3>
               <div className="space-y-6">
                 <div className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Email notifications</h4>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Access Logs</h4>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      Receive emails about proposals needing your review
+                      Enable detailed logging of admin actions
                     </p>
                   </div>
                   <button
                     type="button"
-                    className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-gray-200 dark:bg-gray-600"
+                    className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-blue-600"
                     role="switch"
-                    aria-checked="false"
+                    aria-checked="true"
                   >
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 translate-x-0"
+                      className="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 translate-x-5"
                     ></span>
                   </button>
                 </div>
 
                 <div className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Proposal alerts</h4>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Auto-backup</h4>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      Get notified when new proposals are submitted
+                      Automatically backup system data daily
                     </p>
                   </div>
                   <button
@@ -175,20 +178,20 @@ export default function OfficerProfilePage() {
 
                 <div className="flex items-center justify-between py-4">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Vote reminders</h4>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Alerts & Notifications</h4>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      Receive reminders for proposals awaiting your vote
+                      Receive alerts for critical system events
                     </p>
                   </div>
                   <button
                     type="button"
-                    className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-blue-600"
+                    className="relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-gray-200 dark:bg-gray-600"
                     role="switch"
-                    aria-checked="true"
+                    aria-checked="false"
                   >
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 translate-x-5"
+                      className="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 translate-x-0"
                     ></span>
                   </button>
                 </div>

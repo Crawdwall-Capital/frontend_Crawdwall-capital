@@ -176,7 +176,7 @@ export default function LoginPage() {
               <div className="mt-4 text-center">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   Admin?{' '}
-                  <Link href="/admin/login" className="font-medium text-primary hover:text-primary-dark">
+                  <Link href="/admin-login" className="font-medium text-primary hover:text-primary-dark">
                     Admin login
                   </Link>
                 </p>

@@ -51,7 +51,7 @@ export const ROUTES = {
   LOGIN: '/login',
   
   // Admin routes
-  ADMIN_LOGIN: '/admin/login',
+  ADMIN_LOGIN: '/admin-login',
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_PROPOSALS: '/admin/proposals',
   ADMIN_PROPOSAL_DETAIL: (id: string) => `/admin/proposals/${id}`,

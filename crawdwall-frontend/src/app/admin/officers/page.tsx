@@ -1,273 +1,351 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { authAPI } from '@/lib/api';
-import { User } from '@/types';
+import Link from 'next/link';
+import { useState } from 'react';
 
-export default function OfficerManagement() {
-  const router = useRouter();
-  const [officers, setOfficers] = useState<User[]>([]);
-  const [filteredOfficers, setFilteredOfficers] = useState<User[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedOfficer, setSelectedOfficer] = useState<User | null>(null);
-  const [showPopup, setShowPopup] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function AdminOfficersPage() {
+  const [showAddOfficerModal, setShowAddOfficerModal] = useState(false);
+  // Mock data for officers
+  const officers = [
+    {
+      id: '1',
+      name: 'Alice Johnson',
+      email: 'alice@example.com',
+      status: 'Active',
+      lastLogin: '2023-11-20',
+      assignedProposals: 12,
+      reviewsCompleted: 8,
+    },
+    {
+      id: '2',
+      name: 'Bob Smith',
+      email: 'bob@example.com',
+      status: 'Active',
+      lastLogin: '2023-11-19',
+      assignedProposals: 15,
+      reviewsCompleted: 14,
+    },
+    {
+      id: '3',
+      name: 'Carol Davis',
+      email: 'carol@example.com',
+      status: 'Suspended',
+      lastLogin: '2023-11-15',
+      assignedProposals: 5,
+      reviewsCompleted: 3,
+    },
+    {
+      id: '4',
+      name: 'David Wilson',
+      email: 'david@example.com',
+      status: 'Active',
+      lastLogin: '2023-11-20',
+      assignedProposals: 8,
+      reviewsCompleted: 7,
+    },
+  ];
 
-  useEffect(() => {
-    const fetchOfficers = async () => {
-      try {
-        // Fetch mock officers from the data.ts file
-        const { mockOfficers } = await import('@/__mocks__/data');
-        
-        setOfficers(mockOfficers);
-        setFilteredOfficers(mockOfficers);
-      } catch (err) {
-        setError('An error occurred while fetching officers');
-        console.error('Error fetching officers:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOfficers();
-  }, []);
-
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = officers.filter(officer => 
-        officer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        officer.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredOfficers(filtered);
-    } else {
-      setFilteredOfficers(officers);
-    }
-  }, [searchTerm, officers]);
-
-  const handleOfficerClick = (officer: User) => {
-    setSelectedOfficer(officer);
-    setShowPopup(true);
-  };
-
-  const handleEditOfficer = () => {
-    if (selectedOfficer) {
-      // In a real app, this would navigate to an edit form
-      alert(`Editing officer: ${selectedOfficer.name}`);
-      setShowPopup(false);
-    }
-  };
-
-  const handleDeleteOfficer = () => {
-    if (selectedOfficer) {
-      if (window.confirm(`Are you sure you want to delete ${selectedOfficer.name}?`)) {
-        // In a real app, this would make an API call to delete the officer
-        const updatedOfficers = officers.filter(officer => officer.id !== selectedOfficer.id);
-        setOfficers(updatedOfficers);
-        setFilteredOfficers(updatedOfficers);
-        setShowPopup(false);
-      }
-    }
-  };
-
-  const handleAddOfficer = () => {
-    // In a real app, this would navigate to an add officer form
-    alert('Add new officer form would open here');
-  };
-
-  const handleLogout = () => {
-    authAPI.logout();
-    router.push('/login');
-  };
-
-  const handleBackToDashboard = () => {
-    router.push('/admin/dashboard');
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading officers...</p>
-        </div>
-      </div>
-    );
-  }
+  // For demonstration purposes, we'll use all officers
+  // In a real app, you would filter based on state
+  const filteredOfficers = officers;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Officer Management</h1>
-              <p className="text-gray-600">Manage platform officers</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleBackToDashboard}
-                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-          </div>
+    <>
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Officers</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Create, suspend, or remove officers and assign voting privileges
+          </p>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
-
-        <div className="bg-white shadow rounded-lg p-6 mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Manage Officers</h2>
-            <button
-              onClick={handleAddOfficer}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Officers List</h3>
+            <button 
+              onClick={() => setShowAddOfficerModal(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Add New Officer
             </button>
           </div>
-
-          <div className="mb-6">
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-              Search Officers
-            </label>
-            <input
-              type="text"
-              id="search"
-              placeholder="Search by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+          
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {filteredOfficers.length > 0 ? (
+              filteredOfficers.map((officer) => (
+                <div key={officer.id} className="px-6 py-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                            <span className="text-gray-700 dark:text-gray-300 font-medium">
+                              {officer.name.charAt(0)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-base font-medium text-gray-900 dark:text-white">
+                            {officer.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {officer.email}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <span>Last login: {officer.lastLogin}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          officer.status === 'Active' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                          {officer.status}
+                        </span>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {officer.reviewsCompleted}/{officer.assignedProposals} reviews
+                        </div>
+                        <div className="flex space-x-2">
+                          <Link
+                            href={`/admin/officers/${officer.id}/edit`}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            Edit
+                          </Link>
+                          <button className="text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300">
+                            {officer.status === 'Active' ? 'Suspend' : 'Activate'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="px-6 py-12 text-center">
+                <p className="text-gray-500 dark:text-gray-400">No officers found</p>
+              </div>
+            )}
           </div>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Join Date
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOfficers.map((officer) => (
-                  <tr key={officer.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {officer.name || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {officer.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {officer.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(officer.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button
-                        onClick={() => handleOfficerClick(officer)}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredOfficers.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No officers found matching your search.</p>
-            </div>
-          )}
         </div>
-      </main>
 
-      {/* Officer Detail Popup */}
-      {showPopup && selectedOfficer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-            <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-medium text-gray-900">Officer Details</h3>
-            </div>
-            <div className="px-6 py-4">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedOfficer.name || 'N/A'}</p>
+        {/* Officer Privileges Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Officer Privileges</h3>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="voting-privilege"
+                    name="voting-privilege"
+                    type="checkbox"
+                    checked={true}
+                    readOnly
+                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
-                  <p className="mt-1 text-sm text-gray-900">{selectedOfficer.email}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Role</label>
-                  <p className="mt-1 text-sm text-gray-900 capitalize">{selectedOfficer.role}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Join Date</label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {new Date(selectedOfficer.createdAt).toLocaleDateString()}
+                <div className="ml-3 text-sm">
+                  <label htmlFor="voting-privilege" className="font-medium text-gray-700 dark:text-gray-300">
+                    Voting Privileges
+                  </label>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Allow officers to vote on proposals
                   </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Last Updated</label>
-                  <p className="mt-1 text-sm text-gray-900">
-                    {new Date(selectedOfficer.updatedAt).toLocaleDateString()}
+              </div>
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="review-privilege"
+                    name="review-privilege"
+                    type="checkbox"
+                    checked={true}
+                    readOnly
+                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="review-privilege" className="font-medium text-gray-700 dark:text-gray-300">
+                    Review Privileges
+                  </label>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Allow officers to submit reviews on proposals
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="access-privilege"
+                    name="access-privilege"
+                    type="checkbox"
+                    checked={true}
+                    readOnly
+                    className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="access-privilege" className="font-medium text-gray-700 dark:text-gray-300">
+                    Platform Access
+                  </label>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Grant access to officer dashboard and features
                   </p>
                 </div>
               </div>
             </div>
-            <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowPopup(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-              >
-                Close
-              </button>
-              <button
-                onClick={handleEditOfficer}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-              >
-                Edit
-              </button>
-              <button
-                onClick={handleDeleteOfficer}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-              >
-                Delete
-              </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal for adding new officer */}
+      {showAddOfficerModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={() => setShowAddOfficerModal(false)}></div>
+            
+            <div className="relative inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle dark:bg-gray-800">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 w-full text-center sm:mt-0 sm:text-left">
+                    <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
+                      Add New Officer
+                    </h3>
+                    <div className="mt-4 w-full">
+                      <form className="space-y-6">
+                        <div>
+                          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Full Name
+                          </label>
+                          <input
+                            type="text"
+                            id="name"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            placeholder="Enter officer's full name"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Email Address
+                          </label>
+                          <input
+                            type="email"
+                            id="email"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            placeholder="Enter officer's email"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Password
+                          </label>
+                          <input
+                            type="password"
+                            id="password"
+                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                            placeholder="Enter password"
+                          />
+                        </div>
+                        <div className="pt-4">
+                          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                            Assign Privileges
+                          </h4>
+                          <div className="space-y-3">
+                            <div className="flex items-start">
+                              <div className="flex items-center h-5">
+                                <input
+                                  id="new-voting-privilege"
+                                  name="new-voting-privilege"
+                                  type="checkbox"
+                                  defaultChecked={true}
+                                  className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                                />
+                              </div>
+                              <div className="ml-3 text-sm">
+                                <label htmlFor="new-voting-privilege" className="font-medium text-gray-700 dark:text-gray-300">
+                                  Voting Privileges
+                                </label>
+                                <p className="text-gray-500 dark:text-gray-400">
+                                  Allow officer to vote on proposals
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-start">
+                              <div className="flex items-center h-5">
+                                <input
+                                  id="new-review-privilege"
+                                  name="new-review-privilege"
+                                  type="checkbox"
+                                  defaultChecked={true}
+                                  className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                                />
+                              </div>
+                              <div className="ml-3 text-sm">
+                                <label htmlFor="new-review-privilege" className="font-medium text-gray-700 dark:text-gray-300">
+                                  Review Privileges
+                                </label>
+                                <p className="text-gray-500 dark:text-gray-400">
+                                  Allow officer to submit reviews on proposals
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-start">
+                              <div className="flex items-center h-5">
+                                <input
+                                  id="new-access-privilege"
+                                  name="new-access-privilege"
+                                  type="checkbox"
+                                  defaultChecked={true}
+                                  className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
+                                />
+                              </div>
+                              <div className="ml-3 text-sm">
+                                <label htmlFor="new-access-privilege" className="font-medium text-gray-700 dark:text-gray-300">
+                                  Platform Access
+                                </label>
+                                <p className="text-gray-500 dark:text-gray-400">
+                                  Grant access to officer dashboard and features
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-700">
+                <button
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => {
+                    // TODO: Implement actual officer creation
+                    console.log('Creating new officer');
+                    setShowAddOfficerModal(false);
+                  }}
+                >
+                  Create Officer
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-white dark:border-gray-500 dark:hover:bg-gray-500"
+                  onClick={() => setShowAddOfficerModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

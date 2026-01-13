@@ -1,131 +1,168 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { proposalAPI, authAPI } from '@/lib/api';
-import { Proposal } from '@/types';
+import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
 
-export default function OfficerDashboard() {
-  const router = useRouter();
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function OfficerDashboardPage() {
+  // Mock data for stats
+  const stats = [
+    { name: 'Total Proposals', value: 24, icon: 'description', color: 'blue' },
+    { name: 'Awaiting Review', value: 8, icon: 'hourglass_top', color: 'yellow' },
+    { name: 'Reviewed', value: 12, icon: 'check_circle', color: 'green' },
+    { name: 'Pending Votes', value: 4, icon: 'how_to_vote', color: 'purple' },
+  ];
 
-  useEffect(() => {
-    const fetchProposals = async () => {
-      try {
-        // For mock data, we'll get all proposals for officers to review
-        const response = await proposalAPI.getAllProposals();
-        if (response.data.success) {
-          setProposals(response.data.data || []);
-        } else {
-          setError(response.data.message || 'Failed to fetch proposals');
-        }
-      } catch (err) {
-        setError('An error occurred while fetching proposals');
-        console.error('Error fetching proposals:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Mock data for recent proposals
+  const recentProposals = [
+    {
+      id: '1',
+      title: 'Music Festival Funding',
+      status: 'Under Review',
+      date: '2023-11-15',
+      amount: '$50,000',
+    },
+    {
+      id: '2',
+      title: 'Tech Conference Proposal',
+      status: 'Submitted',
+      date: '2023-11-20',
+      amount: '$30,000',
+    },
+    {
+      id: '3',
+      title: 'Art Exhibition Fundraising',
+      status: 'Under Review',
+      date: '2023-11-25',
+      amount: '$25,000',
+    },
+    {
+      id: '4',
+      title: 'Food Festival Investment',
+      status: 'Submitted',
+      date: '2023-11-10',
+      amount: '$40,000',
+    },
+  ];
 
-    fetchProposals();
-  }, []);
-
-  const handleLogout = () => {
-    authAPI.logout();
-    router.push('/login');
+  // Function to get color classes based on color name
+  const getColorClasses = (color: string) => {
+    switch(color) {
+      case 'blue': return 'bg-blue-100 text-blue-600';
+      case 'yellow': return 'bg-yellow-100 text-yellow-600';
+      case 'green': return 'bg-green-100 text-green-600';
+      case 'red': return 'bg-red-100 text-red-600';
+      case 'purple': return 'bg-purple-100 text-purple-600';
+      default: return 'bg-gray-100 text-gray-600';
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Officer Dashboard</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
+          Evaluate, vote on, and review event funding proposals
+        </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
+                  <span className="text-gray-600 dark:text-gray-300 material-symbols-outlined">
+                    {stat.icon}
+                  </span>
+                </div>
+              </div>
+              <div className="ml-4 w-0 flex-1">
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                  {stat.name}
+                </dt>
+                <dd className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
+                  {stat.value}
+                </dd>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Recent Proposals */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Recent Proposals</h3>
+              <Link
+                href="/officer/proposals"
+                className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                View All
+              </Link>
+            </div>
+          </div>
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {recentProposals.map((proposal) => (
+              <div key={proposal.id} className="px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {proposal.title}
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <StatusBadge status={proposal.status} />
+                    <Link
+                      href={`/officer/proposals/${proposal.id}`}
+                      className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      Review
+                    </Link>
+                  </div>
+                </div>
+                <div className="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                  <span>{proposal.date}</span>
+                  <span>{proposal.amount}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h3>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 gap-4">
+              <Link
+                href="/officer/proposals"
+                className="flex items-center p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                  <span className="text-blue-600 dark:text-blue-400 material-symbols-outlined">visibility</span>
+                </div>
+                <div className="ml-4">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">Review Proposals</h4>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">View and evaluate submitted proposals</p>
+                </div>
+              </Link>
+              <Link
+                href="/officer/votes"
+                className="flex items-center p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                  <span className="text-purple-600 dark:text-purple-400 material-symbols-outlined">how_to_vote</span>
+                </div>
+                <div className="ml-4">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white">Vote on Proposals</h4>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Submit your vote for pending proposals</p>
+                </div>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Officer Dashboard</h1>
-              <p className="text-gray-600">Review and manage funding proposals</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Officer Account</span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
-
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">Proposals</h2>
-          </div>
-
-          {proposals.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No proposals available at the moment.</p>
-              <p className="text-gray-400 mt-2">Check back later for new proposals to review.</p>
-            </div>
-          ) : (
-            <div className="bg-white shadow overflow-hidden sm:rounded-md">
-              <ul className="divide-y divide-gray-200">
-                {proposals.map((proposal) => (
-                  <li key={proposal.id}>
-                    <div className="px-4 py-4 sm:px-6 hover:bg-gray-50">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-medium text-blue-600 truncate">
-                          {proposal.title}
-                        </div>
-                        <StatusBadge status={proposal.status} />
-                      </div>
-                      <div className="mt-2 sm:flex sm:justify-between">
-                        <div className="sm:flex">
-                          <div className="mr-6">
-                            <p className="text-sm text-gray-500">Organizer</p>
-                            <p className="text-sm text-gray-900">{proposal.organizerName}</p>
-                          </div>
-                          <div className="mt-2 sm:mt-0">
-                            <p className="text-sm text-gray-500">Amount</p>
-                            <p className="text-sm text-gray-900">${proposal.amount.toLocaleString()}</p>
-                          </div>
-                        </div>
-                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                          <p className="text-gray-900">
-                            {new Date(proposal.updatedAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </main>
     </div>
   );
 }

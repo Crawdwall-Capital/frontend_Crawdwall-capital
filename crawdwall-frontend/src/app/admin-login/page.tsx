@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
 import { authAPI } from '@/lib/api';
+import Navbar from '@/components/ui/Navbar';
 
 // ====================
 // Schema
@@ -107,7 +107,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-white flex flex-col">
-      <Navbar />
+        <Navbar/>
       
       <div className="flex-grow flex items-center justify-center m-0 p-0">
         <div className="w-full max-w-md m-0 p-0">
