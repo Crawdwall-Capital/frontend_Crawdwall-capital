@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { Fragment } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
+import { mockAPI } from '@/__mocks__/data';
 import InvestorNavbar from '@/components/ui/InvestorNavbar';
 import Footer from '@/components/ui/Footer';
 
@@ -18,61 +18,99 @@ export default function InvestorDashboardPage() {
     }
   };
 
-  // Mock data for portfolio
-  const portfolioItems = [
-    {
-      id: 1,
-      eventName: "Afrobeats Festival 2024",
-      investmentAmount: "$15,000",
-      projectedReturn: "18%",
-      status: "Active",
-      progress: 75
-    },
-    {
-      id: 2,
-      eventName: "Tech Innovation Summit",
-      investmentAmount: "$25,000",
-      projectedReturn: "22%",
-      status: "Upcoming",
-      progress: 30
-    },
-    {
-      id: 3,
-      eventName: "Cultural Heritage Expo",
-      investmentAmount: "$10,000",
-      projectedReturn: "15%",
-      status: "Completed",
-      progress: 100
-    }
-  ];
+  const [userName, setUserName] = useState<string>('Investor');
+  const [portfolioItems, setPortfolioItems] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    totalInvested: 0,
+    totalReturns: 0,
+    activeEvents: 0,
+    pendingReturns: 0
+  });
+  const [opportunities, setOpportunities] = useState<any[]>([]);
 
-  // Mock data for recent activity
-  const recentActivity = [
-    {
-      id: 1,
-      title: "New Investment Opportunity",
-      description: "Afrobeats Festival 2024 is now available for investment",
-      date: "2 hours ago",
-      type: "opportunity"
-    },
-    {
-      id: 2,
-      title: "Investment Return",
-      description: "Received $2,700 return from Tech Innovation Summit",
-      date: "1 day ago",
-      type: "return"
-    },
-    {
-      id: 3,
-      title: "Event Update",
-      description: "Cultural Heritage Expo reached 80% capacity",
-      date: "2 days ago",
-      type: "update"
-    }
-  ];
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Using the mock API to get current user
+        const response: any = await mockAPI.getCurrentUser();
+        if (response.success && response.data) {
+          setUserName(response.data.name || 'Investor');
+          
+          // Fetch user-specific data
+          const userId = response.data.id;
+          const portfolioResponse: any = await mockAPI.getInvestorPortfolio(userId);
+          
+          if (portfolioResponse.success) {
+            // Convert portfolio items to the format expected by the UI
+            const portfolio = portfolioResponse.data.map((item: any) => ({
+              id: item.id,
+              eventName: item.eventName,
+              investmentAmount: `$${item.investmentAmount.toLocaleString()}`,
+              projectedReturn: item.projectedReturn,
+              status: item.currentStatus,
+              progress: item.progress
+            }));
+            setPortfolioItems(portfolio);
+          }
+          
+          // Fetch recent activities
+          const auditLogResponse: any = await mockAPI.getAuditLogs();
+          if (auditLogResponse.success) {
+            const activities = auditLogResponse.data.slice(0, 5).map((log: any, index: number) => ({
+              id: log.id,
+              title: log.action,
+              description: log.details,
+              date: log.timestamp,
+              type: log.action.toLowerCase().includes('proposal') ? 'opportunity' : 
+                     log.action.toLowerCase().includes('return') ? 'return' : 'update'
+            }));
+            setRecentActivity(activities);
+          }
+          
+          // Fetch investment opportunities
+          const allProposalsResponse: any = await mockAPI.getAllProposals();
+          if (allProposalsResponse.success) {
+            const opportunityList = allProposalsResponse.data
+              .filter((proposal: any) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW')
+              .slice(0, 3)
+              .map((proposal: any) => ({
+                id: proposal.id,
+                title: proposal.title,
+                description: proposal.description,
+                minInvestment: `$${Math.floor(proposal.amount * 0.1).toLocaleString()}`,
+                projectedReturn: `${Math.floor(Math.random() * 10) + 15}-${Math.floor(Math.random() * 10) + 20}%`,
+                duration: `${Math.floor(Math.random() * 12) + 6} months`,
+                riskLevel: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)]
+              }));
+            setOpportunities(opportunityList);
+          }
+          
+          // Calculate stats
+          const fundedProposals = allProposalsResponse.data.filter((p: any) => p.status === 'FUNDED');
+          const totalInvested = fundedProposals.reduce((sum: number, p: any) => sum + p.amount, 0);
+          const activeEvents = fundedProposals.length;
+          
+          setStats({
+            totalInvested,
+            totalReturns: Math.floor(totalInvested * 0.15), // Assuming 15% return rate
+            activeEvents,
+            pendingReturns: 0
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Fallback to a default name
+        setUserName('Investor');
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
-    <Fragment>
+    <>
       <Head>
         <link
           rel="stylesheet"
@@ -86,7 +124,7 @@ export default function InvestorDashboardPage() {
           {/* Welcome Section */}
           <section className="mb-12">
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Welcome back, Investor!
+              Welcome back, {userName}!
             </h1>
             <p className="text-slate-400">
               Here's what's happening with your event investments today.
@@ -102,7 +140,7 @@ export default function InvestorDashboardPage() {
                 </div>
                 <div>
                   <p className="text-slate-400 text-sm">Total Invested</p>
-                  <p className="text-2xl font-bold text-white">$50,000</p>
+                  <p className="text-2xl font-bold text-white">${stats.totalInvested.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -114,7 +152,7 @@ export default function InvestorDashboardPage() {
                 </div>
                 <div>
                   <p className="text-slate-400 text-sm">Total Returns</p>
-                  <p className="text-2xl font-bold text-white">$8,450</p>
+                  <p className="text-2xl font-bold text-white">${stats.totalReturns.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -126,7 +164,7 @@ export default function InvestorDashboardPage() {
                 </div>
                 <div>
                   <p className="text-slate-400 text-sm">Active Events</p>
-                  <p className="text-2xl font-bold text-white">2</p>
+                  <p className="text-2xl font-bold text-white">{stats.activeEvents}</p>
                 </div>
               </div>
             </div>
@@ -138,7 +176,7 @@ export default function InvestorDashboardPage() {
                 </div>
                 <div>
                   <p className="text-slate-400 text-sm">Pending Returns</p>
-                  <p className="text-2xl font-bold text-white">$2,300</p>
+                  <p className="text-2xl font-bold text-white">${stats.pendingReturns.toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -164,9 +202,13 @@ export default function InvestorDashboardPage() {
                         <p className="text-sm text-slate-400">Invested: {item.investmentAmount}</p>
                       </div>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        item.status === 'Active' ? 'bg-blue-500/20 text-blue-400' :
-                        item.status === 'Upcoming' ? 'bg-amber-500/20 text-amber-400' :
-                        'bg-green-500/20 text-green-400'
+                        item.status === 'FUNDED' ? 'bg-green-500/20 text-green-400' :
+                        item.status === 'SUBMITTED' ? 'bg-blue-500/20 text-blue-400' :
+                        item.status === 'IN_REVIEW' ? 'bg-amber-500/20 text-amber-400' :
+                        item.status === 'VETTED' ? 'bg-purple-500/20 text-purple-400' :
+                        item.status === 'CALLBACK' ? 'bg-indigo-500/20 text-indigo-400' :
+                        item.status === 'REJECTED' ? 'bg-red-500/20 text-red-400' :
+                        'bg-gray-500/20 text-gray-400'
                       }`}>
                         {item.status}
                       </span>
@@ -218,7 +260,7 @@ export default function InvestorDashboardPage() {
                     <div className="flex-1">
                       <h3 className="font-medium text-white">{activity.title}</h3>
                       <p className="text-sm text-slate-400">{activity.description}</p>
-                      <p className="text-xs text-slate-500 mt-1">{activity.date}</p>
+                      <p className="text-xs text-slate-500 mt-1">{new Date(activity.date).toLocaleDateString()}</p>
                     </div>
                   </div>
                 ))}
@@ -236,113 +278,46 @@ export default function InvestorDashboardPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Opportunity 1 */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold text-white">Music & Culture Festival</h3>
-                  <span className="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full">
-                    New
-                  </span>
+              {opportunities.map((opportunity) => (
+                <div key={opportunity.id} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-bold text-white">{opportunity.title}</h3>
+                    <span className="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full">
+                      New
+                    </span>
+                  </div>
+                  <p className="text-slate-400 text-sm mb-4">
+                    {opportunity.description}
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-slate-400 text-xs">Min. Investment</p>
+                      <p className="text-white font-medium">{opportunity.minInvestment}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 text-xs">Projected Return</p>
+                      <p className="text-white font-medium">{opportunity.projectedReturn}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 text-xs">Duration</p>
+                      <p className="text-white font-medium">{opportunity.duration}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 text-xs">Risk Level</p>
+                      <p className="text-white font-medium">{opportunity.riskLevel}</p>
+                    </div>
+                  </div>
+                  <button className="w-full py-2 bg-primary hover:bg-primary-dark rounded-lg text-white text-sm font-medium transition-colors">
+                    Invest Now
+                  </button>
                 </div>
-                <p className="text-slate-400 text-sm mb-4">
-                  Major music festival featuring top Afrobeats artists with expected attendance of 50,000.
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-slate-400 text-xs">Min. Investment</p>
-                    <p className="text-white font-medium">$5,000</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Projected Return</p>
-                    <p className="text-white font-medium">20-25%</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Duration</p>
-                    <p className="text-white font-medium">12 months</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Risk Level</p>
-                    <p className="text-white font-medium">Medium</p>
-                  </div>
-                </div>
-                <button className="w-full py-2 bg-primary hover:bg-primary-dark rounded-lg text-white text-sm font-medium transition-colors">
-                  Invest Now
-                </button>
-              </div>
-              
-              {/* Opportunity 2 */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold text-white">Tech Innovation Summit</h3>
-                  <span className="bg-blue-500/20 text-blue-400 text-xs px-2 py-1 rounded-full">
-                    Popular
-                  </span>
-                </div>
-                <p className="text-slate-400 text-sm mb-4">
-                  Annual summit bringing together tech leaders with expected sponsorship revenue of $2M.
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-slate-400 text-xs">Min. Investment</p>
-                    <p className="text-white font-medium">$10,000</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Projected Return</p>
-                    <p className="text-white font-medium">18-22%</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Duration</p>
-                    <p className="text-white font-medium">8 months</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Risk Level</p>
-                    <p className="text-white font-medium">Low</p>
-                  </div>
-                </div>
-                <button className="w-full py-2 bg-primary hover:bg-primary-dark rounded-lg text-white text-sm font-medium transition-colors">
-                  Invest Now
-                </button>
-              </div>
-              
-              {/* Opportunity 3 */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold text-white">Art & Craft Fair</h3>
-                  <span className="bg-amber-500/20 text-amber-400 text-xs px-2 py-1 rounded-full">
-                    Trending
-                  </span>
-                </div>
-                <p className="text-slate-400 text-sm mb-4">
-                  Cultural exhibition showcasing local artisans with strong community support.
-                </p>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-slate-400 text-xs">Min. Investment</p>
-                    <p className="text-white font-medium">$3,000</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Projected Return</p>
-                    <p className="text-white font-medium">15-18%</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Duration</p>
-                    <p className="text-white font-medium">6 months</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-xs">Risk Level</p>
-                    <p className="text-white font-medium">Low-Medium</p>
-                  </div>
-                </div>
-                <button className="w-full py-2 bg-primary hover:bg-primary-dark rounded-lg text-white text-sm font-medium transition-colors">
-                  Invest Now
-                </button>
-              </div>
+              ))}
             </div>
           </section>
         </main>
 
         <Footer />
       </div>
-    </Fragment>
+    </>
   );
 }

@@ -34,6 +34,7 @@ export interface AuthResponse {
 
 // Proposal types
 export type ProposalStatus = 
+  | 'DRAFT'
   | 'SUBMITTED'
   | 'IN_REVIEW'
   | 'VETTED'
@@ -54,6 +55,7 @@ export interface Proposal {
   updatedAt: string;
   documents?: string[]; // URLs to uploaded documents
   comments?: ProposalComment[];
+  votes?: Vote[];
 }
 
 export interface ProposalComment {
@@ -62,6 +64,14 @@ export interface ProposalComment {
   content: string;
   createdAt: string;
   isInternal: boolean; // Whether comment is internal (admin-only) or visible to organizer
+}
+
+export interface Vote {
+  officerId: string;
+  officerName: string;
+  decision: 'ACCEPT' | 'REJECT';
+  review: string;
+  timestamp: string;
 }
 
 export interface CreateProposalRequest {

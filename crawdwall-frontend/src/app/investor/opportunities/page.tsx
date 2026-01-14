@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Fragment } from 'react';
 import Head from 'next/head';
+import { mockAPI } from '@/__mocks__/data';
 import InvestorNavbar from '@/components/ui/InvestorNavbar';
 import Footer from '@/components/ui/Footer';
 
@@ -13,112 +14,48 @@ export default function InvestorOpportunitiesPage() {
     riskLevel: 'all',
     status: 'all'
   });
+  const [investmentOpportunities, setInvestmentOpportunities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data for investment opportunities
-  const investmentOpportunities = [
-    {
-      id: 1,
-      eventName: "Afrobeats Festival 2024",
-      category: "Music & Entertainment",
-      location: "Lagos, Nigeria",
-      startDate: "June 15, 2024",
-      endDate: "June 17, 2024",
-      investmentAmount: "$15,000",
-      minInvestment: "$5,000",
-      projectedReturn: "18-22%",
-      riskLevel: "Medium",
-      duration: "12 months",
-      description: "Major music festival featuring top Afrobeats artists with expected attendance of 50,000.",
-      status: "Available",
-      featured: true,
-      roi: "20%"
-    },
-    {
-      id: 2,
-      eventName: "Tech Innovation Summit",
-      category: "Technology",
-      location: "Nairobi, Kenya",
-      startDate: "August 22, 2024",
-      endDate: "August 24, 2024",
-      investmentAmount: "$25,000",
-      minInvestment: "$10,000",
-      projectedReturn: "20-25%",
-      riskLevel: "Low",
-      duration: "8 months",
-      description: "Annual summit bringing together tech leaders with expected sponsorship revenue of $2M.",
-      status: "Available",
-      featured: true,
-      roi: "22%"
-    },
-    {
-      id: 3,
-      eventName: "Cultural Heritage Expo",
-      category: "Arts & Culture",
-      location: "Accra, Ghana",
-      startDate: "September 5, 2024",
-      endDate: "September 8, 2024",
-      investmentAmount: "$10,000",
-      minInvestment: "$3,000",
-      projectedReturn: "15-18%",
-      riskLevel: "Low-Medium",
-      duration: "6 months",
-      description: "Cultural exhibition showcasing local artisans with strong community support.",
-      status: "Coming Soon",
-      featured: false,
-      roi: "16%"
-    },
-    {
-      id: 4,
-      eventName: "Food & Wine Festival",
-      category: "Food & Beverage",
-      location: "Cape Town, South Africa",
-      startDate: "October 5, 2024",
-      endDate: "October 7, 2024",
-      investmentAmount: "$8,000",
-      minInvestment: "$2,000",
-      projectedReturn: "16-20%",
-      riskLevel: "Medium",
-      duration: "9 months",
-      description: "Prestigious food and wine festival attracting international visitors and local food enthusiasts.",
-      status: "Available",
-      featured: false,
-      roi: "18%"
-    },
-    {
-      id: 5,
-      eventName: "Fashion & Design Week",
-      category: "Fashion",
-      location: "Abuja, Nigeria",
-      startDate: "November 12, 2024",
-      endDate: "November 16, 2024",
-      investmentAmount: "$12,000",
-      minInvestment: "$4,000",
-      projectedReturn: "17-21%",
-      riskLevel: "Medium-High",
-      duration: "10 months",
-      description: "Premium fashion week showcasing emerging designers with luxury sponsorships and media coverage.",
-      status: "Coming Soon",
-      featured: true,
-      roi: "19%"
-    },
-    {
-      id: 6,
-      eventName: "Sports Championship",
-      category: "Sports",
-      location: "Kigali, Rwanda",
-      startDate: "December 10, 2024",
-      endDate: "December 15, 2024",
-      investmentAmount: "$20,000",
-      minInvestment: "$8,000",
-      projectedReturn: "22-27%",
-      riskLevel: "High",
-      duration: "11 months",
-      description: "International sports championship with broadcasting rights and major brand partnerships.",
-      status: "Available",
-      featured: false,
-      roi: "24%"
-    }
-  ];
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      try {
+        // Get all proposals that are in appropriate status for investment opportunities
+        const proposalsResponse: any = await mockAPI.getAllProposals();
+        
+        if (proposalsResponse.success) {
+          // Filter proposals to get only those that are suitable as investment opportunities
+          const availableOpportunities = proposalsResponse.data
+            .filter((proposal: any) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW' || proposal.status === 'VETTED')
+            .map((proposal: any, index: number) => ({
+              id: proposal.id || index + 1,
+              eventName: proposal.title,
+              category: proposal.category || "Event",
+              location: proposal.location || "Location TBD",
+              startDate: proposal.startDate || "TBD",
+              endDate: proposal.endDate || "TBD",
+              investmentAmount: `$${proposal.amount ? proposal.amount.toLocaleString() : '0'}`,
+              minInvestment: proposal.minInvestment ? `$${proposal.minInvestment.toLocaleString()}` : "$5,000",
+              projectedReturn: proposal.projectedReturn || "15-25%",
+              riskLevel: proposal.riskLevel || "Medium",
+              duration: proposal.duration || "12 months",
+              description: proposal.description || "Detailed description of the investment opportunity.",
+              status: proposal.status === 'SUBMITTED' ? 'Available' : proposal.status === 'IN_REVIEW' ? 'Available' : proposal.status === 'VETTED' ? 'Coming Soon' : 'Available',
+              featured: proposal.featured || index < 2, // First two proposals as featured
+              roi: proposal.roi || "18%"
+            }));
+          
+          setInvestmentOpportunities(availableOpportunities);
+        }
+      } catch (error) {
+        console.error('Error fetching investment opportunities:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchOpportunities();
+  }, []);
 
   const filteredOpportunities = investmentOpportunities.filter(opportunity => {
     return (

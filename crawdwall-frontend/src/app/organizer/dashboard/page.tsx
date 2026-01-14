@@ -1,46 +1,54 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function OrganizerDashboardPage() {
-  // Mock data for stats
-  const stats = [
-    { name: 'Total Proposals', value: 12, icon: 'description', color: 'blue' },
-    { name: 'Pending Reviews', value: 3, icon: 'hourglass_top', color: 'yellow' },
-    { name: 'Accepted', value: 7, icon: 'check_circle', color: 'green' },
-    { name: 'Rejected', value: 2, icon: 'cancel', color: 'red' },
-  ];
+  const [userName, setUserName] = useState<string>('Organizer');
+  const [stats, setStats] = useState<any[]>([]);
+  const [recentProposals, setRecentProposals] = useState<any[]>([]);
 
-  // Mock data for recent proposals
-  const recentProposals = [
-    {
-      id: '1',
-      title: 'Music Festival Funding',
-      status: 'Accepted',
-      date: '2023-11-15',
-      amount: '$50,000',
-    },
-    {
-      id: '2',
-      title: 'Tech Conference Proposal',
-      status: 'Under Review',
-      date: '2023-11-20',
-      amount: '$30,000',
-    },
-    {
-      id: '3',
-      title: 'Art Exhibition Fundraising',
-      status: 'Submitted',
-      date: '2023-11-25',
-      amount: '$25,000',
-    },
-    {
-      id: '4',
-      title: 'Food Festival Investment',
-      status: 'Rejected',
-      date: '2023-11-10',
-      amount: '$40,000',
-    },
-  ];
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Using the mock API to get current user
+        const response: any = await mockAPI.getCurrentUser();
+        if (response.success && response.data) {
+          setUserName(response.data.name || 'Organizer');
+          
+          // Fetch user-specific data
+          const userId = response.data.id;
+          const userProposalsResponse: any = await mockAPI.getUserProposals(userId);
+          
+          if (userProposalsResponse.success) {
+            setRecentProposals(userProposalsResponse.data.slice(0, 4));
+            
+            // Calculate stats
+            const totalProposals = userProposalsResponse.data.length;
+            const accepted = userProposalsResponse.data.filter((p: any) => p.status === 'FUNDED').length;
+            const rejected = userProposalsResponse.data.filter((p: any) => p.status === 'REJECTED').length;
+            const pendingReviews = userProposalsResponse.data.filter((p: any) => p.status === 'IN_REVIEW' || p.status === 'SUBMITTED').length;
+            
+            setStats([
+              { name: 'Total Proposals', value: totalProposals, icon: 'description', color: 'blue' },
+              { name: 'Pending Reviews', value: pendingReviews, icon: 'hourglass_top', color: 'yellow' },
+              { name: 'Accepted', value: accepted, icon: 'check_circle', color: 'green' },
+              { name: 'Rejected', value: rejected, icon: 'cancel', color: 'red' },
+            ]);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Fallback to a default name
+        setUserName('Organizer');
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Function to get color classes based on color name
   const getColorClasses = (color: string) => {
@@ -56,7 +64,7 @@ export default function OrganizerDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Organizer Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {userName}!</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           Manage your event proposals and track their status
         </p>

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { mockAPI } from '@/__mocks__/data';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
@@ -40,27 +41,39 @@ export default function SignupPage() {
     },
   });
 
-  const onSubmit = (data: RegistrationFormData) => {
+  const onSubmit = async (data: RegistrationFormData) => {
     setIsLoading(true);
     setError(null);
 
-    // Set role to investor if not selected
-    const selectedRole = data.role || 'investor';
-
-    // For testing purposes, simulate successful registration
-    setTimeout(() => {
-      // Store mock token and role
-      localStorage.setItem('crawdwall_auth_token', 'mock-token');
-      localStorage.setItem('user_role', selectedRole);
-
-      // Redirect based on selected role
-      if (selectedRole === 'organizer') {
-        router.push('/organizer/dashboard');
+    try {
+      let response: any;
+      if (data.role === 'organizer') {
+        response = await mockAPI.registerOrganizer(data);
       } else {
-        router.push('/investor/dashboard');
+        response = await mockAPI.registerInvestor(data);
       }
+      
+      if (response.success) {
+        // Store mock token and user info
+        localStorage.setItem('crawdwall_auth_token', 'mock-token');
+        localStorage.setItem('user_role', data.role);
+        localStorage.setItem('user_email', data.email);
+
+        // Redirect based on selected role
+        if (data.role === 'organizer') {
+          router.push('/organizer/dashboard');
+        } else {
+          router.push('/investor/dashboard');
+        }
+      } else {
+        setError(response.message || 'Registration failed');
+      }
+    } catch (err) {
+      setError('An error occurred during registration');
+      console.error(err);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

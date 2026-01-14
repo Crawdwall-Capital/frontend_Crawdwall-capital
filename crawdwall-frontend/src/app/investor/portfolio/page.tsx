@@ -1,15 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Fragment } from 'react';
 import Head from 'next/head';
+import { mockAPI } from '@/__mocks__/data';
 import InvestorNavbar from '@/components/ui/InvestorNavbar';
 import Footer from '@/components/ui/Footer';
 
 export default function InvestorPortfolioPage() {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
-
+  const [portfolioItems, setPortfolioItems] = useState<any[]>([]);
+  const [investmentSummary, setInvestmentSummary] = useState({
+    totalInvested: "$0",
+    totalReturns: "$0",
+    netValue: "$0",
+    portfolioGrowth: "+0%"
+  });
+  const [loading, setLoading] = useState(true);
+  
   const toggleAccordion = (index: number) => {
     if (expandedItems.includes(index)) {
       setExpandedItems(expandedItems.filter(item => item !== index));
@@ -18,65 +27,64 @@ export default function InvestorPortfolioPage() {
     }
   };
 
-  // Mock data for portfolio
-  const portfolioItems = [
-    {
-      id: 1,
-      eventName: "Afrobeats Festival 2024",
-      eventDate: "June 15, 2024",
-      investmentAmount: "$15,000",
-      projectedReturn: "18%",
-      actualReturn: "$2,700",
-      status: "Active",
-      progress: 75,
-      category: "Music & Entertainment",
-      location: "Lagos, Nigeria"
-    },
-    {
-      id: 2,
-      eventName: "Tech Innovation Summit",
-      eventDate: "August 22, 2024",
-      investmentAmount: "$25,000",
-      projectedReturn: "22%",
-      actualReturn: "$3,200",
-      status: "Active",
-      progress: 30,
-      category: "Technology",
-      location: "Nairobi, Kenya"
-    },
-    {
-      id: 3,
-      eventName: "Cultural Heritage Expo",
-      eventDate: "March 10, 2024",
-      investmentAmount: "$10,000",
-      projectedReturn: "15%",
-      actualReturn: "$1,500",
-      status: "Completed",
-      progress: 100,
-      category: "Arts & Culture",
-      location: "Accra, Ghana"
-    },
-    {
-      id: 4,
-      eventName: "Food & Wine Festival",
-      eventDate: "October 5, 2024",
-      investmentAmount: "$8,000",
-      projectedReturn: "16%",
-      actualReturn: "$0",
-      status: "Upcoming",
-      progress: 10,
-      category: "Food & Beverage",
-      location: "Cape Town, South Africa"
-    }
-  ];
-
-  // Mock data for investment summary
-  const investmentSummary = {
-    totalInvested: "$58,000",
-    totalReturns: "$7,400",
-    netValue: "$65,400",
-    portfolioGrowth: "+12.7%"
-  };
+  useEffect(() => {
+    const fetchPortfolioData = async () => {
+      try {
+        // Get current user
+        const userResponse: any = await mockAPI.getCurrentUser();
+        
+        if (userResponse.success) {
+          const userId = userResponse.data.id;
+          
+          // Fetch investor portfolio
+          const portfolioResponse: any = await mockAPI.getInvestorPortfolio(userId);
+          
+          if (portfolioResponse.success) {
+            // Format portfolio items
+            const formattedPortfolio = portfolioResponse.data.map((item: any) => ({
+              id: item.id,
+              eventName: item.eventName,
+              eventDate: item.investmentDate,
+              investmentAmount: `$${item.investmentAmount.toLocaleString()}`,
+              projectedReturn: item.projectedReturn,
+              actualReturn: item.currentStatus === 'Completed' ? `$${(item.investmentAmount * 0.18).toLocaleString()}` : "$0",
+              status: item.currentStatus,
+              progress: item.progress,
+              category: item.organizerName ? "Event" : "Unknown", // Would be derived from event data
+              location: item.organizerName ? "Location TBD" : "Unknown" // Would be derived from event data
+            }));
+            
+            setPortfolioItems(formattedPortfolio);
+            
+            // Calculate investment summary
+            const totalInvested = formattedPortfolio.reduce((sum, item) => {
+              return sum + parseInt(item.investmentAmount.replace(/[^0-9]/g, ''));
+            }, 0);
+            
+            const totalReturns = formattedPortfolio.reduce((sum, item) => {
+              return sum + parseInt(item.actualReturn.replace(/[^0-9]/g, ''));
+            }, 0);
+            
+            const netValue = totalInvested + totalReturns;
+            const portfolioGrowth = totalInvested > 0 ? `+${((totalReturns / totalInvested) * 100).toFixed(1)}%` : "+0%";
+            
+            setInvestmentSummary({
+              totalInvested: `$${totalInvested.toLocaleString()}`,
+              totalReturns: `$${totalReturns.toLocaleString()}`,
+              netValue: `$${netValue.toLocaleString()}`,
+              portfolioGrowth
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching portfolio data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchPortfolioData();
+  }, []);
 
   return (
     <Fragment>

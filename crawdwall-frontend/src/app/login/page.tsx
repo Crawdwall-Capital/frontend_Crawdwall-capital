@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { authAPI } from '@/lib/api';
+import { mockAPI } from '@/__mocks__/data';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
@@ -35,27 +35,48 @@ export default function LoginPage() {
     },
   });
 
-  const [role, setRole] = useState<'organizer' | 'investor'>('investor');
 
-  const onSubmit = (data: LoginFormData) => {
+
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
 
-    // For testing purposes, simulate successful login
-    setTimeout(() => {
-      // Store mock token and role
-      localStorage.setItem('crawdwall_auth_token', 'mock-token');
+    try {
+      const response: any = await mockAPI.login({
+        email: data.email,
+        password: data.password
+      });
       
-      // Store selected role
-      localStorage.setItem('user_role', role);
-      if (role === 'organizer') {
-        router.push('/organizer/dashboard');
+      if (response.success) {
+        // Store mock token and user info
+        localStorage.setItem('crawdwall_auth_token', 'mock-token');
+        
+        // Store the user's role and email from their profile
+        localStorage.setItem('user_role', response.data.user.role);
+        localStorage.setItem('user_email', response.data.user.email);
+        
+        // Redirect based on user's role
+        if (response.data.user.role === 'organizer') {
+          router.push('/organizer/dashboard');
+        } else if (response.data.user.role === 'investor') {
+          router.push('/investor/dashboard');
+        } else {
+          // For other roles like admin/officer, redirect to appropriate dashboards
+          if (response.data.user.role === 'admin') {
+            router.push('/admin/dashboard');
+          } else if (response.data.user.role === 'officer') {
+            router.push('/officer/dashboard');
+          }
+        }
       } else {
-        router.push('/investor/dashboard');
+        setError(response.message || 'Login failed');
       }
-      
+    } catch (err) {
+      setError('An error occurred during login');
+      console.error(err);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -118,24 +139,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="role" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Login As
-                </label>
-                <div className="mt-1">
-                  <select
-                    id="role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value as 'organizer' | 'investor')}
-                    className={`appearance-none block w-full px-3 py-2 border ${
-                      'border-slate-300 dark:border-slate-600'
-                    } rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-slate-900 dark:text-white dark:bg-slate-700`}
-                  >
-                    <option value="investor">Investor</option>
-                    <option value="organizer">Organizer</option>
-                  </select>
-                </div>
-              </div>
+
 
               {error && (
                 <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
@@ -168,8 +172,8 @@ export default function LoginPage() {
               <div className="text-center">
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   Don't have an account?{' '}
-                  <Link href="/signup/organizer" className="font-medium text-primary hover:text-primary-dark">
-                    Register as organizer
+                  <Link href="/signup" className="font-medium text-primary hover:text-primary-dark">
+                    Register as organizer or investor
                   </Link>
                 </p>
               </div>

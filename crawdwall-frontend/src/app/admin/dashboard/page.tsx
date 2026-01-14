@@ -1,52 +1,84 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function AdminDashboardPage() {
-  // Mock data for stats
-  const stats = [
-    { name: 'Total Proposals', value: 42, icon: 'description', color: 'blue' },
-    { name: 'Active Officers', value: 8, icon: 'person', color: 'green' },
-    { name: 'Active Organizers', value: 15, icon: 'groups', color: 'yellow' },
-    { name: 'Total Investors', value: 24, icon: 'account_balance', color: 'purple' },
-    { name: 'Pending Reviews', value: 12, icon: 'hourglass_top', color: 'orange' },
-    { name: 'Awaiting Votes', value: 5, icon: 'how_to_vote', color: 'red' },
-  ];
+  const [userName, setUserName] = useState<string>('Admin');
+  const [stats, setStats] = useState<any[]>([]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
 
-  // Mock data for recent activities
-  const recentActivities = [
-    {
-      id: '1',
-      action: 'Proposal submitted',
-      description: 'Music Festival Funding proposal submitted by John Doe',
-      time: '2 minutes ago',
-      user: 'John Doe',
-      type: 'proposal',
-    },
-    {
-      id: '2',
-      action: 'Officer created',
-      description: 'Alice Johnson created as officer by Admin',
-      time: '15 minutes ago',
-      user: 'Admin',
-      type: 'officer',
-    },
-    {
-      id: '3',
-      action: 'Proposal reviewed',
-      description: 'Tech Conference proposal reviewed by Bob Smith',
-      time: '1 hour ago',
-      user: 'Bob Smith',
-      type: 'review',
-    },
-    {
-      id: '4',
-      action: 'Proposal accepted',
-      description: 'Art Exhibition proposal accepted by voting majority',
-      time: '3 hours ago',
-      user: 'Voting System',
-      type: 'decision',
-    },
-  ];
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Using the mock API to get current user
+        const response: any = await mockAPI.getCurrentUser();
+        if (response.success && response.data) {
+          setUserName(response.data.name || 'Admin');
+          
+          // Fetch admin-specific data
+          const allProposalsResponse: any = await mockAPI.getAllProposals();
+          const auditLogsResponse: any = await mockAPI.getAuditLogs();
+          
+          // Load all users from localStorage if available
+          let allUsers = [];
+          if (typeof window !== 'undefined') {
+            const savedUsers = localStorage.getItem('mockUsers');
+            if (savedUsers) {
+              try {
+                allUsers = JSON.parse(savedUsers);
+              } catch (e) {
+                console.error('Error parsing saved users:', e);
+                allUsers = [];
+              }
+            }
+          }
+          
+          if (allProposalsResponse.success && auditLogsResponse.success) {
+            // Calculate stats
+            const totalProposals = allProposalsResponse.data.length;
+            const activeOfficers = allUsers.filter((user: any) => user.role === 'officer').length;
+            const activeOrganizers = allUsers.filter((user: any) => user.role === 'organizer').length;
+            const totalInvestors = allUsers.filter((user: any) => user.role === 'investor').length;
+            const pendingReviews = allProposalsResponse.data.filter((p: any) => p.status === 'SUBMITTED' || p.status === 'IN_REVIEW').length;
+            
+            // Count awaiting votes by checking proposals that don't have enough votes yet
+            let awaitingVotes = 0;
+            allProposalsResponse.data.forEach((proposal: any) => {
+              if (proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW') {
+                const acceptVotes = proposal.votes ? proposal.votes.filter((v: any) => v.decision === 'ACCEPT').length : 0;
+                const rejectVotes = proposal.votes ? proposal.votes.filter((v: any) => v.decision === 'REJECT').length : 0;
+                if (acceptVotes < 4 && rejectVotes < 4) { // Less than majority
+                  awaitingVotes++;
+                }
+              }
+            });
+            
+            setStats([
+              { name: 'Total Proposals', value: totalProposals, icon: 'description', color: 'blue' },
+              { name: 'Active Officers', value: activeOfficers, icon: 'person', color: 'green' },
+              { name: 'Active Organizers', value: activeOrganizers, icon: 'groups', color: 'yellow' },
+              { name: 'Total Investors', value: totalInvestors, icon: 'account_balance', color: 'purple' },
+              { name: 'Pending Reviews', value: pendingReviews, icon: 'hourglass_top', color: 'orange' },
+              { name: 'Awaiting Votes', value: awaitingVotes, icon: 'how_to_vote', color: 'red' },
+            ]);
+            
+            // Set recent activities from audit logs
+            setRecentActivities(auditLogsResponse.data.slice(0, 4));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Fallback to a default name
+        setUserName('Admin');
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Function to get color classes based on color name
   const getColorClasses = (color: string) => {
@@ -64,7 +96,7 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {userName}!</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           Full platform control, oversight, and configuration
         </p>

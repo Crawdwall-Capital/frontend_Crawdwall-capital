@@ -1,46 +1,65 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function OfficerDashboardPage() {
-  // Mock data for stats
-  const stats = [
-    { name: 'Total Proposals', value: 24, icon: 'description', color: 'blue' },
-    { name: 'Awaiting Review', value: 8, icon: 'hourglass_top', color: 'yellow' },
-    { name: 'Reviewed', value: 12, icon: 'check_circle', color: 'green' },
-    { name: 'Pending Votes', value: 4, icon: 'how_to_vote', color: 'purple' },
-  ];
+  const [userName, setUserName] = useState<string>('Officer');
+  const [stats, setStats] = useState<any[]>([]);
+  const [recentProposals, setRecentProposals] = useState<any[]>([]);
 
-  // Mock data for recent proposals
-  const recentProposals = [
-    {
-      id: '1',
-      title: 'Music Festival Funding',
-      status: 'Under Review',
-      date: '2023-11-15',
-      amount: '$50,000',
-    },
-    {
-      id: '2',
-      title: 'Tech Conference Proposal',
-      status: 'Submitted',
-      date: '2023-11-20',
-      amount: '$30,000',
-    },
-    {
-      id: '3',
-      title: 'Art Exhibition Fundraising',
-      status: 'Under Review',
-      date: '2023-11-25',
-      amount: '$25,000',
-    },
-    {
-      id: '4',
-      title: 'Food Festival Investment',
-      status: 'Submitted',
-      date: '2023-11-10',
-      amount: '$40,000',
-    },
-  ];
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Using the mock API to get current user
+        const response: any = await mockAPI.getCurrentUser();
+        if (response.success && response.data) {
+          setUserName(response.data.name || 'Officer');
+          
+          // Fetch officer-specific data
+          const userId = response.data.id;
+          const officerProposalsResponse: any = await mockAPI.getOfficerProposals(userId);
+          
+          if (officerProposalsResponse.success) {
+            setRecentProposals(officerProposalsResponse.data.slice(0, 4));
+            
+            // Calculate stats
+            const totalProposals = officerProposalsResponse.data.length;
+            const awaitingReview = officerProposalsResponse.data.filter((p: any) => p.status === 'SUBMITTED' || p.status === 'IN_REVIEW').length;
+            const reviewed = officerProposalsResponse.data.filter((p: any) => p.status === 'VETTED' || p.status === 'FUNDED' || p.status === 'REJECTED').length;
+            
+            // Get officer votes to count pending votes
+            const officerVotesResponse: any = await mockAPI.getOfficerVotes(userId);
+            let pendingVotes = 0;
+            if (officerVotesResponse.success) {
+              const allProposals = officerProposalsResponse.data;
+              const votedProposalIds = officerVotesResponse.data.map((vote: any) => vote.proposalId);
+              pendingVotes = allProposals.filter((proposal: any) => 
+                !votedProposalIds.includes(proposal.id) && 
+                (proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW')
+              ).length;
+            }
+            
+            setStats([
+              { name: 'Total Proposals', value: totalProposals, icon: 'description', color: 'blue' },
+              { name: 'Awaiting Review', value: awaitingReview, icon: 'hourglass_top', color: 'yellow' },
+              { name: 'Reviewed', value: reviewed, icon: 'check_circle', color: 'green' },
+              { name: 'Pending Votes', value: pendingVotes, icon: 'how_to_vote', color: 'purple' },
+            ]);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Fallback to a default name
+        setUserName('Officer');
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Function to get color classes based on color name
   const getColorClasses = (color: string) => {
@@ -57,7 +76,7 @@ export default function OfficerDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Officer Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {userName}!</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           Evaluate, vote on, and review event funding proposals
         </p>

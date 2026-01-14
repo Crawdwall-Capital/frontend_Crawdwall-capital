@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Fragment } from 'react';
 import Head from 'next/head';
+import { mockAPI } from '@/__mocks__/data';
 import InvestorNavbar from '@/components/ui/InvestorNavbar';
 import Footer from '@/components/ui/Footer';
 
@@ -16,24 +17,50 @@ export default function InvestorProfilePage() {
     sms: false,
     push: true
   });
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock user data
-  const userData = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    accountType: "Accredited Investor",
-    memberSince: "January 15, 2023",
-    totalInvestments: "$125,000",
-    totalReturns: "$24,500",
-    portfolioSize: 8,
-    kycStatus: "Verified",
-    notificationPreferences: {
-      email: true,
-      sms: false,
-      push: true
-    }
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Get current user data
+        const userResponse: any = await mockAPI.getCurrentUser();
+        
+        if (userResponse.success) {
+          const user = userResponse.data;
+          
+          // Calculate investor-specific stats
+          // For demo purposes, we'll use mock calculations
+          // In a real system, these would come from actual investment data
+          const calculatedData = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone || "+1 (555) 123-4567", // Would come from user profile
+            accountType: user.role === 'investor' ? "Accredited Investor" : user.role.charAt(0).toUpperCase() + user.role.slice(1),
+            memberSince: user.createdAt || "January 15, 2023",
+            totalInvestments: "$125,000", // Would be calculated from actual investments
+            totalReturns: "$24,500", // Would be calculated from actual returns
+            portfolioSize: 8, // Would be calculated from portfolio data
+            kycStatus: "Verified", // Would come from KYC verification status
+            notificationPreferences: {
+              email: true,
+              sms: false,
+              push: true
+            }
+          };
+          
+          setUserData(calculatedData);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserData();
+  }, []);
 
   return (
     <Fragment>
@@ -56,8 +83,8 @@ export default function InvestorProfilePage() {
                     <span className="material-symbols-outlined text-2xl">person</span>
                   </div>
                   <div className="ml-4">
-                    <h2 className="text-lg font-bold text-white">{userData.name}</h2>
-                    <p className="text-sm text-slate-400">{userData.accountType}</p>
+                    <h2 className="text-lg font-bold text-white">{userData?.name || 'Loading...'}</h2>
+                    <p className="text-sm text-slate-400">{userData?.accountType || 'Loading...'}</p>
                   </div>
                 </div>
                 
@@ -134,22 +161,22 @@ export default function InvestorProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="bg-white/5 border border-white/10 rounded-xl p-5">
                       <h3 className="text-slate-400 text-sm mb-1">Total Investments</h3>
-                      <p className="text-2xl font-bold text-white">{userData.totalInvestments}</p>
+                      <p className="text-2xl font-bold text-white">{userData?.totalInvestments || '$0'}</p>
                     </div>
                     
                     <div className="bg-white/5 border border-white/10 rounded-xl p-5">
                       <h3 className="text-slate-400 text-sm mb-1">Total Returns</h3>
-                      <p className="text-2xl font-bold text-green-500">{userData.totalReturns}</p>
+                      <p className="text-2xl font-bold text-green-500">{userData?.totalReturns || '$0'}</p>
                     </div>
                     
                     <div className="bg-white/5 border border-white/10 rounded-xl p-5">
                       <h3 className="text-slate-400 text-sm mb-1">Portfolio Size</h3>
-                      <p className="text-2xl font-bold text-white">{userData.portfolioSize} Events</p>
+                      <p className="text-2xl font-bold text-white">{userData?.portfolioSize || 0} Events</p>
                     </div>
                     
                     <div className="bg-white/5 border border-white/10 rounded-xl p-5">
                       <h3 className="text-slate-400 text-sm mb-1">KYC Status</h3>
-                      <p className="text-2xl font-bold text-green-500">{userData.kycStatus}</p>
+                      <p className="text-2xl font-bold text-green-500">{userData?.kycStatus || 'Pending'}</p>
                     </div>
                   </div>
                   
@@ -159,22 +186,22 @@ export default function InvestorProfilePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-slate-400 mb-2">Full Name</label>
-                        <p className="text-white">{userData.name}</p>
+                        <p className="text-white">{userData?.name || 'Loading...'}</p>
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-slate-400 mb-2">Email Address</label>
-                        <p className="text-white">{userData.email}</p>
+                        <p className="text-white">{userData?.email || 'Loading...'}</p>
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-slate-400 mb-2">Phone Number</label>
-                        <p className="text-white">{userData.phone}</p>
+                        <p className="text-white">{userData?.phone || 'Loading...'}</p>
                       </div>
                       
                       <div>
                         <label className="block text-sm font-medium text-slate-400 mb-2">Member Since</label>
-                        <p className="text-white">{userData.memberSince}</p>
+                        <p className="text-white">{userData?.memberSince || 'Loading...'}</p>
                       </div>
                     </div>
                   </div>
@@ -190,7 +217,7 @@ export default function InvestorProfilePage() {
                       <label className="block text-sm font-medium text-slate-400 mb-2">Full Name</label>
                       <input
                         type="text"
-                        defaultValue={userData.name}
+                        defaultValue={userData?.name || ''}
                         className="w-full px-4 py-3 bg-input-bg dark:bg-input-bg-dark border border-border-light dark:border-border-dark rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -199,7 +226,7 @@ export default function InvestorProfilePage() {
                       <label className="block text-sm font-medium text-slate-400 mb-2">Email Address</label>
                       <input
                         type="email"
-                        defaultValue={userData.email}
+                        defaultValue={userData?.email || ''}
                         className="w-full px-4 py-3 bg-input-bg dark:bg-input-bg-dark border border-border-light dark:border-border-dark rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -208,7 +235,7 @@ export default function InvestorProfilePage() {
                       <label className="block text-sm font-medium text-slate-400 mb-2">Phone Number</label>
                       <input
                         type="tel"
-                        defaultValue={userData.phone}
+                        defaultValue={userData?.phone || ''}
                         className="w-full px-4 py-3 bg-input-bg dark:bg-input-bg-dark border border-border-light dark:border-border-dark rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
@@ -217,7 +244,7 @@ export default function InvestorProfilePage() {
                       <label className="block text-sm font-medium text-slate-400 mb-2">Account Type</label>
                       <select 
                         className="w-full px-4 py-3 bg-input-bg dark:bg-input-bg-dark border border-border-light dark:border-border-dark rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                        defaultValue={userData.accountType}
+                        defaultValue={userData?.accountType || 'Accredited Investor'}
                       >
                         <option className="text-black" value="Accredited Investor">Accredited Investor</option>
                         <option className="text-black" value="Institutional Investor">Institutional Investor</option>
