@@ -57,11 +57,11 @@ export default function InvestorPortfolioPage() {
             setPortfolioItems(formattedPortfolio);
             
             // Calculate investment summary
-            const totalInvested = formattedPortfolio.reduce((sum, item) => {
+            const totalInvested = formattedPortfolio.reduce((sum: number, item: any) => {
               return sum + parseInt(item.investmentAmount.replace(/[^0-9]/g, ''));
             }, 0);
             
-            const totalReturns = formattedPortfolio.reduce((sum, item) => {
+            const totalReturns = formattedPortfolio.reduce((sum: number, item: any) => {
               return sum + parseInt(item.actualReturn.replace(/[^0-9]/g, ''));
             }, 0);
             
