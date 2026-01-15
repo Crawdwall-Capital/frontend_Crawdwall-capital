@@ -66,17 +66,17 @@ export default function InvestorOpportunitiesPage() {
   });
 
   return (
-    <Fragment>
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-white">
       <Head>
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
       </Head>
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-white">
+      <div className="flex flex-1 md:gap-8">
         <InvestorNavbar />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="w-full lg:w-3/4 px-4 sm:px-6 lg:px-8 py-8">
           {/* Opportunities Overview */}
           <section className="mb-12">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
@@ -261,9 +261,8 @@ export default function InvestorOpportunitiesPage() {
             </div>
           </section>
         </main>
-
-        <Footer />
       </div>
-    </Fragment>
+      <Footer />
+    </div>
   );
 }

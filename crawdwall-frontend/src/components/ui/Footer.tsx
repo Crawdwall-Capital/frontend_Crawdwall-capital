@@ -5,11 +5,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8 sm:mb-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="flex size-6 items-center justify-center rounded bg-primary text-white">
-                <span className="material-symbols-outlined text-sm">
-                  candlestick_chart
-                </span>
-              </div>
+              <img 
+                src="/image/C capital logo d.svg" 
+                alt="Crawdwall Capital Logo" 
+                className="h-8 w-8 object-contain"
+              />
               <h3 className="text-white font-bold text-lg">
                 Crawdwall Capital
               </h3>

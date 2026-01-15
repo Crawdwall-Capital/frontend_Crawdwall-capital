@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Crawdwall Capital - Investment Bank for Events",
   description: "Structured event-funding platform connecting creative entrepreneurs with investors",
+  icons: {
+    icon: '/image/C capital logo d.svg',
+  },
 };
 
 export default function RootLayout({
