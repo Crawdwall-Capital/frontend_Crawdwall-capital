@@ -1,53 +1,94 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { mockAPI, getAllUsers } from '@/__mocks__/data';
 
 export default function AdminOfficersPage() {
   const [showAddOfficerModal, setShowAddOfficerModal] = useState(false);
-  // Mock data for officers
-  const officers = [
-    {
-      id: '1',
-      name: 'Alice Johnson',
-      email: 'alice@example.com',
-      status: 'Active',
-      lastLogin: '2023-11-20',
-      assignedProposals: 12,
-      reviewsCompleted: 8,
-    },
-    {
-      id: '2',
-      name: 'Bob Smith',
-      email: 'bob@example.com',
-      status: 'Active',
-      lastLogin: '2023-11-19',
-      assignedProposals: 15,
-      reviewsCompleted: 14,
-    },
-    {
-      id: '3',
-      name: 'Carol Davis',
-      email: 'carol@example.com',
-      status: 'Suspended',
-      lastLogin: '2023-11-15',
-      assignedProposals: 5,
-      reviewsCompleted: 3,
-    },
-    {
-      id: '4',
-      name: 'David Wilson',
-      email: 'david@example.com',
-      status: 'Active',
-      lastLogin: '2023-11-20',
-      assignedProposals: 8,
-      reviewsCompleted: 7,
-    },
-  ];
+  const [officers, setOfficers] = useState<any[]>([]);
+  const [filteredOfficers, setFilteredOfficers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // For demonstration purposes, we'll use all officers
-  // In a real app, you would filter based on state
-  const filteredOfficers = officers;
+  useEffect(() => {
+    const fetchOfficers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Get all users to filter officers
+        const allUsersResponse = getAllUsers();
+        const officersData = allUsersResponse.filter((user: any) => user.role === 'officer');
+        
+        if (officersData) {
+          // Transform the API data to match the expected format
+          const transformedOfficers = officersData.map((officer: any) => ({
+            id: officer.id,
+            name: officer.name,
+            email: officer.email,
+            status: officer.status || 'Active',
+            lastLogin: officer.lastLogin || 'N/A',
+            assignedProposals: officer.assignedProposals || 0,
+            reviewsCompleted: officer.reviewsCompleted || 0,
+          }));
+          
+          setOfficers(transformedOfficers);
+          setFilteredOfficers(transformedOfficers);
+        } else {
+          setError('Failed to fetch officers');
+          console.error('Failed to fetch officers: No data');
+        }
+      } catch (err) {
+        setError('Failed to load officers data');
+        console.error('Error fetching officers:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchOfficers();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Officers</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Create, suspend, or remove officers and assign voting privileges
+          </p>
+        </div>
+        
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading officers...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Manage Officers</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Create, suspend, or remove officers and assign voting privileges
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5">
+            <div className="text-center py-12">
+              <p className="text-red-600 dark:text-red-400 text-lg font-medium">{error}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">Unable to load officers data</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

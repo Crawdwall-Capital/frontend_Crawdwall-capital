@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState('platform');
 
-  // Mock data for platform settings
-  const [platformSettings, setPlatformSettings] = useState({
+  const [platformSettings, setPlatformSettings] = useState<any>({
     acceptanceThreshold: 70,
     minReviewers: 2,
     maxReviewDays: 14,
@@ -15,17 +14,50 @@ export default function AdminSettingsPage() {
     maintenanceMode: false,
   });
 
-  // Mock data for system rules
-  const [systemRules, setSystemRules] = useState([
-    { id: 1, name: 'Minimum Proposal Amount', value: '$10,000', enabled: true },
-    { id: 2, name: 'Maximum Proposal Amount', value: '$100,000', enabled: true },
-    { id: 3, name: 'Proposal Duration Limit', value: '180 days', enabled: true },
-    { id: 4, name: 'Investor Minimum Stake', value: '$5,000', enabled: true },
-  ]);
+  const [systemRules, setSystemRules] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // In a real app, we would fetch from API
+        // For now, using default values
+        const defaultSettings = {
+          acceptanceThreshold: 70,
+          minReviewers: 2,
+          maxReviewDays: 14,
+          platformFee: 2.5,
+          escrowHoldDays: 30,
+          maintenanceMode: false,
+        };
+        
+        const defaultRules = [
+          { id: 1, name: 'Minimum Proposal Amount', value: '$10,000', enabled: true },
+          { id: 2, name: 'Maximum Proposal Amount', value: '$100,000', enabled: true },
+          { id: 3, name: 'Proposal Duration Limit', value: '180 days', enabled: true },
+          { id: 4, name: 'Investor Minimum Stake', value: '$5,000', enabled: true },
+        ];
+        
+        setPlatformSettings(defaultSettings);
+        setSystemRules(defaultRules);
+      } catch (err) {
+        setError('Failed to load settings');
+        console.error('Error fetching settings:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSettings();
+  }, []);
 
   // Handle platform settings change
   const handlePlatformSettingChange = (field: string, value: any) => {
-    setPlatformSettings(prev => ({
+    setPlatformSettings((prev: any) => ({
       ...prev,
       [field]: value
     }));
@@ -37,6 +69,46 @@ export default function AdminSettingsPage() {
       rule.id === id ? { ...rule, enabled: !rule.enabled } : rule
     ));
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Platform Settings</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Configure system rules and platform-wide settings
+          </p>
+        </div>
+        
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading settings...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Platform Settings</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Configure system rules and platform-wide settings
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5">
+            <div className="text-center py-12">
+              <p className="text-red-600 dark:text-red-400 text-lg font-medium">{error}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">Unable to load settings</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

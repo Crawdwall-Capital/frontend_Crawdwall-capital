@@ -1,74 +1,98 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function AdminProposalsPage() {
-  // Mock data for proposals
-  const proposals = [
-    {
-      id: '1',
-      title: 'Music Festival Funding',
-      status: 'Under Review',
-      date: '2023-11-15',
-      amount: '$50,000',
-      description: 'Proposal for funding a major music festival in Lagos',
-      organizer: 'John Doe',
-      officersAssigned: ['Alice Johnson', 'Bob Smith'],
-      reviewsReceived: 2,
-      votesReceived: 2,
-      acceptanceThreshold: 4,
-      acceptVotes: 1,
-      rejectVotes: 1,
-    },
-    {
-      id: '2',
-      title: 'Tech Conference Proposal',
-      status: 'Submitted',
-      date: '2023-11-20',
-      amount: '$30,000',
-      description: 'Tech conference focusing on African innovation',
-      organizer: 'Jane Smith',
-      officersAssigned: ['Carol Davis'],
-      reviewsReceived: 0,
-      votesReceived: 0,
-      acceptanceThreshold: 4,
-      acceptVotes: 0,
-      rejectVotes: 0,
-    },
-    {
-      id: '3',
-      title: 'Art Exhibition Fundraising',
-      status: 'Accepted',
-      date: '2023-11-25',
-      amount: '$25,000',
-      description: 'Contemporary art exhibition showcasing local artists',
-      organizer: 'Robert Johnson',
-      officersAssigned: ['David Wilson', 'Alice Johnson'],
-      reviewsReceived: 2,
-      votesReceived: 2,
-      acceptanceThreshold: 4,
-      acceptVotes: 2,
-      rejectVotes: 0,
-    },
-    {
-      id: '4',
-      title: 'Food Festival Investment',
-      status: 'Rejected',
-      date: '2023-11-10',
-      amount: '$40,000',
-      description: 'Cultural food festival celebrating regional cuisines',
-      organizer: 'Emily Chen',
-      officersAssigned: ['Bob Smith', 'Carol Davis'],
-      reviewsReceived: 2,
-      votesReceived: 2,
-      acceptanceThreshold: 4,
-      acceptVotes: 0,
-      rejectVotes: 2,
-    },
-  ];
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [filteredProposals, setFilteredProposals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // For demonstration purposes, we'll use all proposals
-  // In a real app, you would filter based on state
-  const filteredProposals = proposals;
+  useEffect(() => {
+    const fetchProposals = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response: any = await mockAPI.getAllProposals();
+        
+        if (response.success && response.data) {
+          // Transform the API data to match the expected format
+          const transformedProposals = response.data.map((proposal: any) => ({
+            id: proposal.id,
+            title: proposal.title,
+            status: proposal.status.replace(/_/g, ' '),
+            date: proposal.createdAt ? new Date(proposal.createdAt).toLocaleDateString() : 'N/A',
+            amount: `$${proposal.amount?.toLocaleString() || '0'}`,
+            description: proposal.description,
+            organizer: proposal.organizerName || 'Unknown Organizer',
+            officersAssigned: proposal.votes?.map((vote: any) => vote.officerName) || [],
+            reviewsReceived: proposal.votes?.length || 0,
+            votesReceived: proposal.votes?.length || 0,
+            acceptanceThreshold: 4, // Default threshold
+            acceptVotes: proposal.votes?.filter((vote: any) => vote.decision === 'ACCEPT').length || 0,
+            rejectVotes: proposal.votes?.filter((vote: any) => vote.decision === 'REJECT').length || 0,
+          }));
+          
+          setProposals(transformedProposals);
+          setFilteredProposals(transformedProposals);
+        } else {
+          setError(response.message || 'Failed to fetch proposals');
+          console.error('Failed to fetch proposals:', response.message);
+        }
+      } catch (err) {
+        setError('Failed to load proposals data');
+        console.error('Error fetching proposals:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProposals();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Proposals</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Monitor and override proposal decisions as needed
+          </p>
+        </div>
+        
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading proposals...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">All Proposals</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            Monitor and override proposal decisions as needed
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5">
+            <div className="text-center py-12">
+              <p className="text-red-600 dark:text-red-400 text-lg font-medium">{error}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">Unable to load proposals data</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

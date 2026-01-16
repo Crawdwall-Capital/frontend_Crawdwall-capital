@@ -1,73 +1,60 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function AdminAuditLogsPage() {
-  // Mock data for audit logs
-  const [logs] = useState([
-    {
-      id: '1',
-      timestamp: '2023-11-20 14:30:22',
-      user: 'Admin',
-      action: 'Proposal decision overridden',
-      details: 'Proposal #PR-001 decision changed from "Reject" to "Accept"',
-      ip: '192.168.1.100',
-      status: 'Success',
-    },
-    {
-      id: '2',
-      timestamp: '2023-11-20 13:45:15',
-      user: 'Alice Johnson',
-      action: 'Proposal reviewed',
-      details: 'Submitted review for Tech Conference Proposal',
-      ip: '192.168.1.101',
-      status: 'Success',
-    },
-    {
-      id: '3',
-      timestamp: '2023-11-20 12:20:33',
-      user: 'Bob Smith',
-      action: 'Officer suspended',
-      details: 'Officer Carol Davis suspended by Admin',
-      ip: '192.168.1.100',
-      status: 'Success',
-    },
-    {
-      id: '4',
-      timestamp: '2023-11-19 16:15:47',
-      user: 'David Wilson',
-      action: 'Proposal voted',
-      details: 'Voted "Accept" on Art Exhibition Proposal',
-      ip: '192.168.1.102',
-      status: 'Success',
-    },
-    {
-      id: '5',
-      timestamp: '2023-11-19 11:30:12',
-      user: 'Admin',
-      action: 'New officer created',
-      details: 'Created officer account for David Wilson',
-      ip: '192.168.1.100',
-      status: 'Success',
-    },
-    {
-      id: '6',
-      timestamp: '2023-11-19 09:45:55',
-      user: 'Jane Smith',
-      action: 'Proposal submitted',
-      details: 'Submitted Tech Conference Proposal',
-      ip: '192.168.1.103',
-      status: 'Success',
-    },
-  ]);
-
+  const [logs, setLogs] = useState<any[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<any[]>([]);
   const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filter logs based on selected filter
-  const filteredLogs = logs.filter(log => {
-    if (filter === 'all') return true;
-    return log.action.toLowerCase().includes(filter);
-  });
+  useEffect(() => {
+    const fetchAuditLogs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response: any = await mockAPI.getAuditLogs();
+        
+        if (response.success && response.data) {
+          // Transform the API data to match the expected format
+          const transformedLogs = response.data.map((log: any) => ({
+            id: log.id,
+            timestamp: log.timestamp,
+            user: log.actor,
+            action: log.action,
+            details: log.details,
+            ip: log.ip || 'N/A',
+            status: log.status || 'Success',
+          }));
+          
+          setLogs(transformedLogs);
+          setFilteredLogs(transformedLogs);
+        } else {
+          setError(response.message || 'Failed to fetch audit logs');
+          console.error('Failed to fetch audit logs:', response.message);
+        }
+      } catch (err) {
+        setError('Failed to load audit logs');
+        console.error('Error fetching audit logs:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchAuditLogs();
+  }, []);
+
+  // Update filtered logs when filter changes
+  useEffect(() => {
+    if (filter === 'all') {
+      setFilteredLogs(logs);
+    } else {
+      setFilteredLogs(logs.filter(log => log.action.toLowerCase().includes(filter)));
+    }
+  }, [filter, logs]);
 
   // Function to get color classes based on status
   const getStatusColor = (status: string) => {
@@ -75,6 +62,46 @@ export default function AdminAuditLogsPage() {
       ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
       : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Audit Logs</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            View full audit logs of all platform activities (immutable trail)
+          </p>
+        </div>
+        
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading audit logs...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Audit Logs</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-400">
+            View full audit logs of all platform activities (immutable trail)
+          </p>
+        </div>
+        
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+          <div className="px-6 py-5">
+            <div className="text-center py-12">
+              <p className="text-red-600 dark:text-red-400 text-lg font-medium">{error}</p>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">Unable to load audit logs</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
