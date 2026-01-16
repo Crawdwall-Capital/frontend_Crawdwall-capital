@@ -1,59 +1,122 @@
 'use client';
 
 import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 import StatusBadge from '@/components/StatusBadge';
-import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 
-export default function OfficerProposalDetailPage({ params }: { params: { id: string } }) {
+export default function OfficerProposalDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = React.use(props.params);
   const { id } = params;
   
   // State for form data
   const [decision, setDecision] = useState('');
   const [comment, setComment] = useState('');
   
-  // Mock data for proposal
-  const proposal = {
-    id,
-    title: 'Music Festival Funding',
-    status: 'Under Review',
-    date: '2023-11-15',
-    amount: '$50,000',
-    description: 'Proposal for funding a major music festival in Lagos',
-    eventType: 'Music Festival',
-    budget: '$50,000',
-    duration: '3 days',
-    revenuePlan: 'Ticket sales, sponsorships, merchandise',
-    timeline: '2024-05-15',
-    targetAudience: 'Young adults aged 18-35 interested in music',
-    organizer: 'John Doe',
-    organizerEmail: 'john@example.com',
-    documents: [
-      { name: 'Budget.pdf', url: '#' },
-      { name: 'Timeline.xlsx', url: '#' },
-      { name: 'MarketingPlan.docx', url: '#' },
-    ],
-    reviews: [
-      { officer: 'Alice Johnson', date: '2023-11-16', status: 'Accept', comment: 'Strong financial projections and market analysis.' },
-      { officer: 'Bob Smith', date: '2023-11-17', status: 'Reject', comment: 'Concerns about sustainability and ROI projections.' },
-    ],
-    milestones: [
-      { name: 'Venue Booking', status: 'Completed', date: '2024-01-15' },
-      { name: 'Artist Contracts', status: 'In Progress', date: '2024-02-01' },
-      { name: 'Marketing Launch', status: 'Pending', date: '2024-03-01' },
-      { name: 'Ticket Sales', status: 'Pending', date: '2024-04-01' },
-    ],
-    statusHistory: [
-      { status: 'Submitted', date: '2023-11-15', note: 'Proposal submitted for review' },
-      { status: 'Under Review', date: '2023-11-16', note: 'Admin team reviewing proposal' },
-    ],
-    // New fields for voting system
-    votesReceived: 2,  // Number of votes already cast
-    totalOfficers: 5,  // Total number of officers
-    acceptanceThreshold: 4,  // Minimum votes needed for acceptance
-    myVote: null,  // Current officer's vote status
-  };
+  // State for proposal data
+  const [proposal, setProposal] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
-  // Check if this officer has already voted
+  useEffect(() => {
+    const fetchProposal = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response: any = await mockAPI.getProposal(id);
+        
+        if (response.success && response.data) {
+          // Transform the API data to match the expected format
+          const transformedProposal = {
+            ...response.data,
+            date: response.data.createdAt ? new Date(response.data.createdAt).toLocaleDateString() : 'Unknown',
+            amount: `$${response.data.amount?.toLocaleString() || '0'}`,
+            budget: `$${response.data.amount?.toLocaleString() || '0'}`,
+            eventType: response.data.title.includes('Festival') ? 'Festival' : 
+                      response.data.title.includes('Conference') ? 'Conference' : 
+                      response.data.title.includes('Exhibition') ? 'Exhibition' : 'Event',
+            duration: '3 days',
+            revenuePlan: 'Ticket sales, sponsorships, merchandise',
+            timeline: response.data.updatedAt || '2024-05-15',
+            targetAudience: 'General public',
+            organizer: response.data.organizerName || 'Unknown Organizer',
+            organizerEmail: response.data.organizerEmail || 'unknown@example.com',
+            documents: response.data.documents?.map((doc: string, index: number) => ({
+              name: doc,
+              url: '#'
+            })) || [],
+            reviews: response.data.votes?.map((vote: any) => ({
+              officer: vote.officerName,
+              date: new Date(vote.timestamp).toLocaleDateString(),
+              status: vote.decision === 'ACCEPT' ? 'Accept' : 'Reject',
+              comment: vote.review
+            })) || [],
+            milestones: [
+              { name: 'Proposal Submission', status: 'Completed', date: response.data.createdAt ? new Date(response.data.createdAt).toLocaleDateString() : 'Unknown' },
+              { name: 'Initial Review', status: response.data.status === 'SUBMITTED' ? 'Pending' : 'Completed', date: 'TBD' },
+              { name: 'Officer Voting', status: response.data.status === 'IN_REVIEW' ? 'In Progress' : response.data.status === 'FUNDED' || response.data.status === 'REJECTED' ? 'Completed' : 'Pending', date: 'TBD' },
+              { name: 'Final Decision', status: response.data.status === 'FUNDED' || response.data.status === 'REJECTED' ? 'Completed' : 'Pending', date: 'TBD' },
+            ],
+            statusHistory: [
+              { status: 'Submitted', date: response.data.createdAt ? new Date(response.data.createdAt).toLocaleDateString() : 'Unknown', note: 'Proposal submitted for review' },
+              ...(response.data.status !== 'SUBMITTED' ? [{ status: 'Under Review', date: 'TBD', note: 'Admin team reviewing proposal' }] : []),
+              ...(response.data.status === 'FUNDED' ? [{ status: 'Approved', date: 'TBD', note: 'Proposal approved for funding' }] : []),
+              ...(response.data.status === 'REJECTED' ? [{ status: 'Rejected', date: 'TBD', note: 'Proposal rejected' }] : []),
+            ],
+            votesReceived: response.data.votes?.length || 0,
+            totalOfficers: 4,
+            acceptanceThreshold: 4,
+            myVote: response.data.votes?.find((vote: any) => vote.officerId === '7')?.decision || null,
+          };
+          
+          setProposal(transformedProposal);
+        } else {
+          setError('Proposal not found');
+          console.error('Failed to fetch proposal:', response.message);
+        }
+      } catch (err) {
+        setError('Failed to load proposal data');
+        console.error('Error fetching proposal:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (id) {
+      fetchProposal();
+    }
+  }, [id]);
+  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading proposal details...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 dark:text-red-400 text-lg font-medium">{error}</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Unable to load proposal data</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!proposal) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-600 dark:text-gray-400">Proposal not found</p>
+      </div>
+    );
+  }
+
+  // Check if this officer has already voted (safe to access proposal here)
   const hasVoted = proposal.myVote !== null;
 
   return (
@@ -130,7 +193,7 @@ export default function OfficerProposalDetailPage({ params }: { params: { id: st
             </div>
             <div className="p-6">
               <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                {proposal.documents.map((doc: any, index: number) => (
+                {(proposal.documents || []).map((doc: any, index: number) => (
                   <li key={index} className="py-4 flex items-center justify-between">
                     <div className="flex items-center">
                       <span className="material-symbols-outlined text-gray-400 dark:text-gray-500 mr-3">description</span>
@@ -157,7 +220,7 @@ export default function OfficerProposalDetailPage({ params }: { params: { id: st
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {proposal.reviews.map((review: any, index: number) => (
+                {(proposal.reviews || []).map((review: any, index: number) => (
                   <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                     <div className="flex justify-between">
                       <div>
@@ -174,13 +237,13 @@ export default function OfficerProposalDetailPage({ params }: { params: { id: st
                 {/* Voting status display */}
                 <div className="mb-4">
                   <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300 mb-1">
-                    <span>Votes: {proposal.votesReceived}/{proposal.acceptanceThreshold} needed for acceptance</span>
-                    <span>Officers: {proposal.votesReceived}/{proposal.totalOfficers}</span>
+                    <span>Votes: {proposal?.votesReceived || 0}/{proposal?.acceptanceThreshold || 4} needed for acceptance</span>
+                    <span>Officers: {proposal?.votesReceived || 0}/{proposal?.totalOfficers || 4}</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div 
                       className="bg-green-600 h-2 rounded-full" 
-                      style={{ width: `${Math.min(100, (proposal.votesReceived / proposal.acceptanceThreshold) * 100)}%` }}
+                      style={{ width: `${Math.min(100, ((proposal?.votesReceived || 0) / (proposal?.acceptanceThreshold || 4)) * 100)}%` }}
                     ></div>
                   </div>
                 </div>
@@ -235,7 +298,7 @@ export default function OfficerProposalDetailPage({ params }: { params: { id: st
                 ) : (
                   <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <p className="text-sm text-gray-700 dark:text-gray-300">You have already voted on this proposal.</p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">Your vote: <span className="font-medium">{proposal.myVote}</span></p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">Your vote: <span className="font-medium">{proposal?.myVote || 'None'}</span></p>
                   </div>
                 )}
               </div>
@@ -252,11 +315,11 @@ export default function OfficerProposalDetailPage({ params }: { params: { id: st
             </div>
             <div className="p-6">
               <div className="flex items-center">
-                <StatusBadge status={proposal.status} />
+                <StatusBadge status={proposal?.status || 'SUBMITTED'} />
               </div>
               <div className="mt-6">
                 <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Budget</h4>
-                <p className="text-gray-900 dark:text-white">{proposal.budget}</p>
+                <p className="text-gray-900 dark:text-white">{proposal?.budget || '$0'}</p>
               </div>
             </div>
           </div>
@@ -268,7 +331,7 @@ export default function OfficerProposalDetailPage({ params }: { params: { id: st
             </div>
             <div className="p-6">
               <ul className="space-y-4">
-                {proposal.milestones.map((milestone: any, index: number) => (
+                {(proposal.milestones || []).map((milestone: any, index: number) => (
                   <li key={index} className="flex items-start">
                     <div className="flex-shrink-0 mt-1">
                       {milestone.status === 'Completed' ? (
@@ -304,7 +367,7 @@ export default function OfficerProposalDetailPage({ params }: { params: { id: st
             </div>
             <div className="p-6">
               <ul className="space-y-4">
-                {proposal.statusHistory.map((history: any, index: number) => (
+                {(proposal.statusHistory || []).map((history: any, index: number) => (
                   <li key={index} className="flex items-start">
                     <div className="flex-shrink-0 mt-1">
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">

@@ -1,37 +1,36 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import StatusBadge from '@/components/StatusBadge';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function OfficerReviewsPage() {
-  // Mock data for reviews
-  const reviews = [
-    {
-      id: '1',
-      proposalTitle: 'Music Festival Funding',
-      proposalId: 'PR-001',
-      date: '2023-11-16',
-      status: 'Accept',
-      comment: 'Strong financial projections and market analysis.',
-      proposalStatus: 'Under Review',
-    },
-    {
-      id: '2',
-      proposalTitle: 'Tech Conference Proposal',
-      proposalId: 'PR-002',
-      date: '2023-11-17',
-      status: 'Reject',
-      comment: 'Concerns about sustainability and ROI projections.',
-      proposalStatus: 'Submitted',
-    },
-    {
-      id: '3',
-      proposalTitle: 'Art Exhibition Fundraising',
-      proposalId: 'PR-003',
-      date: '2023-11-18',
-      status: 'Accept',
-      comment: 'Excellent cultural value and community impact.',
-      proposalStatus: 'Under Review',
-    },
-  ];
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response: any = await mockAPI.getOfficerReviews('7'); // Default to David Wilson
+        if (response.success) {
+          setReviews(response.data);
+        } else {
+          console.error('Failed to fetch reviews:', response.message);
+          // Set empty array to show null state
+          setReviews([]);
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        // Set empty array to show null state
+        setReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -48,7 +47,12 @@ export default function OfficerReviewsPage() {
         </div>
         
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {reviews.length > 0 ? (
+          {loading ? (
+            <div className="p-12 flex justify-center items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading reviews...</span>
+            </div>
+          ) : reviews.length > 0 ? (
             reviews.map((review) => (
               <div key={review.id} className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -58,7 +62,7 @@ export default function OfficerReviewsPage() {
                         {review.proposalTitle}
                       </h4>
                       <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                        {review.proposalId}
+                        PR-{review.proposalId.padStart(3, '0')}
                       </span>
                     </div>
                     <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">

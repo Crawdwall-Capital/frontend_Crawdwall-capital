@@ -1,59 +1,49 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import StatusBadge from '@/components/StatusBadge';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function OfficerProposalsPage() {
-  // Mock data for proposals
-  const proposals = [
-    {
-      id: '1',
-      title: 'Music Festival Funding',
-      status: 'Under Review',
-      date: '2023-11-15',
-      amount: '$50,000',
-      description: 'Proposal for funding a major music festival in Lagos',
-      organizer: 'John Doe',
-    },
-    {
-      id: '2',
-      title: 'Tech Conference Proposal',
-      status: 'Submitted',
-      date: '2023-11-20',
-      amount: '$30,000',
-      description: 'Tech conference focusing on African innovation',
-      organizer: 'Jane Smith',
-    },
-    {
-      id: '3',
-      title: 'Art Exhibition Fundraising',
-      status: 'Under Review',
-      date: '2023-11-25',
-      amount: '$25,000',
-      description: 'Contemporary art exhibition showcasing local artists',
-      organizer: 'Robert Johnson',
-    },
-    {
-      id: '4',
-      title: 'Food Festival Investment',
-      status: 'Submitted',
-      date: '2023-11-10',
-      amount: '$40,000',
-      description: 'Cultural food festival celebrating regional cuisines',
-      organizer: 'Emily Chen',
-    },
-    {
-      id: '5',
-      title: 'Sports Tournament Funding',
-      status: 'Submitted',
-      date: '2023-11-22',
-      amount: '$35,000',
-      description: 'Annual sports tournament for youth development',
-      organizer: 'Michael Brown',
-    },
-  ];
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [filteredProposals, setFilteredProposals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // For demonstration purposes, we'll use all proposals
-  // In a real app, you would filter based on state
-  const filteredProposals = proposals;
+  useEffect(() => {
+    const fetchProposals = async () => {
+      try {
+        const response: any = await mockAPI.getOfficerProposals('7'); // Default to David Wilson
+        if (response.success) {
+          setProposals(response.data);
+          setFilteredProposals(response.data);
+        } else {
+          console.error('Failed to fetch proposals:', response.message);
+          // Set empty arrays to show null state
+          setProposals([]);
+          setFilteredProposals([]);
+        }
+      } catch (error) {
+        console.error('Error fetching proposals:', error);
+        // Set empty arrays to show null state
+        setProposals([]);
+        setFilteredProposals([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProposals();
+  }, []);
+
+  const filterProposals = (status: string) => {
+    if (status === 'All') {
+      setFilteredProposals(proposals);
+    } else {
+      const filtered = proposals.filter(proposal => proposal.status === status);
+      setFilteredProposals(filtered);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -69,19 +59,34 @@ export default function OfficerProposalsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Proposals List</h3>
             <div className="flex flex-wrap gap-2">
-              <button className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+              <button 
+                onClick={() => filterProposals('All')}
+                className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+              >
                 All ({proposals.length})
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+              <button 
+                onClick={() => filterProposals('SUBMITTED')}
+                className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              >
                 Submitted
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+              <button 
+                onClick={() => filterProposals('IN_REVIEW')}
+                className="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+              >
                 Under Review
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+              <button 
+                onClick={() => filterProposals('FUNDED')}
+                className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+              >
                 Approved
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+              <button 
+                onClick={() => filterProposals('REJECTED')}
+                className="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+              >
                 Rejected
               </button>
             </div>
@@ -89,7 +94,12 @@ export default function OfficerProposalsPage() {
         </div>
         
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {filteredProposals.length > 0 ? (
+          {loading ? (
+            <div className="px-6 py-12 flex justify-center items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading proposals...</span>
+            </div>
+          ) : filteredProposals.length > 0 ? (
             filteredProposals.map((proposal) => (
               <div key={proposal.id} className="px-6 py-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -101,14 +111,14 @@ export default function OfficerProposalsPage() {
                       {proposal.description}
                     </div>
                     <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      By: {proposal.organizer}
+                      By: {proposal.organizerName || proposal.organizer}
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <span>{proposal.date}</span>
+                      <span>{proposal.date || proposal.createdAt?.split('T')[0]}</span>
                       <span className="mx-2">•</span>
-                      <span>{proposal.amount}</span>
+                      <span>{proposal.amount ? `$${Number(proposal.amount).toLocaleString()}` : '$0'}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <StatusBadge status={proposal.status} />

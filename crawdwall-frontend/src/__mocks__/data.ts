@@ -393,6 +393,54 @@ export const mockProposals: Proposal[] = [
   }
 ];
 
+// Mock officer reviews
+export const mockOfficerReviews = [
+  {
+    id: 'rev1',
+    proposalId: '1',
+    proposalTitle: 'Music Festival in Lagos',
+    officerId: '7',
+    officerName: 'David Wilson',
+    date: '2023-07-10',
+    status: 'ACCEPT',
+    comment: 'Strong financial projections and market analysis.',
+    proposalStatus: 'FUNDED',
+  },
+  {
+    id: 'rev2',
+    proposalId: '2',
+    proposalTitle: 'Art Exhibition in Accra',
+    officerId: '8',
+    officerName: 'Lisa Thompson',
+    date: '2023-07-16',
+    status: 'REJECT',
+    comment: 'Concerns about sustainability and ROI projections.',
+    proposalStatus: 'IN_REVIEW',
+  },
+  {
+    id: 'rev3',
+    proposalId: '3',
+    proposalTitle: 'Film Production Workshop',
+    officerId: '7',
+    officerName: 'David Wilson',
+    date: '2023-08-10',
+    status: 'ACCEPT',
+    comment: 'Excellent cultural value and community impact.',
+    proposalStatus: 'VETTED',
+  },
+  {
+    id: 'rev4',
+    proposalId: '5',
+    proposalTitle: 'Cultural Heritage Documentary',
+    officerId: '9',
+    officerName: 'James Rodriguez',
+    date: '2023-08-27',
+    status: 'REJECT',
+    comment: 'Distribution strategy needs improvement.',
+    proposalStatus: 'CALLBACK',
+  },
+];
+
 // Mock audit logs
 export const mockAuditLogs = [
   {
@@ -962,6 +1010,87 @@ export const mockAPI = {
           });
         }
       }, 500);
+    });
+  },
+
+  // Officer-specific API functions
+  getOfficerReviews: (officerId: string) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const officerReviews = mockOfficerReviews.filter(review => review.officerId === officerId);
+        resolve({
+          success: true,
+          data: officerReviews
+        });
+      }, 800);
+    });
+  },
+
+  getProposalsNeedingVotes: (officerId: string) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Get proposals that are in review status and don't have votes from this officer yet
+        const proposalsNeedingVotes = mockProposals.filter(proposal => 
+          proposal.status === 'IN_REVIEW' || proposal.status === 'SUBMITTED'
+        ).map(proposal => {
+          const votesReceived = proposal.votes?.length || 0;
+          const officerVote = proposal.votes?.find(vote => vote.officerId === officerId);
+          
+          return {
+            id: proposal.id,
+            title: proposal.title,
+            status: proposal.status,
+            date: proposal.createdAt.split('T')[0],
+            amount: `$${proposal.amount.toLocaleString()}`,
+            description: proposal.description,
+            organizer: proposal.organizerName,
+            reviewsReceived: votesReceived,
+            totalOfficers: mockOfficers.length,
+            acceptanceThreshold: 4,
+            votesReceived: votesReceived,
+            myVote: officerVote ? officerVote.decision : null,
+          };
+        }).filter(proposal => proposal.myVote === null); // Only show proposals where officer hasn't voted
+        
+        resolve({
+          success: true,
+          data: proposalsNeedingVotes
+        });
+      }, 800);
+    });
+  },
+
+  getMyVotedProposals: (officerId: string) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Get proposals where this officer has voted
+        const votedProposals = mockProposals.filter(proposal => 
+          proposal.votes?.some(vote => vote.officerId === officerId)
+        ).map(proposal => {
+          const officerVote = proposal.votes?.find(vote => vote.officerId === officerId);
+          const votesReceived = proposal.votes?.length || 0;
+          const acceptVotes = proposal.votes?.filter(vote => vote.decision === 'ACCEPT').length || 0;
+          
+          return {
+            id: proposal.id,
+            title: proposal.title,
+            status: proposal.status === 'FUNDED' ? 'Accepted' : 
+                   proposal.status === 'REJECTED' ? 'Rejected' : 
+                   acceptVotes >= 4 ? 'Accepted' : 'Rejected',
+            date: proposal.createdAt.split('T')[0],
+            amount: `$${proposal.amount.toLocaleString()}`,
+            myVote: officerVote?.decision,
+            acceptanceThreshold: 4,
+            votesReceived: votesReceived,
+            totalOfficers: mockOfficers.length,
+          };
+        });
+        
+        resolve({
+          success: true,
+          data: votedProposals
+        });
+      }, 800);
     });
   }
 };

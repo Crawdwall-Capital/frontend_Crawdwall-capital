@@ -1,64 +1,45 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import StatusBadge from '@/components/StatusBadge';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function OfficerVotesPage() {
-  // Mock data for proposals needing votes
-  const proposalsNeedingVotes = [
-    {
-      id: '1',
-      title: 'Music Festival Funding',
-      status: 'Under Review',
-      date: '2023-11-15',
-      amount: '$50,000',
-      description: 'Proposal for funding a major music festival in Lagos',
-      organizer: 'John Doe',
-      reviewsReceived: 3,
-      totalOfficers: 5,
-      acceptanceThreshold: 4,
-      votesReceived: 3,
-      myVote: null,
-    },
-    {
-      id: '2',
-      title: 'Tech Conference Proposal',
-      status: 'Under Review',
-      date: '2023-11-20',
-      amount: '$30,000',
-      description: 'Tech conference focusing on African innovation',
-      organizer: 'Jane Smith',
-      reviewsReceived: 2,
-      totalOfficers: 5,
-      acceptanceThreshold: 4,
-      votesReceived: 2,
-      myVote: null,
-    },
-  ];
+  const [proposalsNeedingVotes, setProposalsNeedingVotes] = useState<any[]>([]);
+  const [votedProposals, setVotedProposals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data for voted proposals
-  const votedProposals = [
-    {
-      id: '3',
-      title: 'Art Exhibition Fundraising',
-      status: 'Accepted',
-      date: '2023-11-25',
-      amount: '$25,000',
-      myVote: 'Accept',
-      acceptanceThreshold: 4,
-      votesReceived: 4,
-      totalOfficers: 5,
-    },
-    {
-      id: '4',
-      title: 'Food Festival Investment',
-      status: 'Rejected',
-      date: '2023-11-10',
-      amount: '$40,000',
-      myVote: 'Reject',
-      acceptanceThreshold: 4,
-      votesReceived: 2,
-      totalOfficers: 5,
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const officerId = '7'; // Default to David Wilson
+        
+        // Fetch proposals needing votes
+        const votesResponse: any = await mockAPI.getProposalsNeedingVotes(officerId);
+        const votedResponse: any = await mockAPI.getMyVotedProposals(officerId);
+        
+        if (votesResponse.success && votedResponse.success) {
+          setProposalsNeedingVotes(votesResponse.data);
+          setVotedProposals(votedResponse.data);
+        } else {
+          console.error('Failed to fetch voting data:', votesResponse.message || votedResponse.message);
+          // Set empty arrays to show null state
+          setProposalsNeedingVotes([]);
+          setVotedProposals([]);
+        }
+      } catch (error) {
+        console.error('Error fetching voting data:', error);
+        // Set empty arrays to show null state
+        setProposalsNeedingVotes([]);
+        setVotedProposals([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -75,7 +56,12 @@ export default function OfficerVotesPage() {
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">Proposals Needing My Vote</h3>
         </div>
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {proposalsNeedingVotes.length > 0 ? (
+          {loading ? (
+            <div className="p-12 flex justify-center items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading voting data...</span>
+            </div>
+          ) : proposalsNeedingVotes.length > 0 ? (
             proposalsNeedingVotes.map((proposal) => (
               <div key={proposal.id} className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -123,7 +109,12 @@ export default function OfficerVotesPage() {
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">My Voted Proposals</h3>
         </div>
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {votedProposals.length > 0 ? (
+          {loading ? (
+            <div className="p-12 flex justify-center items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading voting data...</span>
+            </div>
+          ) : votedProposals.length > 0 ? (
             votedProposals.map((proposal) => (
               <div key={proposal.id} className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
