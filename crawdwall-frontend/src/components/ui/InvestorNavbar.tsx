@@ -33,7 +33,7 @@ export default function InvestorNavbar() {
       <div 
         className={`fixed top-0 left-0 z-50 h-screen w-64 transform transition-transform duration-300 ease-in-out bg-white/5 border-r border-white/10 backdrop-blur-md ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:static md:w-64`} 
+        } md:translate-x-0`} 
       >
         <div className="flex flex-col h-full">
           {/* Sidebar header */}

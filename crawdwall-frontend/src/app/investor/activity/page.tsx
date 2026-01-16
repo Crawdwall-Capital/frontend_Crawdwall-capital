@@ -74,7 +74,7 @@ export default function InvestorActivityPage() {
       <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
         <InvestorNavbar />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl ml-0 md:ml-64 mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
               Activity Feed

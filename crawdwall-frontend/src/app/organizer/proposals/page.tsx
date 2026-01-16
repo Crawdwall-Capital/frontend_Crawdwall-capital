@@ -1,46 +1,205 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import StatusBadge from '@/components/StatusBadge';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function OrganizerProposalsPage() {
-  // Mock data for proposals
-  const proposals = [
-    {
-      id: '1',
-      title: 'Music Festival Funding',
-      status: 'Accepted',
-      date: '2023-11-15',
-      amount: '$50,000',
-      description: 'Proposal for funding a major music festival in Lagos',
-    },
-    {
-      id: '2',
-      title: 'Tech Conference Proposal',
-      status: 'Under Review',
-      date: '2023-11-20',
-      amount: '$30,000',
-      description: 'Tech conference focusing on African innovation',
-    },
-    {
-      id: '3',
-      title: 'Art Exhibition Fundraising',
-      status: 'Submitted',
-      date: '2023-11-25',
-      amount: '$25,000',
-      description: 'Contemporary art exhibition showcasing local artists',
-    },
-    {
-      id: '4',
-      title: 'Food Festival Investment',
-      status: 'Rejected',
-      date: '2023-11-10',
-      amount: '$40,000',
-      description: 'Cultural food festival celebrating regional cuisines',
-    },
-  ];
-
-  // For demonstration purposes, we'll use all proposals
-  // In a real app, you would filter based on state
-  const filteredProposals = proposals;
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [filteredProposals, setFilteredProposals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchProposals = async () => {
+      try {
+        // Get current user to fetch their proposals
+        const userResponse: any = await mockAPI.getCurrentUser();
+        if (!userResponse.success) {
+          console.error('Failed to get current user');
+          return;
+        }
+        
+        const userId = userResponse.data.id;
+        const response: any = await mockAPI.getUserProposals(userId);
+        
+        if (response.success) {
+          // Transform the data to match the expected format
+          const transformedProposals = response.data.map((proposal: any) => ({
+            id: proposal.id,
+            title: proposal.title,
+            status: proposal.status,
+            date: proposal.createdAt ? new Date(proposal.createdAt).toLocaleDateString() : 'N/A',
+            amount: `$${proposal.amount.toLocaleString()}`,
+            description: proposal.description,
+          }));
+          
+          setProposals(transformedProposals);
+          setFilteredProposals(transformedProposals);
+        } else {
+          console.error('Failed to fetch proposals:', response.message);
+          // Fallback to mock data
+          setProposals([
+            {
+              id: '1',
+              title: 'Music Festival Funding',
+              status: 'FUNDED',
+              date: '2023-11-15',
+              amount: '$50,000',
+              description: 'Proposal for funding a major music festival in Lagos',
+            },
+            {
+              id: '2',
+              title: 'Tech Conference Proposal',
+              status: 'IN_REVIEW',
+              date: '2023-11-20',
+              amount: '$30,000',
+              description: 'Tech conference focusing on African innovation',
+            },
+            {
+              id: '3',
+              title: 'Art Exhibition Fundraising',
+              status: 'SUBMITTED',
+              date: '2023-11-25',
+              amount: '$25,000',
+              description: 'Contemporary art exhibition showcasing local artists',
+            },
+            {
+              id: '4',
+              title: 'Food Festival Investment',
+              status: 'REJECTED',
+              date: '2023-11-10',
+              amount: '$40,000',
+              description: 'Cultural food festival celebrating regional cuisines',
+            },
+          ]);
+          setFilteredProposals([
+            {
+              id: '1',
+              title: 'Music Festival Funding',
+              status: 'FUNDED',
+              date: '2023-11-15',
+              amount: '$50,000',
+              description: 'Proposal for funding a major music festival in Lagos',
+            },
+            {
+              id: '2',
+              title: 'Tech Conference Proposal',
+              status: 'IN_REVIEW',
+              date: '2023-11-20',
+              amount: '$30,000',
+              description: 'Tech conference focusing on African innovation',
+            },
+            {
+              id: '3',
+              title: 'Art Exhibition Fundraising',
+              status: 'SUBMITTED',
+              date: '2023-11-25',
+              amount: '$25,000',
+              description: 'Contemporary art exhibition showcasing local artists',
+            },
+            {
+              id: '4',
+              title: 'Food Festival Investment',
+              status: 'REJECTED',
+              date: '2023-11-10',
+              amount: '$40,000',
+              description: 'Cultural food festival celebrating regional cuisines',
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching proposals:', error);
+        // Fallback to mock data
+        setProposals([
+          {
+            id: '1',
+            title: 'Music Festival Funding',
+            status: 'FUNDED',
+            date: '2023-11-15',
+            amount: '$50,000',
+            description: 'Proposal for funding a major music festival in Lagos',
+          },
+          {
+            id: '2',
+            title: 'Tech Conference Proposal',
+            status: 'IN_REVIEW',
+            date: '2023-11-20',
+            amount: '$30,000',
+            description: 'Tech conference focusing on African innovation',
+          },
+          {
+            id: '3',
+            title: 'Art Exhibition Fundraising',
+            status: 'SUBMITTED',
+            date: '2023-11-25',
+            amount: '$25,000',
+            description: 'Contemporary art exhibition showcasing local artists',
+          },
+          {
+            id: '4',
+            title: 'Food Festival Investment',
+            status: 'REJECTED',
+            date: '2023-11-10',
+            amount: '$40,000',
+            description: 'Cultural food festival celebrating regional cuisines',
+          },
+        ]);
+        setFilteredProposals([
+          {
+            id: '1',
+            title: 'Music Festival Funding',
+            status: 'FUNDED',
+            date: '2023-11-15',
+            amount: '$50,000',
+            description: 'Proposal for funding a major music festival in Lagos',
+          },
+          {
+            id: '2',
+            title: 'Tech Conference Proposal',
+            status: 'IN_REVIEW',
+            date: '2023-11-20',
+            amount: '$30,000',
+            description: 'Tech conference focusing on African innovation',
+          },
+          {
+            id: '3',
+            title: 'Art Exhibition Fundraising',
+            status: 'SUBMITTED',
+            date: '2023-11-25',
+            amount: '$25,000',
+            description: 'Contemporary art exhibition showcasing local artists',
+          },
+          {
+            id: '4',
+            title: 'Food Festival Investment',
+            status: 'REJECTED',
+            date: '2023-11-10',
+            amount: '$40,000',
+            description: 'Cultural food festival celebrating regional cuisines',
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProposals();
+  }, []);
+  
+  const filterProposals = (status: string) => {
+    if (status === 'All') {
+      setFilteredProposals(proposals);
+    } else {
+      const filtered = proposals.filter(proposal => 
+        status === 'Submitted' ? proposal.status === 'SUBMITTED' :
+        status === 'Under Review' ? proposal.status === 'IN_REVIEW' :
+        status === 'Accepted' ? proposal.status === 'FUNDED' :
+        status === 'Rejected' ? proposal.status === 'REJECTED' : proposal.status === status
+      );
+      setFilteredProposals(filtered);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -67,26 +226,46 @@ export default function OrganizerProposalsPage() {
         {/* Filter Controls */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex flex-wrap gap-2">
-            <button className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+            <button 
+              onClick={() => filterProposals('All')}
+              className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+            >
               All ({proposals.length})
             </button>
-            <button className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+            <button 
+              onClick={() => filterProposals('Submitted')}
+              className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            >
               Submitted
             </button>
-            <button className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+            <button 
+              onClick={() => filterProposals('Under Review')}
+              className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+            >
               Under Review
             </button>
-            <button className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+            <button 
+              onClick={() => filterProposals('Accepted')}
+              className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+            >
               Accepted
             </button>
-            <button className="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+            <button 
+              onClick={() => filterProposals('Rejected')}
+              className="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+            >
               Rejected
             </button>
           </div>
         </div>
         
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
-          {filteredProposals.length > 0 ? (
+          {loading ? (
+            <div className="px-6 py-12 flex justify-center items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading proposals...</span>
+            </div>
+          ) : filteredProposals.length > 0 ? (
             filteredProposals.map((proposal) => (
               <div key={proposal.id} className="px-6 py-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

@@ -76,7 +76,7 @@ export default function InvestorOpportunitiesPage() {
       <div className="flex flex-1 md:gap-8">
         <InvestorNavbar />
 
-        <main className="w-full lg:w-3/4 px-4 sm:px-6 lg:px-8 py-8">
+        <main className="w-full lg:w-3/4 ml-0 md:ml-64 px-4 sm:px-6 lg:px-8 py-8">
           {/* Opportunities Overview */}
           <section className="mb-12">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8">

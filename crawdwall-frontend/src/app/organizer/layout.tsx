@@ -7,13 +7,13 @@ export default function OrganizerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900">
-      <OrganizerNavbar />
-      <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-white">
+      <div className="flex flex-1 md:gap-8">
+        <OrganizerNavbar />
+        <main className="w-full lg:w-3/4 ml-0 md:ml-64 px-4 sm:px-6 lg:px-8 py-8">
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
       <Footer />
     </div>
   );

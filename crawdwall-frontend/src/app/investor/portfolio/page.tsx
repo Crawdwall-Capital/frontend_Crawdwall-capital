@@ -97,7 +97,7 @@ export default function InvestorPortfolioPage() {
       <div className="flex flex-1 md:gap-8">
         <InvestorNavbar />
 
-        <main className="w-full lg:w-3/4 px-4 sm:px-6 lg:px-8 py-8">
+        <main className="w-full lg:w-3/4 ml-0 md:ml-64 px-4 sm:px-6 lg:px-8 py-8">
           {/* Portfolio Overview */}
           <section className="mb-12">
             <div className="flex justify-between items-center mb-6">

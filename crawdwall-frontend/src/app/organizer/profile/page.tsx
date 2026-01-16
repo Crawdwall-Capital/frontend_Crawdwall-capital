@@ -1,8 +1,62 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function OrganizerProfilePage() {
   const [activeTab, setActiveTab] = useState('profile');
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response: any = await mockAPI.getCurrentUser();
+        if (response.success && response.data) {
+          setUserData(response.data);
+        } else {
+          console.error('Failed to fetch user data:', response.message);
+          // Set default data if API call fails
+          setUserData({
+            id: '2',
+            name: 'John Smith',
+            email: 'organizer1@crawdwall.com',
+            phone: '+1 (555) 123-4567',
+            createdAt: '2023-02-20T10:15:00Z',
+            role: 'organizer'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        // Set default data if API call fails
+        setUserData({
+          id: '2',
+          name: 'John Smith',
+          email: 'organizer1@crawdwall.com',
+          phone: '+1 (555) 123-4567',
+          createdAt: '2023-02-20T10:15:00Z',
+          role: 'organizer'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">Loading profile...</span>
+      </div>
+    );
+  }
+
+  // Split the full name into first and last name for the form
+  const fullName = userData?.name || '';
+  const firstName = fullName.split(' ')[0] || '';
+  const lastName = fullName.split(' ').slice(1).join(' ') || '';
 
   return (
     <div className="space-y-8">
@@ -55,7 +109,7 @@ export default function OrganizerProfilePage() {
                     id="first-name"
                     autoComplete="given-name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="John"
+                    defaultValue={firstName}
                   />
                 </div>
 
@@ -69,7 +123,7 @@ export default function OrganizerProfilePage() {
                     id="last-name"
                     autoComplete="family-name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="Doe"
+                    defaultValue={lastName}
                   />
                 </div>
 
@@ -83,7 +137,7 @@ export default function OrganizerProfilePage() {
                     id="email"
                     autoComplete="email"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="john@example.com"
+                    defaultValue={userData?.email || ''}
                   />
                 </div>
 
@@ -96,7 +150,7 @@ export default function OrganizerProfilePage() {
                     name="phone"
                     id="phone"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="+1 (555) 123-4567"
+                    defaultValue={userData?.phone || ''}
                   />
                 </div>
 
@@ -109,7 +163,7 @@ export default function OrganizerProfilePage() {
                     name="bio"
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    defaultValue="Organizer of music festivals and cultural events."
+                    defaultValue={`Organizer of music festivals and cultural events. Member since ${userData?.createdAt ? new Date(userData.createdAt).getFullYear() : new Date().getFullYear()}.`}
                   ></textarea>
                 </div>
               </div>

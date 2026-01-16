@@ -120,7 +120,7 @@ export default function InvestorDashboardPage() {
       <div className="flex flex-1 md:gap-8">
         <InvestorNavbar />
 
-        <main className="w-full lg:w-3/4 px-4 sm:px-6 lg:px-8 py-8">
+        <main className="w-full lg:w-3/4 ml-0 md:ml-64 px-4 sm:px-6 lg:px-8 py-8">
           {/* Welcome Section */}
           <section className="mb-12">
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
