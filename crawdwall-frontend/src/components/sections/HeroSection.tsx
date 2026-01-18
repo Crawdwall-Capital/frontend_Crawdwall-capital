@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { motion } from 'framer-motion';
 
 interface HeroSectionProps {
   title: ReactNode;
@@ -15,8 +16,26 @@ const HeroSection = ({
   backgroundImageUrl,
   minHeight = "min-h-screen"
 }: HeroSectionProps) => {
+  // Animation that brings elements in center first, then slides them out to the left
+  const slideOutVariants = {
+    initial: { x: 0, opacity: 0 }, // Start centered but invisible
+    animate: { 
+      x: 0, // Move to center
+      opacity: 1,
+    },
+    exit: {
+      x: "-100vw", // Slide completely out to the left
+      opacity: 0,
+    }
+  };
+
   return (
-    <section className={`relative isolate overflow-hidden ${minHeight} flex items-center justify-center`}>
+    <motion.section 
+      className={`relative isolate overflow-hidden ${minHeight} flex items-center justify-center`}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
       <div className="absolute inset-0 -z-10 h-full w-full bg-background-light dark:bg-background-dark">
         {backgroundImageUrl ? (
           <div 
@@ -35,17 +54,38 @@ const HeroSection = ({
       
       <div className="relative z-10 max-w-4xl sm:max-w-5xl md:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {badgeText && (
-          <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4 sm:mb-6">
+          <motion.span 
+            className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-4 sm:mb-6"
+            variants={slideOutVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
             {badgeText}
-          </span>
+          </motion.span>
         )}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6">
+        <motion.h1 
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6"
+          variants={slideOutVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+        >
           {title}
-        </h1>
+        </motion.h1>
         {subtitle && (
-          <p className="text-base sm:text-lg md:text-xl text-slate-200 max-w-2xl sm:max-w-3xl mx-auto mb-8 sm:mb-12">
+          <motion.p 
+            className="text-base sm:text-lg md:text-xl text-slate-200 max-w-2xl sm:max-w-3xl mx-auto mb-8 sm:mb-12"
+            variants={slideOutVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+          >
             {subtitle}
-          </p>
+          </motion.p>
         )}
         
         <div className="animate-bounce mt-8 sm:mt-12">
@@ -54,7 +94,7 @@ const HeroSection = ({
           </span>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
