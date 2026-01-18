@@ -137,7 +137,6 @@ export default function InvestorActivityPage() {
           </div>
         </main>
 
-        <Footer />
       </div>
     </Fragment>
   );
