@@ -89,6 +89,18 @@ export default function OfficerProposalsPage() {
               >
                 Rejected
               </button>
+              <button 
+                onClick={() => filterProposals('CALLBACK')}
+                className="px-3 py-1 text-sm rounded-full bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/30"
+              >
+                Callback
+              </button>
+              <button 
+                onClick={() => filterProposals('VETTED')}
+                className="px-3 py-1 text-sm rounded-full bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-800/30"
+              >
+                Vetted
+              </button>
             </div>
           </div>
         </div>

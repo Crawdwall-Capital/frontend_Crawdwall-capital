@@ -10,6 +10,21 @@ export default function AdminProposalsPage() {
   const [filteredProposals, setFilteredProposals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+
+  // Filter proposals based on selected status
+  const filterProposals = (filter: string) => {
+    setSelectedFilter(filter);
+    
+    if (filter === 'all') {
+      setFilteredProposals(proposals);
+    } else {
+      const filtered = proposals.filter(proposal => 
+        proposal.status.toLowerCase().includes(filter.toLowerCase())
+      );
+      setFilteredProposals(filtered);
+    }
+  };
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -38,7 +53,15 @@ export default function AdminProposalsPage() {
           }));
           
           setProposals(transformedProposals);
-          setFilteredProposals(transformedProposals);
+          // Apply current filter to new data
+          if (selectedFilter === 'all') {
+            setFilteredProposals(transformedProposals);
+          } else {
+            const filtered = transformedProposals.filter((proposal: any) => 
+              proposal.status.toLowerCase().includes(selectedFilter.toLowerCase())
+            );
+            setFilteredProposals(filtered);
+          }
         } else {
           setError(response.message || 'Failed to fetch proposals');
           console.error('Failed to fetch proposals:', response.message);
@@ -108,20 +131,61 @@ export default function AdminProposalsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Proposals List</h3>
             <div className="flex flex-wrap gap-2">
-              <button className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+              <button 
+                onClick={() => filterProposals('all')}
+                className={`px-3 py-1 text-sm rounded-full ${selectedFilter === 'all' 
+                  ? 'bg-blue-600 text-white dark:bg-blue-500' 
+                  : 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-800/30'}`}
+              >
                 All ({proposals.length})
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
-                Submitted
+              <button 
+                onClick={() => filterProposals('submitted')}
+                className={`px-3 py-1 text-sm rounded-full ${selectedFilter === 'submitted' 
+                  ? 'bg-gray-600 text-white dark:bg-gray-500' 
+                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
+              >
+                Submitted ({proposals.filter((p: any) => p.status.toLowerCase().includes('submitted')).length})
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                Under Review
+              <button 
+                onClick={() => filterProposals('review')}
+                className={`px-3 py-1 text-sm rounded-full ${selectedFilter === 'review' 
+                  ? 'bg-yellow-600 text-white dark:bg-yellow-500' 
+                  : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-800/30'}`}
+              >
+                Under Review ({proposals.filter((p: any) => p.status.toLowerCase().includes('review')).length})
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                Accepted
+              <button 
+                onClick={() => filterProposals('funded')}
+                className={`px-3 py-1 text-sm rounded-full ${selectedFilter === 'funded' 
+                  ? 'bg-green-600 text-white dark:bg-green-500' 
+                  : 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/30'}`}
+              >
+                Accepted ({proposals.filter((p: any) => p.status.toLowerCase().includes('funded')).length})
               </button>
-              <button className="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                Rejected
+              <button 
+                onClick={() => filterProposals('rejected')}
+                className={`px-3 py-1 text-sm rounded-full ${selectedFilter === 'rejected' 
+                  ? 'bg-red-600 text-white dark:bg-red-500' 
+                  : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/30'}`}
+              >
+                Rejected ({proposals.filter((p: any) => p.status.toLowerCase().includes('rejected')).length})
+              </button>
+              <button 
+                onClick={() => filterProposals('callback')}
+                className={`px-3 py-1 text-sm rounded-full ${selectedFilter === 'callback' 
+                  ? 'bg-purple-600 text-white dark:bg-purple-500' 
+                  : 'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/30'}`}
+              >
+                Callback ({proposals.filter((p: any) => p.status.toLowerCase().includes('callback')).length})
+              </button>
+              <button 
+                onClick={() => filterProposals('vetted')}
+                className={`px-3 py-1 text-sm rounded-full ${selectedFilter === 'vetted' 
+                  ? 'bg-indigo-600 text-white dark:bg-indigo-500' 
+                  : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-800/30'}`}
+              >
+                Vetted ({proposals.filter((p: any) => p.status.toLowerCase().includes('vetted')).length})
               </button>
             </div>
           </div>

@@ -1,7 +1,21 @@
 import { Proposal, User, UserWithPassword, Vote } from '@/types';
 
-// Store users in memory for registration
-// Store users in memory for registration
+// =============================================================================
+// DATABASE STRUCTURE ORGANIZATION
+// =============================================================================
+
+// ============================================================================
+// SECTION 1: USER MANAGEMENT SYSTEM
+// Contains all user-related data and utility functions
+// Used by: Login pages, User profiles, Admin user management
+// ============================================================================
+
+/**
+ * Core user data storage
+ * - Stores all registered users in memory
+ * - Persists to localStorage for data persistence
+ * - Includes passwords for authentication (removed when returning data)
+ */
 let mockUsers: UserWithPassword[] = (() => {
   // Load users from localStorage if available
   if (typeof window !== 'undefined') {
@@ -17,6 +31,7 @@ let mockUsers: UserWithPassword[] = (() => {
   
   // Initialize with default users
   return [
+    // ADMIN USERS
     {
       id: '1',
       email: 'admin@crawdwall.com',
@@ -26,6 +41,8 @@ let mockUsers: UserWithPassword[] = (() => {
       createdAt: '2023-01-15T08:30:00Z',
       updatedAt: '2023-01-15T08:30:00Z',
     },
+    
+    // ORGANIZER USERS
     {
       id: '2',
       email: 'organizer1@crawdwall.com',
@@ -53,6 +70,8 @@ let mockUsers: UserWithPassword[] = (() => {
       createdAt: '2023-03-25T16:30:00Z',
       updatedAt: '2023-03-25T16:30:00Z',
     },
+    
+    // INVESTOR USERS
     {
       id: '5',
       email: 'investor1@crawdwall.com',
@@ -71,12 +90,13 @@ let mockUsers: UserWithPassword[] = (() => {
       createdAt: '2023-04-15T11:45:00Z',
       updatedAt: '2023-04-15T11:45:00Z',
     },
+    
+    // OFFICER USERS
     {
       id: '7',
       email: 'officer1@crawdwall.com',
       name: 'David Wilson',
       role: 'officer',
-      status: 'Active',
       password: 'officer123',
       createdAt: '2023-05-10T13:45:00Z',
       updatedAt: '2023-05-10T13:45:00Z',
@@ -86,7 +106,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'officer2@crawdwall.com',
       name: 'Lisa Thompson',
       role: 'officer',
-      status: 'Active',
       password: 'officer123',
       createdAt: '2023-05-20T09:30:00Z',
       updatedAt: '2023-05-20T09:30:00Z',
@@ -96,7 +115,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'officer3@crawdwall.com',
       name: 'James Rodriguez',
       role: 'officer',
-      status: 'Suspended',
       password: 'officer123',
       createdAt: '2023-06-05T14:20:00Z',
       updatedAt: '2023-06-05T14:20:00Z',
@@ -106,7 +124,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'officer4@crawdwall.com',
       name: 'Maria Garcia',
       role: 'officer',
-      status: 'Active',
       password: 'officer123',
       createdAt: '2023-06-15T11:15:00Z',
       updatedAt: '2023-06-15T11:15:00Z',
@@ -114,12 +131,16 @@ let mockUsers: UserWithPassword[] = (() => {
   ];
 })()
 
-// Function to get all users
+/**
+ * User Management Utility Functions
+ */
+
+// Get all users (without passwords)
 export const getAllUsers = (): User[] => {
   return mockUsers;
 };
 
-// Function to add a new user
+// Add a new user
 export const addUser = (user: Omit<UserWithPassword, 'id' | 'createdAt' | 'updatedAt'>): User => {
   // Calculate new ID based on highest existing ID
   const maxId = Math.max(...mockUsers.map(u => parseInt(u.id)), 0);
@@ -143,7 +164,7 @@ export const addUser = (user: Omit<UserWithPassword, 'id' | 'createdAt' | 'updat
   return userWithoutPassword;
 };
 
-// Function to find a user by email
+// Find user by email
 export const findUserByEmail = (email: string): User | undefined => {
   // Load users from localStorage if available
   let users = mockUsers;
@@ -160,7 +181,7 @@ export const findUserByEmail = (email: string): User | undefined => {
   return users.find((user: any) => user.email === email);
 };
 
-// Function to find a user by ID
+// Find user by ID
 export const findUserById = (id: string): User | undefined => {
   // Load users from localStorage if available
   let users = mockUsers;
@@ -177,7 +198,7 @@ export const findUserById = (id: string): User | undefined => {
   return users.find((user: any) => user.id === id);
 };
 
-// Function to validate admin credentials
+// Validate admin credentials
 export const validateAdmin = (email: string, password: string): boolean => {
   // Load users from localStorage if available
   let users = mockUsers;
@@ -195,29 +216,88 @@ export const validateAdmin = (email: string, password: string): boolean => {
   return adminUser ? adminUser.password === password : false;
 };
 
-// Mock investors
-export const mockInvestors: User[] = [
-  { id: '5', email: 'investor1@crawdwall.com', name: 'Michael Brown', role: 'investor', createdAt: '2023-04-05T09:20:00Z', updatedAt: '2023-04-05T09:20:00Z' },
-  { id: '6', email: 'investor2@crawdwall.com', name: 'Robert Johnson', role: 'investor', createdAt: '2023-04-15T11:45:00Z', updatedAt: '2023-04-15T11:45:00Z' },
-];
+// ============================================================================
+// SECTION 2: PROPOSAL MANAGEMENT SYSTEM
+// Contains all proposal-related data and configurations
+// Used by: Proposal pages, Review system, Investment tracking
+// ============================================================================
 
-// Mock organizations (funded proposals)
+/**
+ * Proposal Status Definitions
+ * DRAFT: Initial creation stage
+ * SUBMITTED: Awaiting initial review
+ * IN_REVIEW: Being evaluated by officers
+ * VETTED: Passed initial screening
+ * CALLBACK: Requires additional information
+ * FUNDED: Approved and funded
+ * REJECTED: Not approved for funding
+ */
+
+/**
+ * Sample funded organizations/proposals
+ * Used for: Dashboard statistics, Portfolio examples
+ */
 export const mockOrganizations: Proposal[] = [
-  { id: '1', title: 'Music Festival in Lagos', description: 'A large-scale music festival', amount: 50000, status: 'FUNDED', organizerId: '2', organizerName: 'John Smith', organizerEmail: 'organizer1@crawdwall.com', createdAt: '2023-05-15T11:30:00Z', updatedAt: '2023-07-20T16:45:00Z' },
-  { id: '2', title: 'Art Exhibition in Accra', description: 'Contemporary African art exhibition', amount: 25000, status: 'FUNDED', organizerId: '3', organizerName: 'Sarah Johnson', organizerEmail: 'organizer2@crawdwall.com', createdAt: '2023-06-20T14:20:00Z', updatedAt: '2023-08-10T09:15:00Z' },
-  { id: '3', title: 'Film Production Workshop', description: 'Training workshop for young filmmakers', amount: 15000, status: 'FUNDED', organizerId: '2', organizerName: 'John Smith', organizerEmail: 'organizer1@crawdwall.com', createdAt: '2023-07-05T09:45:00Z', updatedAt: '2023-08-25T14:30:00Z' },
+  { 
+    id: '1', 
+    title: 'Music Festival in Lagos', 
+    description: 'A large-scale music festival', 
+    amount: 50000, 
+    status: 'FUNDED', 
+    organizerId: '2', 
+    organizerName: 'John Smith', 
+    organizerEmail: 'organizer1@crawdwall.com', 
+    createdAt: '2023-05-15T11:30:00Z', 
+    updatedAt: '2023-07-20T16:45:00Z' 
+  },
+  { 
+    id: '2', 
+    title: 'Art Exhibition in Accra', 
+    description: 'Contemporary African art exhibition', 
+    amount: 25000, 
+    status: 'FUNDED', 
+    organizerId: '3', 
+    organizerName: 'Sarah Johnson', 
+    organizerEmail: 'organizer2@crawdwall.com', 
+    createdAt: '2023-06-20T14:20:00Z', 
+    updatedAt: '2023-08-10T09:15:00Z' 
+  },
+  { 
+    id: '3', 
+    title: 'Film Production Workshop', 
+    description: 'Training workshop for young filmmakers', 
+    amount: 15000, 
+    status: 'FUNDED', 
+    organizerId: '2', 
+    organizerName: 'John Smith', 
+    organizerEmail: 'organizer1@crawdwall.com', 
+    createdAt: '2023-07-05T09:45:00Z', 
+    updatedAt: '2023-08-25T14:30:00Z' 
+  },
 ];
 
-// Mock officers
+/**
+ * Officer user data (subset of mockUsers)
+ * Used for: Officer dashboards, Assignment tracking
+ */
 export const mockOfficers: User[] = [
-  { id: '7', email: 'officer1@crawdwall.com', name: 'David Wilson', role: 'officer', status: 'Active', createdAt: '2023-05-10T13:45:00Z', updatedAt: '2023-05-10T13:45:00Z' },
-  { id: '8', email: 'officer2@crawdwall.com', name: 'Lisa Thompson', role: 'officer', status: 'Active', createdAt: '2023-05-20T09:30:00Z', updatedAt: '2023-05-20T09:30:00Z' },
-  { id: '9', email: 'officer3@crawdwall.com', name: 'James Rodriguez', role: 'officer', status: 'Suspended', createdAt: '2023-06-05T14:20:00Z', updatedAt: '2023-06-05T14:20:00Z' },
-  { id: '10', email: 'officer4@crawdwall.com', name: 'Maria Garcia', role: 'officer', status: 'Active', createdAt: '2023-06-15T11:15:00Z', updatedAt: '2023-06-15T11:15:00Z' },
+  { id: '7', email: 'officer1@crawdwall.com', name: 'David Wilson', role: 'officer', createdAt: '2023-05-10T13:45:00Z', updatedAt: '2023-05-10T13:45:00Z' },
+  { id: '8', email: 'officer2@crawdwall.com', name: 'Lisa Thompson', role: 'officer', createdAt: '2023-05-20T09:30:00Z', updatedAt: '2023-05-20T09:30:00Z' },
+  { id: '9', email: 'officer3@crawdwall.com', name: 'James Rodriguez', role: 'officer', createdAt: '2023-06-05T14:20:00Z', updatedAt: '2023-06-05T14:20:00Z' },
+  { id: '10', email: 'officer4@crawdwall.com', name: 'Maria Garcia', role: 'officer', createdAt: '2023-06-15T11:15:00Z', updatedAt: '2023-06-15T11:15:00Z' },
 ];
 
-// Mock proposals
+/**
+ * Main proposal dataset
+ * Contains all proposals with their full details including:
+ * - Status tracking
+ * - Document management
+ * - Comment threads
+ * - Officer voting records
+ * Used by: All proposal-related pages and dashboards
+ */
 export const mockProposals: Proposal[] = [
+  // Proposal 1: Music Festival in Lagos (FUNDED)
   {
     id: '1',
     title: 'Music Festival in Lagos',
@@ -246,6 +326,8 @@ export const mockProposals: Proposal[] = [
       { officerId: '10', officerName: 'Maria Garcia', decision: 'ACCEPT', review: 'Strong potential for cultural impact', timestamp: '2023-07-13T16:20:00Z' }
     ]
   },
+  
+  // Proposal 2: Art Exhibition in Accra (IN_REVIEW)
   {
     id: '2',
     title: 'Art Exhibition in Accra',
@@ -274,6 +356,8 @@ export const mockProposals: Proposal[] = [
       { officerId: '10', officerName: 'Maria Garcia', decision: 'ACCEPT', review: 'Important for art community', timestamp: '2023-07-18T11:30:00Z' }
     ]
   },
+  
+  // Proposal 3: Film Production Workshop (VETTED)
   {
     id: '3',
     title: 'Film Production Workshop',
@@ -294,6 +378,8 @@ export const mockProposals: Proposal[] = [
       { officerId: '10', officerName: 'Maria Garcia', decision: 'REJECT', review: 'Budget seems high for scope', timestamp: '2023-08-13T09:30:00Z' }
     ]
   },
+  
+  // Proposal 4: Fashion Week in Cape Town (SUBMITTED)
   {
     id: '4',
     title: 'Fashion Week in Cape Town',
@@ -309,6 +395,8 @@ export const mockProposals: Proposal[] = [
     comments: [],
     votes: []
   },
+  
+  // Proposal 5: Cultural Heritage Documentary (CALLBACK)
   {
     id: '5',
     title: 'Cultural Heritage Documentary',
@@ -337,6 +425,8 @@ export const mockProposals: Proposal[] = [
       { officerId: '10', officerName: 'Maria Garcia', decision: 'ACCEPT', review: 'Valuable for cultural awareness', timestamp: '2023-08-28T13:20:00Z' }
     ]
   },
+  
+  // Proposal 6: Tech Conference for Creative Industries (REJECTED)
   {
     id: '6',
     title: 'Tech Conference for Creative Industries',
@@ -365,12 +455,14 @@ export const mockProposals: Proposal[] = [
       { officerId: '10', officerName: 'Maria Garcia', decision: 'REJECT', review: 'Budget concerns', timestamp: '2023-09-18T09:20:00Z' }
     ]
   },
+  
+  // Proposal 7: Digital Art Platform (DRAFT)
   {
     id: '7',
     title: 'Digital Art Platform for Emerging Artists',
     description: 'Online platform to showcase and sell digital artwork by emerging African artists with NFT marketplace integration.',
     amount: 65000,
-    status: 'REJECTED',
+    status: 'DRAFT',
     organizerId: '4',
     organizerName: 'Emma Thompson',
     organizerEmail: 'organizer3@crawdwall.com',
@@ -380,6 +472,8 @@ export const mockProposals: Proposal[] = [
     comments: [],
     votes: []
   },
+  
+  // Proposal 8: Community Music School (SUBMITTED)
   {
     id: '8',
     title: 'Community Music School Initiative',
@@ -397,118 +491,104 @@ export const mockProposals: Proposal[] = [
   }
 ];
 
-// Mock officer reviews
+// ============================================================================
+// SECTION 3: OFFICER REVIEW AND VOTING SYSTEM
+// Contains officer-specific review data and voting records
+// Used by: Officer dashboards, Review management
+// ============================================================================
+
+/**
+ * Officer review records
+ * Tracks individual officer performance and review history
+ */
 export const mockOfficerReviews = [
   {
     id: 'rev1',
-    proposalId: '1',
-    proposalTitle: 'Music Festival in Lagos',
     officerId: '7',
     officerName: 'David Wilson',
-    date: '2023-07-10',
-    status: 'ACCEPT',
-    comment: 'Strong financial projections and market analysis.',
-    proposalStatus: 'FUNDED',
+    proposalId: '1',
+    proposalTitle: 'Music Festival in Lagos',
+    rating: 5,
+    feedback: 'Excellent attention to community impact and detailed planning',
+    createdAt: '2023-07-10T14:30:00Z'
   },
   {
     id: 'rev2',
-    proposalId: '2',
-    proposalTitle: 'Art Exhibition in Accra',
     officerId: '8',
     officerName: 'Lisa Thompson',
-    date: '2023-07-16',
-    status: 'REJECT',
-    comment: 'Concerns about sustainability and ROI projections.',
-    proposalStatus: 'IN_REVIEW',
-  },
-  {
-    id: 'rev3',
-    proposalId: '3',
-    proposalTitle: 'Film Production Workshop',
-    officerId: '7',
-    officerName: 'David Wilson',
-    date: '2023-08-10',
-    status: 'ACCEPT',
-    comment: 'Excellent cultural value and community impact.',
-    proposalStatus: 'VETTED',
-  },
-  {
-    id: 'rev4',
-    proposalId: '5',
-    proposalTitle: 'Cultural Heritage Documentary',
-    officerId: '9',
-    officerName: 'James Rodriguez',
-    date: '2023-08-27',
-    status: 'REJECT',
-    comment: 'Distribution strategy needs improvement.',
-    proposalStatus: 'CALLBACK',
-  },
+    proposalId: '2',
+    proposalTitle: 'Art Exhibition in Accra',
+    rating: 3,
+    feedback: 'Good concept but needs stronger financial projections',
+    createdAt: '2023-07-16T14:20:00Z'
+  }
 ];
 
-// Mock audit logs
+// ============================================================================
+// SECTION 4: AUDIT AND ACTIVITY LOGGING
+// Contains system audit trails and activity records
+// Used by: Admin audit logs, Activity tracking
+// ============================================================================
+
+/**
+ * System audit logs
+ * Tracks all significant system activities and changes
+ */
 export const mockAuditLogs = [
   {
     id: 'log1',
-    action: 'Proposal submitted',
-    details: 'John Smith submitted Music Festival in Lagos proposal',
-    actor: 'John Smith',
-    actorRole: 'organizer',
-    timestamp: '2023-05-15T11:30:00Z',
-    proposalId: '1',
+    type: 'proposal',
+    action: 'Proposal Submitted',
+    description: 'New proposal "Music Festival in Lagos" submitted by John Smith',
+    user: 'John Smith',
+    time: '2 hours ago',
+    timestamp: '2023-10-02T14:30:00Z'
   },
   {
     id: 'log2',
-    action: 'Proposal status updated',
-    details: 'Proposal status changed from SUBMITTED to IN_REVIEW',
-    actor: 'Admin User',
-    actorRole: 'admin',
-    timestamp: '2023-05-16T09:15:00Z',
-    proposalId: '1',
+    type: 'officer',
+    action: 'Officer Assigned',
+    description: 'David Wilson assigned to review proposal #1',
+    user: 'Admin User',
+    time: '1 day ago',
+    timestamp: '2023-10-01T10:15:00Z'
   },
   {
     id: 'log3',
-    action: 'Officer voted',
-    details: 'David Wilson voted ACCEPT on Music Festival in Lagos proposal',
-    actor: 'David Wilson',
-    actorRole: 'officer',
-    timestamp: '2023-07-10T14:30:00Z',
-    proposalId: '1',
+    type: 'review',
+    action: 'Review Completed',
+    description: 'Lisa Thompson completed review for proposal "Art Exhibition in Accra"',
+    user: 'Lisa Thompson',
+    time: '3 days ago',
+    timestamp: '2023-09-29T16:45:00Z'
   },
   {
     id: 'log4',
-    action: 'Proposal funded',
-    details: 'Music Festival in Lagos proposal approved for funding',
-    actor: 'System',
-    actorRole: 'system',
-    timestamp: '2023-07-20T16:45:00Z',
-    proposalId: '1',
-  },
-  {
-    id: 'log5',
-    action: 'Proposal reviewed',
-    details: 'Lisa Thompson submitted review for Art Exhibition in Accra',
-    actor: 'Lisa Thompson',
-    actorRole: 'officer',
-    timestamp: '2023-07-16T14:20:00Z',
-    proposalId: '2',
-  },
-  {
-    id: 'log6',
-    action: 'User registered',
-    details: 'New organizer Emma Thompson registered',
-    actor: 'Emma Thompson',
-    actorRole: 'organizer',
-    timestamp: '2023-03-25T16:30:00Z',
-    proposalId: null,
-  },
+    type: 'proposal',
+    action: 'Proposal Funded',
+    description: 'Proposal "Music Festival in Lagos" approved for funding',
+    user: 'Admin User',
+    time: '1 week ago',
+    timestamp: '2023-09-25T09:30:00Z'
+  }
 ];
 
-// Mock API response functions
+// ============================================================================
+// SECTION 5: MOCK API INTERFACE
+// Provides standardized API-like interface for all mock data
+// Used by: All frontend components for data access
+// ============================================================================
+
+/**
+ * Mock API object - Centralized interface for all data operations
+ * Mimics real API structure for consistent frontend integration
+ */
 export const mockAPI = {
   // Utility functions
   validateAdmin,
   findUserByEmail,
   findUserById,
+  
   // Auth API mocks
   login: (credentials: { email: string; password: string }) => {
     return new Promise((resolve) => {
@@ -701,8 +781,27 @@ export const mockAPI = {
           p.status === 'SUBMITTED' || 
           p.status === 'IN_REVIEW' || 
           p.votes?.some(v => v.officerId === officerId) ||
-          p.votes && p.votes.length > 0
-        );
+          p.status === 'VETTED'
+        ).map(proposal => {
+          const votesReceived = proposal.votes?.length || 0;
+          const officerVote = proposal.votes?.find(vote => vote.officerId === officerId);
+          
+          return {
+            id: proposal.id,
+            title: proposal.title,
+            status: proposal.status,
+            date: proposal.createdAt.split('T')[0],
+            amount: `$${proposal.amount.toLocaleString()}`,
+            description: proposal.description,
+            organizer: proposal.organizerName,
+            reviewsReceived: votesReceived,
+            totalOfficers: mockOfficers.length,
+            acceptanceThreshold: 4,
+            votesReceived: votesReceived,
+            myVote: officerVote ? officerVote.decision : null,
+          };
+        }).filter(proposal => proposal.myVote === null); // Only show proposals where officer hasn't voted
+        
         resolve({
           success: true,
           data: officerProposals
@@ -711,28 +810,12 @@ export const mockAPI = {
     });
   },
 
-  getOfficerVotes: (officerId: string) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const officerVotes = mockProposals.flatMap(p => 
-          p.votes?.filter(v => v.officerId === officerId) || []
-        );
-        resolve({
-          success: true,
-          data: officerVotes
-        });
-      }, 800);
-    });
-  },
-
   submitVote: (proposalId: string, officerId: string, decision: 'ACCEPT' | 'REJECT', review: string) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const proposalIndex = mockProposals.findIndex(p => p.id === proposalId);
-        if (proposalIndex !== -1) {
-          const proposal = mockProposals[proposalIndex];
+        const proposal = mockProposals.find(p => p.id === proposalId);
+        if (proposal) {
           const officer = mockOfficers.find(o => o.id === officerId);
-          
           if (!officer) {
             resolve({
               success: false,
@@ -740,17 +823,17 @@ export const mockAPI = {
             });
             return;
           }
-          
-          // Check if officer has already voted on this proposal
-          const existingVoteIndex = proposal.votes?.findIndex(v => v.officerId === officerId) ?? -1;
-          
+
           const voteData = {
             officerId,
-            officerName: officer.name || officer.email.split('@')[0],
+            officerName: officer.name,
             decision,
             review,
             timestamp: new Date().toISOString()
           };
+
+          // Check if officer already voted
+          const existingVoteIndex = proposal.votes?.findIndex(v => v.officerId === officerId) ?? -1;
           
           if (existingVoteIndex >= 0) {
             // Update existing vote
