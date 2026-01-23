@@ -108,10 +108,19 @@ export default function AdminLoginPage() {
           localStorage.setItem('user_email', userData.email || email);
           console.log('Admin login successful, attempting redirect...');
           console.log('Role:', userData.role);
-          setTimeout(() => {
-            console.log('Redirecting to admin dashboard');
+          console.log('Token:', token.substring(0, 20) + '...'); // Log first 20 chars of token
+          
+          // Try immediate redirect first
+          try {
+            console.log('Attempting redirect to admin dashboard');
             router.push('/admin/dashboard');
-          }, 100); // Small delay to ensure state is saved before redirect
+          } catch (redirectError) {
+            console.error('Router push failed:', redirectError);
+            // Fallback to window.location if router.push fails
+            setTimeout(() => {
+              window.location.href = '/admin/dashboard';
+            }, 100);
+          }
         } else {
           setError(response.data.message || 'Authentication failed - invalid response format');
         }
@@ -120,10 +129,13 @@ export default function AdminLoginPage() {
       }
     } catch (err: any) {
       console.error('Error verifying OTP:', err);
+      console.error('Full error details:', err.message, err.stack);
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.response?.data?.error) {
         setError(err.response.data.error);
+      } else if (err.message) {
+        setError(`Verification error: ${err.message}`);
       } else {
         setError('An error occurred while verifying OTP');
       }

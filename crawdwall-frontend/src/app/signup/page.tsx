@@ -79,22 +79,37 @@ export default function SignupPage() {
           // Log for debugging
           console.log('Registration successful, attempting redirect...');
           console.log('Role:', data.role);
+          console.log('Token:', token.substring(0, 20) + '...'); // Log first 20 chars of token
           
           // Redirect based on selected role (case-insensitive)
           const normalizedRole = data.role.toLowerCase();
-          setTimeout(() => {
+          
+          // Try immediate redirect first
+          try {
             if (normalizedRole === 'organizer') {
-              console.log('Redirecting to organizer dashboard');
+              console.log('Attempting redirect to organizer dashboard');
               router.push('/organizer/dashboard');
             } else if (normalizedRole === 'investor') {
-              console.log('Redirecting to investor dashboard');
+              console.log('Attempting redirect to investor dashboard');
               router.push('/investor/dashboard');
             } else {
-              console.log('Redirecting to home');
+              console.log('Attempting redirect to home');
               // Default redirect for other roles
               router.push('/');
             }
-          }, 100); // Small delay to ensure state is saved before redirect
+          } catch (redirectError) {
+            console.error('Router push failed:', redirectError);
+            // Fallback to window.location if router.push fails
+            setTimeout(() => {
+              if (normalizedRole === 'organizer') {
+                window.location.href = '/organizer/dashboard';
+              } else if (normalizedRole === 'investor') {
+                window.location.href = '/investor/dashboard';
+              } else {
+                window.location.href = '/';
+              }
+            }, 100);
+          }
         } else {
           setError(response.data.message || 'Registration failed - invalid response format');
         }
@@ -103,8 +118,11 @@ export default function SignupPage() {
       }
     } catch (err: any) {
       console.error('Registration error:', err);
+      console.error('Full error details:', err.message, err.stack);
       if (err.response?.data?.message) {
         setError(err.response.data.message);
+      } else if (err.message) {
+        setError(`Registration error: ${err.message}`);
       } else {
         setError('An error occurred during registration');
       }

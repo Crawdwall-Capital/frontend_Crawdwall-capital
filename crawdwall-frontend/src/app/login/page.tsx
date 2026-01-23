@@ -62,28 +62,47 @@ export default function LoginPage() {
           // Log for debugging
           console.log('Login successful, attempting redirect...');
           console.log('Role:', userData.role);
+          console.log('Token:', token.substring(0, 20) + '...'); // Log first 20 chars of token
           
           // Redirect based on user's role (case-insensitive)
           const normalizedRole = userData.role.toLowerCase();
-          setTimeout(() => {
+          
+          // Try immediate redirect first
+          try {
             if (normalizedRole === 'organizer') {
-              console.log('Redirecting to organizer dashboard');
+              console.log('Attempting redirect to organizer dashboard');
               router.push('/organizer/dashboard');
             } else if (normalizedRole === 'investor') {
-              console.log('Redirecting to investor dashboard');
+              console.log('Attempting redirect to investor dashboard');
               router.push('/investor/dashboard');
             } else if (normalizedRole === 'admin') {
-              console.log('Redirecting to admin dashboard');
+              console.log('Attempting redirect to admin dashboard');
               router.push('/admin/dashboard');
             } else if (normalizedRole === 'officer') {
-              console.log('Redirecting to officer dashboard');
+              console.log('Attempting redirect to officer dashboard');
               router.push('/officer/dashboard');
             } else {
-              console.log('Redirecting to home');
+              console.log('Attempting redirect to home');
               // Default redirect for unknown roles
               router.push('/');
             }
-          }, 100); // Small delay to ensure state is saved before redirect
+          } catch (redirectError) {
+            console.error('Router push failed:', redirectError);
+            // Fallback to window.location if router.push fails
+            setTimeout(() => {
+              if (normalizedRole === 'organizer') {
+                window.location.href = '/organizer/dashboard';
+              } else if (normalizedRole === 'investor') {
+                window.location.href = '/investor/dashboard';
+              } else if (normalizedRole === 'admin') {
+                window.location.href = '/admin/dashboard';
+              } else if (normalizedRole === 'officer') {
+                window.location.href = '/officer/dashboard';
+              } else {
+                window.location.href = '/';
+              }
+            }, 100);
+          }
         } else {
           setError(response.data.message || 'Login failed - invalid response format');
         }
@@ -92,10 +111,13 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       console.error('Login error:', err);
+      console.error('Full error details:', err.message, err.stack);
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.response?.data?.error) {
         setError(err.response.data.error);
+      } else if (err.message) {
+        setError(`Login error: ${err.message}`);
       } else {
         setError('An error occurred during login');
       }
