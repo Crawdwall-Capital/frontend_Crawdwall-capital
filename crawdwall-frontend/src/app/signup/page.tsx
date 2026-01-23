@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { authAPI } from '@/lib/api';
+import { AuthResponse } from '@/types';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
@@ -63,16 +64,17 @@ export default function SignupPage() {
         });
       }
       
-      if (response.data) {
-        // Handle different response formats (mock vs real backend)
-        const token = response.data.token || (response.data.data?.token) || response.data.data?.access_token;
-        const userData = response.data.user || response.data.data?.user;
+      if (response.data.success && response.data.data) {
+        // Handle the response data
+        const authResponse = response.data.data as AuthResponse;
+        const token = authResponse.token;
+        const userData = authResponse.user;
         
-        if (token) {
+        if (token && userData) {
           // Store the received token and user info
           localStorage.setItem('crawdwall_auth_token', token);
           localStorage.setItem('user_role', data.role);
-          localStorage.setItem('user_email', data.email || userData?.email);
+          localStorage.setItem('user_email', data.email || userData.email);
           
           // Redirect based on selected role
           if (data.role === 'organizer') {
@@ -81,10 +83,10 @@ export default function SignupPage() {
             router.push('/investor/dashboard');
           }
         } else {
-          setError(response.data.message || response.data.data?.message || 'Registration failed - no token received');
+          setError(response.data.message || 'Registration failed - invalid response format');
         }
       } else {
-        setError('Registration failed - invalid response');
+        setError(response.data.message || response.data.error || 'Registration failed');
       }
     } catch (err: any) {
       console.error('Registration error:', err);
