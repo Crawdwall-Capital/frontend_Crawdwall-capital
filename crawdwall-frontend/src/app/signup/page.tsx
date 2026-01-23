@@ -76,12 +76,25 @@ export default function SignupPage() {
           localStorage.setItem('user_role', data.role);
           localStorage.setItem('user_email', data.email || userData.email);
           
-          // Redirect based on selected role
-          if (data.role === 'organizer') {
-            router.push('/organizer/dashboard');
-          } else {
-            router.push('/investor/dashboard');
-          }
+          // Log for debugging
+          console.log('Registration successful, attempting redirect...');
+          console.log('Role:', data.role);
+          
+          // Redirect based on selected role (case-insensitive)
+          const normalizedRole = data.role.toLowerCase();
+          setTimeout(() => {
+            if (normalizedRole === 'organizer') {
+              console.log('Redirecting to organizer dashboard');
+              router.push('/organizer/dashboard');
+            } else if (normalizedRole === 'investor') {
+              console.log('Redirecting to investor dashboard');
+              router.push('/investor/dashboard');
+            } else {
+              console.log('Redirecting to home');
+              // Default redirect for other roles
+              router.push('/');
+            }
+          }, 100); // Small delay to ensure state is saved before redirect
         } else {
           setError(response.data.message || 'Registration failed - invalid response format');
         }

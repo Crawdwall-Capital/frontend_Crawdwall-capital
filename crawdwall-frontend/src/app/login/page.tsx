@@ -59,19 +59,31 @@ export default function LoginPage() {
           localStorage.setItem('user_role', userData.role);
           localStorage.setItem('user_email', userData.email);
           
-          // Redirect based on user's role
-          if (userData.role === 'organizer') {
-            router.push('/organizer/dashboard');
-          } else if (userData.role === 'investor') {
-            router.push('/investor/dashboard');
-          } else if (userData.role === 'admin') {
-            router.push('/admin/dashboard');
-          } else if (userData.role === 'officer') {
-            router.push('/officer/dashboard');
-          } else {
-            // Default redirect for unknown roles
-            router.push('/');
-          }
+          // Log for debugging
+          console.log('Login successful, attempting redirect...');
+          console.log('Role:', userData.role);
+          
+          // Redirect based on user's role (case-insensitive)
+          const normalizedRole = userData.role.toLowerCase();
+          setTimeout(() => {
+            if (normalizedRole === 'organizer') {
+              console.log('Redirecting to organizer dashboard');
+              router.push('/organizer/dashboard');
+            } else if (normalizedRole === 'investor') {
+              console.log('Redirecting to investor dashboard');
+              router.push('/investor/dashboard');
+            } else if (normalizedRole === 'admin') {
+              console.log('Redirecting to admin dashboard');
+              router.push('/admin/dashboard');
+            } else if (normalizedRole === 'officer') {
+              console.log('Redirecting to officer dashboard');
+              router.push('/officer/dashboard');
+            } else {
+              console.log('Redirecting to home');
+              // Default redirect for unknown roles
+              router.push('/');
+            }
+          }, 100); // Small delay to ensure state is saved before redirect
         } else {
           setError(response.data.message || 'Login failed - invalid response format');
         }

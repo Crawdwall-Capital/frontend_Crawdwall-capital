@@ -106,7 +106,12 @@ export default function AdminLoginPage() {
           localStorage.setItem('crawdwall_auth_token', token);
           localStorage.setItem('user_role', (userData.role || 'ADMIN').toUpperCase());
           localStorage.setItem('user_email', userData.email || email);
-          router.push('/admin/dashboard');
+          console.log('Admin login successful, attempting redirect...');
+          console.log('Role:', userData.role);
+          setTimeout(() => {
+            console.log('Redirecting to admin dashboard');
+            router.push('/admin/dashboard');
+          }, 100); // Small delay to ensure state is saved before redirect
         } else {
           setError(response.data.message || 'Authentication failed - invalid response format');
         }
