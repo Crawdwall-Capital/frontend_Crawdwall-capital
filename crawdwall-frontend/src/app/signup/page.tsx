@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { mockAPI } from '@/__mocks__/data';
+import { authAPI } from '@/lib/api';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
@@ -14,7 +14,7 @@ import Footer from '@/components/ui/Footer';
 const registrationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
-  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.enum(['organizer', 'investor']),
 });
@@ -35,7 +35,7 @@ export default function SignupPage() {
     defaultValues: {
       name: '',
       email: '',
-      phone: '',
+      phoneNumber: '',
       password: '',
       role: 'investor',
     },
@@ -46,31 +46,53 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      let response: any;
+      let response;
       if (data.role === 'organizer') {
-        response = await mockAPI.registerOrganizer(data);
+        response = await authAPI.registerOrganizer({
+          name: data.name,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          password: data.password,
+        });
       } else {
-        response = await mockAPI.registerInvestor(data);
+        response = await authAPI.registerInvestor({
+          name: data.name,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          password: data.password,
+        });
       }
       
-      if (response.success) {
-        // Store mock token and user info
-        localStorage.setItem('crawdwall_auth_token', 'mock-token');
-        localStorage.setItem('user_role', data.role);
-        localStorage.setItem('user_email', data.email);
-
-        // Redirect based on selected role
-        if (data.role === 'organizer') {
-          router.push('/organizer/dashboard');
+      if (response.data) {
+        // Handle different response formats (mock vs real backend)
+        const token = response.data.token || (response.data.data?.token) || response.data.data?.access_token;
+        const userData = response.data.user || response.data.data?.user;
+        
+        if (token) {
+          // Store the received token and user info
+          localStorage.setItem('crawdwall_auth_token', token);
+          localStorage.setItem('user_role', data.role);
+          localStorage.setItem('user_email', data.email || userData?.email);
+          
+          // Redirect based on selected role
+          if (data.role === 'organizer') {
+            router.push('/organizer/dashboard');
+          } else {
+            router.push('/investor/dashboard');
+          }
         } else {
-          router.push('/investor/dashboard');
+          setError(response.data.message || response.data.data?.message || 'Registration failed - no token received');
         }
       } else {
-        setError(response.message || 'Registration failed');
+        setError('Registration failed - invalid response');
       }
-    } catch (err) {
-      setError('An error occurred during registration');
-      console.error(err);
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('An error occurred during registration');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -137,20 +159,20 @@ export default function SignupPage() {
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Phone Number
                 </label>
                 <div className="mt-1">
                   <input
-                    id="phone"
+                    id="phoneNumber"
                     type="tel"
-                    {...register('phone')}
+                    {...register('phoneNumber')}
                     className={`appearance-none block w-full px-3 py-2 border ${
-                      errors.phone ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+                      errors.phoneNumber ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
                     } rounded-md shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-slate-900 dark:text-white dark:bg-slate-700`}
                   />
-                  {errors.phone && (
-                    <p className="mt-2 text-sm text-red-600">{errors.phone.message}</p>
+                  {errors.phoneNumber && (
+                    <p className="mt-2 text-sm text-red-600">{errors.phoneNumber.message}</p>
                   )}
                 </div>
               </div>

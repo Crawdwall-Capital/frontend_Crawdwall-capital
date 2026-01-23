@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { mockAPI } from '@/__mocks__/data';
+import { authAPI } from '@/lib/api';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
@@ -42,38 +42,51 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response: any = await mockAPI.login({
+      const response = await authAPI.login({
         email: data.email,
         password: data.password
       });
       
-      if (response.success) {
-        // Store mock token and user info
-        localStorage.setItem('crawdwall_auth_token', 'mock-token');
+      if (response.data.success && response.data.data) {
+        // Handle the response data
+        const authData = response.data.data;
+        const token = 'token' in authData ? authData.token : undefined;
+        const userData = 'user' in authData ? authData.user : undefined;
         
-        // Store the user's role and email from their profile
-        localStorage.setItem('user_role', response.data.user.role);
-        localStorage.setItem('user_email', response.data.user.email);
-        
-        // Redirect based on user's role
-        if (response.data.user.role === 'organizer') {
-          router.push('/organizer/dashboard');
-        } else if (response.data.user.role === 'investor') {
-          router.push('/investor/dashboard');
-        } else {
-          // For other roles like admin/officer, redirect to appropriate dashboards
-          if (response.data.user.role === 'admin') {
+        if (token && userData) {
+          // Store the token and user info
+          localStorage.setItem('crawdwall_auth_token', token);
+          localStorage.setItem('user_role', userData.role);
+          localStorage.setItem('user_email', userData.email);
+          
+          // Redirect based on user's role
+          if (userData.role === 'organizer') {
+            router.push('/organizer/dashboard');
+          } else if (userData.role === 'investor') {
+            router.push('/investor/dashboard');
+          } else if (userData.role === 'admin') {
             router.push('/admin/dashboard');
-          } else if (response.data.user.role === 'officer') {
+          } else if (userData.role === 'officer') {
             router.push('/officer/dashboard');
+          } else {
+            // Default redirect for unknown roles
+            router.push('/');
           }
+        } else {
+          setError(response.data.message || 'Login failed - invalid response format');
         }
       } else {
-        setError(response.message || 'Login failed');
+        setError(response.data.message || response.data.error || 'Login failed');
       }
-    } catch (err) {
-      setError('An error occurred during login');
-      console.error(err);
+    } catch (err: any) {
+      console.error('Login error:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('An error occurred during login');
+      }
     } finally {
       setIsLoading(false);
     }

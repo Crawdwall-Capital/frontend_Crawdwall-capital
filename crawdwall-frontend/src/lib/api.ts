@@ -5,7 +5,7 @@ import { mockAPI } from '@/__mocks__/data';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'https://crawdwall-backend-ywlk.onrender.com/api', // Updated to use the real backend
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -42,102 +42,53 @@ apiClient.interceptors.response.use(
 
 // Authentication API functions
 export const authAPI = {
-  // Admin OTP login
+  // Admin OTP login - Request OTP
   sendOtp: async (data: OtpLoginRequest): Promise<AxiosResponse<ApiResponse<null>>> => {
-    try {
-      // Validate admin credentials
-      const user = await mockAPI.findUserByEmail(data.email);
-      
-      if (!user || user.role !== 'admin') {
-        return Promise.resolve({
-          data: { success: false, message: 'Invalid admin credentials' },
-          status: 401,
-          statusText: 'Unauthorized',
-          headers: {},
-          config: { url: '', method: 'POST' }
-        }) as Promise<AxiosResponse<ApiResponse<null>>>;
-      }
-      
-      return Promise.resolve({
-        data: { success: true },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: { url: '', method: 'POST' }
-      }) as Promise<AxiosResponse<ApiResponse<null>>>;
-    } catch (error) {
-      return Promise.resolve({
-        data: { success: false, message: 'An error occurred while sending OTP' },
-        status: 500,
-        statusText: 'Internal Server Error',
-        headers: {},
-        config: { url: '', method: 'POST' }
-      }) as Promise<AxiosResponse<ApiResponse<null>>>;
-    }
+    return apiClient.post('/auth/admin/request-otp', {
+      email: data.email
+    });
   },
 
+  // Admin OTP login - Verify OTP
   verifyOtp: async (data: OtpVerifyRequest): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
-    try {
-      // In a real implementation, we would validate the OTP here
-      // For mock purposes, we'll just verify the user exists and is an admin
-      const adminUser = await mockAPI.findUserByEmail(data.email);
-      if (!adminUser || adminUser.role !== 'admin') {
-        return Promise.resolve({
-          data: { success: false, message: 'Admin user not found' },
-          status: 404,
-          statusText: 'Not Found',
-          headers: {},
-          config: { url: '', method: 'POST' }
-        }) as Promise<AxiosResponse<ApiResponse<AuthResponse>>>;
-      }
-      
-      // Return user without password for security
-      const userWithoutPassword = {
-        id: adminUser.id,
-        email: adminUser.email,
-        name: adminUser.name,
-        role: adminUser.role,
-        createdAt: adminUser.createdAt,
-        updatedAt: adminUser.updatedAt,
-      };
-      
-      return Promise.resolve({
-        data: { 
-          success: true, 
-          data: {
-            token: 'mock-token',
-            user: userWithoutPassword
-          }
-        },
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: { url: '', method: 'POST' }
-      }) as Promise<AxiosResponse<ApiResponse<AuthResponse>>>;
-    } catch (error) {
-      return Promise.resolve({
-        data: { success: false, message: 'An error occurred while verifying OTP' },
-        status: 500,
-        statusText: 'Internal Server Error',
-        headers: {},
-        config: { url: '', method: 'POST' }
-      }) as Promise<AxiosResponse<ApiResponse<AuthResponse>>>;
-    }
+    return apiClient.post('/auth/admin/verify-otp', {
+      email: data.email,
+      otp: data.otp
+    });
   },
 
   // Organizer/Investor login
   login: async (credentials: { email: string; password: string }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
-    return mockAPI.login(credentials) as Promise<AxiosResponse<ApiResponse<AuthResponse>>>;
+    return apiClient.post('/auth/login', {
+      email: credentials.email,
+      password: credentials.password
+    });
   },
 
   // Organizer registration
   registerOrganizer: async (userData: { 
     name: string; 
     email: string; 
-    phone: string; 
+    phoneNumber: string; 
     password: string 
   }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
-    return mockAPI.registerOrganizer(userData) as Promise<AxiosResponse<ApiResponse<AuthResponse>>>;
+    return apiClient.post('/auth/register', {
+      ...userData,
+      role: 'ORGANIZER' // Backend expects 'ORGANIZER' in uppercase
+    });
+  },
+
+  // Investor registration
+  registerInvestor: async (userData: { 
+    name: string; 
+    email: string; 
+    phoneNumber: string; 
+    password: string 
+  }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
+    return apiClient.post('/auth/register', {
+      ...userData,
+      role: 'INVESTOR' // Backend expects 'INVESTOR' in uppercase
+    });
   },
 
   // Logout

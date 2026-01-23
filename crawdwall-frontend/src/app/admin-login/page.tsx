@@ -53,18 +53,24 @@ export default function AdminLoginPage() {
     try {
       const email = getValues('email');
       
-      // Call the API to validate admin credentials
+      // Call the API to request OTP
       const response = await authAPI.sendOtp({ email: email || '' });
       
-      if (response.data.success) {
+      if (response.data.success || response.status === 200) {
         setOtpSent(true);
         setMessage('OTP sent to your email.');
       } else {
-        setError(response.data.message || 'Invalid admin credentials');
+        setError(response.data.message || response.data.error || 'Failed to send OTP');
       }
-    } catch (err) {
-      setError('An error occurred while sending OTP');
+    } catch (err: any) {
       console.error('Error sending OTP:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('An error occurred while sending OTP');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -91,15 +97,31 @@ export default function AdminLoginPage() {
       });
       
       if (response.data.success && response.data.data) {
-        localStorage.setItem('crawdwall_auth_token', response.data.data.token);
-        localStorage.setItem('user_role', (response.data.data.user.role || 'ADMIN').toUpperCase());
-        router.push('/admin/dashboard');
+        // Handle the response data
+        const authData = response.data.data;
+        const token = 'token' in authData ? authData.token : undefined;
+        const userData = 'user' in authData ? authData.user : undefined;
+        
+        if (token && userData) {
+          localStorage.setItem('crawdwall_auth_token', token);
+          localStorage.setItem('user_role', (userData.role || 'ADMIN').toUpperCase());
+          localStorage.setItem('user_email', userData.email || email);
+          router.push('/admin/dashboard');
+        } else {
+          setError(response.data.message || 'Authentication failed - invalid response format');
+        }
       } else {
-        setError(response.data.message || 'Invalid OTP');
+        setError(response.data.message || response.data.error || 'Invalid OTP');
       }
-    } catch (err) {
-      setError('An error occurred while verifying OTP');
+    } catch (err: any) {
       console.error('Error verifying OTP:', err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('An error occurred while verifying OTP');
+      }
     } finally {
       setIsLoading(false);
     }
