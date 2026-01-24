@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { mockAPI } from '@/__mocks__/data';
+import { authAPI } from '@/lib/api';
 
 export default function InvestorProfilePage() {
   const router = useRouter();
@@ -20,19 +20,17 @@ export default function InvestorProfilePage() {
     const fetchUserData = async () => {
       try {
         // Get current user data
-        const userResponse: any = await mockAPI.getCurrentUser();
+        const userResponse = await authAPI.getCurrentUser();
         
-        if (userResponse.success) {
-          const user = userResponse.data;
+        if (userResponse.data.success && userResponse.data.data) {
+          const user = userResponse.data.data;
           
-          // Calculate investor-specific stats
-          // For demo purposes, we'll use mock calculations
-          // In a real system, these would come from actual investment data
-          const calculatedData = {
+          // Format user data for display
+          const formattedData = {
             id: user.id,
-            name: user.name,
+            name: user.name || user.email.split('@')[0], // Use email prefix if name not available
             email: user.email,
-            phone: user.phone || "+1 (555) 123-4567", // Would come from user profile
+            phone: "+1 (555) 123-4567", // Phone not in user object, using default
             accountType: user.role === 'investor' ? "Accredited Investor" : user.role.charAt(0).toUpperCase() + user.role.slice(1),
             memberSince: user.createdAt || "January 15, 2023",
             totalInvestments: "$125,000", // Would be calculated from actual investments
@@ -46,10 +44,28 @@ export default function InvestorProfilePage() {
             }
           };
           
-          setUserData(calculatedData);
+          setUserData(formattedData);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        // Set up default user data in case of error
+        setUserData({
+          id: 'default',
+          name: 'Investor',
+          email: 'investor@example.com',
+          phone: '+1 (555) 123-4567',
+          accountType: 'Accredited Investor',
+          memberSince: 'January 15, 2023',
+          totalInvestments: '$0',
+          totalReturns: '$0',
+          portfolioSize: 0,
+          kycStatus: 'Pending',
+          notificationPreferences: {
+            email: true,
+            sms: false,
+            push: true
+          }
+        });
       } finally {
         setLoading(false);
       }

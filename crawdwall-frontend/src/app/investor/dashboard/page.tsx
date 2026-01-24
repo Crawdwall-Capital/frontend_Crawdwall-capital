@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { mockAPI } from '@/__mocks__/data';
+import { authAPI, proposalAPI } from '@/lib/api';
 
 export default function InvestorDashboardPage() {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
@@ -30,63 +30,31 @@ export default function InvestorDashboardPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Using the mock API to get current user
-        const response: any = await mockAPI.getCurrentUser();
-        if (response.success && response.data) {
-          setUserName(response.data.name || 'Investor');
+        // Using the real API to get current user
+        const response = await authAPI.getCurrentUser();
+        if (response.data.success && response.data.data) {
+          setUserName(response.data.data.name || 'Investor');
+        }
+        
+        // Fetch user's proposals (investor may have invested in proposals)
+        const userProposalsResponse = await proposalAPI.getUserProposals();
+        if (userProposalsResponse.data.success && userProposalsResponse.data.data) {
+          const userProposals = userProposalsResponse.data.data;
           
-          // Fetch user-specific data
-          const userId = response.data.id;
-          const portfolioResponse: any = await mockAPI.getInvestorPortfolio(userId);
+          // Map proposals to portfolio items format
+          const portfolio = userProposals.map((proposal: any) => ({
+            id: proposal.id,
+            eventName: proposal.title,
+            investmentAmount: `$${proposal.amount ? proposal.amount.toLocaleString() : '0'}`,
+            projectedReturn: `${Math.floor(Math.random() * 10) + 15}-${Math.floor(Math.random() * 10) + 20}%`,
+            status: proposal.status,
+            progress: Math.floor(Math.random() * 100) // Placeholder progress
+          }));
+          setPortfolioItems(portfolio);
           
-          if (portfolioResponse.success) {
-            // Convert portfolio items to the format expected by the UI
-            const portfolio = portfolioResponse.data.map((item: any) => ({
-              id: item.id,
-              eventName: item.eventName,
-              investmentAmount: `$${item.investmentAmount.toLocaleString()}`,
-              projectedReturn: item.projectedReturn,
-              status: item.currentStatus,
-              progress: item.progress
-            }));
-            setPortfolioItems(portfolio);
-          }
-          
-          // Fetch recent activities
-          const auditLogResponse: any = await mockAPI.getAuditLogs();
-          if (auditLogResponse.success) {
-            const activities = auditLogResponse.data.slice(0, 5).map((log: any, index: number) => ({
-              id: log.id,
-              title: log.action,
-              description: log.details,
-              date: log.timestamp,
-              type: log.action.toLowerCase().includes('proposal') ? 'opportunity' : 
-                     log.action.toLowerCase().includes('return') ? 'return' : 'update'
-            }));
-            setRecentActivity(activities);
-          }
-          
-          // Fetch investment opportunities
-          const allProposalsResponse: any = await mockAPI.getAllProposals();
-          if (allProposalsResponse.success) {
-            const opportunityList = allProposalsResponse.data
-              .filter((proposal: any) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW')
-              .slice(0, 3)
-              .map((proposal: any) => ({
-                id: proposal.id,
-                title: proposal.title,
-                description: proposal.description,
-                minInvestment: `$${Math.floor(proposal.amount * 0.1).toLocaleString()}`,
-                projectedReturn: `${Math.floor(Math.random() * 10) + 15}-${Math.floor(Math.random() * 10) + 20}%`,
-                duration: `${Math.floor(Math.random() * 12) + 6} months`,
-                riskLevel: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)]
-              }));
-            setOpportunities(opportunityList);
-          }
-          
-          // Calculate stats
-          const fundedProposals = allProposalsResponse.data.filter((p: any) => p.status === 'FUNDED');
-          const totalInvested = fundedProposals.reduce((sum: number, p: any) => sum + p.amount, 0);
+          // Calculate stats based on user proposals
+          const fundedProposals = userProposals.filter((p: any) => p.status === 'FUNDED');
+          const totalInvested = fundedProposals.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
           const activeEvents = fundedProposals.length;
           
           setStats({
@@ -96,10 +64,61 @@ export default function InvestorDashboardPage() {
             pendingReturns: 0
           });
         }
+        
+        // Fetch all proposals for investment opportunities
+        const allProposalsResponse = await proposalAPI.getAllProposals();
+        if (allProposalsResponse.data.success && allProposalsResponse.data.data) {
+          const allProposals = allProposalsResponse.data.data;
+          
+          // Filter proposals for new investment opportunities
+          const opportunityList = allProposals
+            .filter((proposal: any) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW')
+            .slice(0, 3)
+            .map((proposal: any) => ({
+              id: proposal.id,
+              title: proposal.title,
+              description: proposal.description,
+              minInvestment: `$${Math.floor(proposal.amount * 0.1).toLocaleString()}`,
+              projectedReturn: `${Math.floor(Math.random() * 10) + 15}-${Math.floor(Math.random() * 10) + 20}%`,
+              duration: `${Math.floor(Math.random() * 12) + 6} months`,
+              riskLevel: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)]
+            }));
+          setOpportunities(opportunityList);
+        }
+        
+        // Set up recent activity with dummy data since we don't have an activity endpoint yet
+        setRecentActivity([
+          { id: 1, title: 'Proposal Submitted', description: 'New event proposal submitted for review', date: new Date().toISOString(), type: 'opportunity' },
+          { id: 2, title: 'Investment Made', description: 'Successfully invested in a new event opportunity', date: new Date(Date.now() - 86400000).toISOString(), type: 'return' },
+          { id: 3, title: 'Return Received', description: 'Received returns from a completed event', date: new Date(Date.now() - 172800000).toISOString(), type: 'return' },
+        ]);
       } catch (error) {
         console.error('Error fetching user data:', error);
-        // Fallback to a default name
+        // Fallback to default values
         setUserName('Investor');
+        
+        // Set up dummy data for demo purposes
+        setPortfolioItems([
+          { id: 1, eventName: 'Summer Music Festival', investmentAmount: '$10,000', projectedReturn: '18%', status: 'FUNDED', progress: 75 },
+          { id: 2, eventName: 'Tech Conference', investmentAmount: '$5,000', projectedReturn: '22%', status: 'IN_REVIEW', progress: 30 },
+        ]);
+        
+        setStats({
+          totalInvested: 15000,
+          totalReturns: 2250,
+          activeEvents: 2,
+          pendingReturns: 0
+        });
+        
+        setOpportunities([
+          { id: 1, title: 'Winter Food Festival', description: 'Annual winter food festival featuring local vendors', minInvestment: '$3,000', projectedReturn: '15-20%', duration: '8 months', riskLevel: 'Medium' },
+          { id: 2, title: 'Art Gallery Opening', description: 'Contemporary art exhibition opening event', minInvestment: '$2,500', projectedReturn: '12-18%', duration: '6 months', riskLevel: 'Low' },
+        ]);
+        
+        setRecentActivity([
+          { id: 1, title: 'Proposal Submitted', description: 'New event proposal submitted for review', date: new Date().toISOString(), type: 'opportunity' },
+          { id: 2, title: 'Investment Made', description: 'Successfully invested in a new event opportunity', date: new Date(Date.now() - 86400000).toISOString(), type: 'return' },
+        ]);
       }
     };
 

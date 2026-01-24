@@ -34,7 +34,18 @@ apiClient.interceptors.response.use(
       // Clear auth data and redirect to login
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem('user_role');
+      localStorage.removeItem('user_email');
       window.location.href = '/login';
+    } else if (error.response?.status === 403) {
+      // Forbidden - possibly invalid/expired token
+      console.error('Access forbidden - check authentication');
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem('user_role');
+      localStorage.removeItem('user_email');
+      window.location.href = '/login';
+    } else if (error.response?.status >= 500) {
+      // Server error - log for monitoring
+      console.error('Server error:', error.response?.data || error.message);
     }
     return Promise.reject(error);
   }
@@ -99,7 +110,7 @@ export const authAPI = {
 
   // Get current user
   getCurrentUser: async (): Promise<AxiosResponse<ApiResponse<User>>> => {
-    return mockAPI.getCurrentUser() as Promise<AxiosResponse<ApiResponse<User>>>;
+    return apiClient.get('/auth/me');
   },
 };
 
@@ -107,25 +118,22 @@ export const authAPI = {
 export const proposalAPI = {
   // Get all proposals (admin only)
   getAllProposals: async (): Promise<AxiosResponse<ApiResponse<Proposal[]>>> => {
-    return mockAPI.getAllProposals() as Promise<AxiosResponse<ApiResponse<Proposal[]>>>;
+    return apiClient.get('/proposals');
   },
 
   // Get proposals by user (organizer only)
   getUserProposals: async (): Promise<AxiosResponse<ApiResponse<Proposal[]>>> => {
-    // For testing, we'll get the current user's proposals
-    const role = localStorage.getItem('user_role') || 'organizer';
-    const userId = localStorage.getItem('user_id') || '2'; // Default to John Smith
-    return mockAPI.getUserProposals(userId) as Promise<AxiosResponse<ApiResponse<Proposal[]>>>;
+    return apiClient.get('/proposals/my-proposals');
   },
 
   // Get single proposal
   getProposal: async (id: string): Promise<AxiosResponse<ApiResponse<Proposal>>> => {
-    return mockAPI.getProposal(id) as Promise<AxiosResponse<ApiResponse<Proposal>>>;
+    return apiClient.get(`/proposals/${id}`);
   },
 
   // Create proposal
   createProposal: async (data: CreateProposalRequest): Promise<AxiosResponse<ApiResponse<Proposal>>> => {
-    return mockAPI.createProposal(data) as Promise<AxiosResponse<ApiResponse<Proposal>>>;
+    return apiClient.post('/proposals', data);
   },
 
   // Update proposal status (admin only)
@@ -134,7 +142,7 @@ export const proposalAPI = {
     status: string,
     comment?: string
   ): Promise<AxiosResponse<ApiResponse<Proposal>>> => {
-    return mockAPI.updateProposalStatus(id, status, comment) as Promise<AxiosResponse<ApiResponse<Proposal>>>;
+    return apiClient.patch(`/proposals/${id}/status`, { status, comment });
   },
 
   // Add comment to proposal
@@ -143,7 +151,7 @@ export const proposalAPI = {
     content: string,
     isInternal: boolean = false
   ): Promise<AxiosResponse<ApiResponse<any>>> => {
-    return mockAPI.addComment(id, content, isInternal) as Promise<AxiosResponse<ApiResponse<any>>>;
+    return apiClient.post(`/proposals/${id}/comments`, { content, isInternal });
   },
 };
 

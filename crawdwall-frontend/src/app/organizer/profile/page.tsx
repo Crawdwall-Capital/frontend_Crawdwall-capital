@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { mockAPI } from '@/__mocks__/data';
+import { authAPI } from '@/lib/api';
 
 export default function OrganizerProfilePage() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -10,11 +10,16 @@ export default function OrganizerProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response: any = await mockAPI.getCurrentUser();
-        if (response.success && response.data) {
-          setUserData(response.data);
+        const response = await authAPI.getCurrentUser();
+        if (response.data.success && response.data.data) {
+          // Format user data to include phone (since it's not in the User type)
+          const userData = response.data.data;
+          setUserData({
+            ...userData,
+            phone: '+1 (555) 123-4567' // Default phone since not in User type
+          });
         } else {
-          console.error('Failed to fetch user data:', response.message);
+          console.error('Failed to fetch user data:', response.data.message);
           // Set default data if API call fails
           setUserData({
             id: '2',

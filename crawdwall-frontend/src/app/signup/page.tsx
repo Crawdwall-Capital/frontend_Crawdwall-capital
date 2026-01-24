@@ -84,7 +84,7 @@ export default function SignupPage() {
           // Redirect based on selected role (case-insensitive)
           const normalizedRole = data.role.toLowerCase();
           
-          // Try immediate redirect first
+          // Immediate redirect attempt
           try {
             if (normalizedRole === 'organizer') {
               console.log('Attempting redirect to organizer dashboard');
@@ -98,17 +98,15 @@ export default function SignupPage() {
               router.push('/');
             }
           } catch (redirectError) {
-            console.error('Router push failed:', redirectError);
+            console.error('Navigation failed, falling back to window.location:', redirectError);
             // Fallback to window.location if router.push fails
-            setTimeout(() => {
-              if (normalizedRole === 'organizer') {
-                window.location.href = '/organizer/dashboard';
-              } else if (normalizedRole === 'investor') {
-                window.location.href = '/investor/dashboard';
-              } else {
-                window.location.href = '/';
-              }
-            }, 100);
+            if (normalizedRole === 'organizer') {
+              window.location.href = '/organizer/dashboard';
+            } else if (normalizedRole === 'investor') {
+              window.location.href = '/investor/dashboard';
+            } else {
+              window.location.href = '/';
+            }
           }
         } else {
           setError(response.data.message || 'Registration failed - invalid response format');

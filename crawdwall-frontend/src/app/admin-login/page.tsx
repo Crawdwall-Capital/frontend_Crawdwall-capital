@@ -110,16 +110,14 @@ export default function AdminLoginPage() {
           console.log('Role:', userData.role);
           console.log('Token:', token.substring(0, 20) + '...'); // Log first 20 chars of token
           
-          // Try immediate redirect first
+          // Immediate redirect attempt
           try {
             console.log('Attempting redirect to admin dashboard');
             router.push('/admin/dashboard');
           } catch (redirectError) {
-            console.error('Router push failed:', redirectError);
+            console.error('Navigation failed, falling back to window.location:', redirectError);
             // Fallback to window.location if router.push fails
-            setTimeout(() => {
-              window.location.href = '/admin/dashboard';
-            }, 100);
+            window.location.href = '/admin/dashboard';
           }
         } else {
           setError(response.data.message || 'Authentication failed - invalid response format');

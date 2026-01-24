@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { mockAPI } from '@/__mocks__/data';
+import { proposalAPI } from '@/lib/api';
 
 export default function InvestorOpportunitiesPage() {
   const [filters, setFilters] = useState({
@@ -17,11 +17,11 @@ export default function InvestorOpportunitiesPage() {
     const fetchOpportunities = async () => {
       try {
         // Get all proposals that are in appropriate status for investment opportunities
-        const proposalsResponse: any = await mockAPI.getAllProposals();
+        const proposalsResponse = await proposalAPI.getAllProposals();
         
-        if (proposalsResponse.success) {
+        if (proposalsResponse.data.success && proposalsResponse.data.data) {
           // Filter proposals to get only those that are suitable as investment opportunities
-          const availableOpportunities = proposalsResponse.data
+          const availableOpportunities = proposalsResponse.data.data
             .filter((proposal: any) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW' || proposal.status === 'VETTED')
             .map((proposal: any, index: number) => ({
               id: proposal.id || index + 1,
@@ -45,6 +45,12 @@ export default function InvestorOpportunitiesPage() {
         }
       } catch (error) {
         console.error('Error fetching investment opportunities:', error);
+        // Set up dummy data for demo purposes
+        setInvestmentOpportunities([
+          { id: 1, eventName: 'Summer Music Festival', category: 'Music & Entertainment', location: 'Nairobi, Kenya', startDate: '2024-07-15', endDate: '2024-07-20', investmentAmount: '$50,000', minInvestment: '$5,000', projectedReturn: '18-22%', riskLevel: 'Medium', duration: '12 months', description: 'Annual summer music festival featuring international and local artists.', status: 'Available', featured: true, roi: '20%' },
+          { id: 2, eventName: 'Tech Innovation Summit', category: 'Technology', location: 'Lagos, Nigeria', startDate: '2024-09-10', endDate: '2024-09-12', investmentAmount: '$30,000', minInvestment: '$3,000', projectedReturn: '15-18%', riskLevel: 'Low', duration: '8 months', description: 'International tech summit bringing together innovators and investors.', status: 'Available', featured: true, roi: '17%' },
+          { id: 3, eventName: 'Art & Culture Expo', category: 'Arts & Culture', location: 'Cape Town, SA', startDate: '2024-11-05', endDate: '2024-11-10', investmentAmount: '$25,000', minInvestment: '$2,500', projectedReturn: '12-16%', riskLevel: 'Medium', duration: '10 months', description: 'Comprehensive art and culture exhibition showcasing African creativity.', status: 'Coming Soon', featured: false, roi: '15%' },
+        ]);
       } finally {
         setLoading(false);
       }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { mockAPI } from '@/__mocks__/data';
+import { authAPI } from '@/lib/api';
 import OfficerNavbar from '@/components/ui/OfficerNavbar';
 import Footer from '@/components/ui/Footer';
 import Head from 'next/head';
@@ -15,18 +15,18 @@ export default function OfficerProfilePage() {
     const fetchUserData = async () => {
       try {
         // Get current user data
-        const userResponse: any = await mockAPI.getCurrentUser();
+        const userResponse = await authAPI.getCurrentUser();
         
-        if (userResponse.success) {
-          const user = userResponse.data;
+        if (userResponse.data.success && userResponse.data.data) {
+          const user = userResponse.data.data;
           
           // Calculate officer-specific data
           const officerData = {
             id: user.id,
-            firstName: user.name.split(' ')[0] || 'Officer',
-            lastName: user.name.split(' ')[1] || 'User',
+            firstName: user.name?.split(' ')[0] || 'Officer',
+            lastName: user.name?.split(' ')[1] || 'User',
             email: user.email,
-            phone: user.phone || '+1 (555) 123-4567',
+            phone: '+1 (555) 123-4567', // Phone not in User type, using default
             bio: 'Financial officer specializing in event investments and risk assessment.',
             role: user.role,
             memberSince: user.createdAt || '2023-01-15',
@@ -38,6 +38,19 @@ export default function OfficerProfilePage() {
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        // Set default data in case of error
+        setUserData({
+          id: 'default',
+          firstName: 'Officer',
+          lastName: 'User',
+          email: 'officer@example.com',
+          phone: '+1 (555) 123-4567',
+          bio: 'Financial officer specializing in event investments and risk assessment.',
+          role: 'officer',
+          memberSince: '2023-01-15',
+          proposalsReviewed: 24,
+          approvalRate: '78%'
+        });
       } finally {
         setLoading(false);
       }
