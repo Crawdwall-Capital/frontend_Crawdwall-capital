@@ -5,7 +5,7 @@ import { mockAPI } from '@/__mocks__/data';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
-  baseURL: 'https://crawdwall-backend-ywlk.onrender.com/api', // Updated to use the real backend
+  baseURL: '/api', // Use relative path for proxy
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -30,7 +30,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.code === 'ERR_NETWORK') {
+      // Network error - likely CORS or connectivity issue
+      console.error('Network error - check CORS configuration and connectivity');
+      // You might want to show a user-friendly message here
+    } else if (error.response?.status === 401) {
       // Clear auth data and redirect to login
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem('user_role');

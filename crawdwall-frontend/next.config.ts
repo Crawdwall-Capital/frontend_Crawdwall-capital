@@ -11,6 +11,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Add API proxy for CORS issues
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://crawdwall-backend-ywlk.onrender.com/api/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
