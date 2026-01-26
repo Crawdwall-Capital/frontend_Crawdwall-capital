@@ -2,10 +2,11 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 const AUTH_TOKEN_KEY = 'crawdwall_auth_token';
 import { ApiResponse, AuthResponse, OtpLoginRequest, OtpVerifyRequest, User, Proposal, CreateProposalRequest } from '@/types';
 import { mockAPI } from '@/__mocks__/data';
+import { ApiError, NetworkError, logger } from './errorHandler';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
-  baseURL: '/api', // Use relative path for proxy
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api', // Use environment variable or relative path
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -32,26 +33,65 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.code === 'ERR_NETWORK') {
       // Network error - likely CORS or connectivity issue
-      console.error('Network error - check CORS configuration and connectivity');
-      // You might want to show a user-friendly message here
+      logger.error('Network error - check CORS configuration and connectivity', {
+        message: error.message,
+        url: error.config?.url,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Throw a network error that can be caught by error boundaries
+      throw new NetworkError('Network error. Please check your connection and try again.');
     } else if (error.response?.status === 401) {
       // Clear auth data and redirect to login
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem('user_role');
       localStorage.removeItem('user_email');
+      
+      // Log the unauthorized access
+      logger.warn('Unauthorized access - token may have expired', {
+        url: error.config?.url,
+        timestamp: new Date().toISOString()
+      });
+      
       window.location.href = '/login';
     } else if (error.response?.status === 403) {
       // Forbidden - possibly invalid/expired token
-      console.error('Access forbidden - check authentication');
+      logger.warn('Access forbidden - check authentication', {
+        url: error.config?.url,
+        timestamp: new Date().toISOString()
+      });
+      
       localStorage.removeItem(AUTH_TOKEN_KEY);
       localStorage.removeItem('user_role');
       localStorage.removeItem('user_email');
       window.location.href = '/login';
     } else if (error.response?.status >= 500) {
       // Server error - log for monitoring
-      console.error('Server error:', error.response?.data || error.message);
+      logger.error('Server error', {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        url: error.config?.url,
+        timestamp: new Date().toISOString()
+      });
+    } else if (error.response?.status >= 400) {
+      // Client error (4xx) - log for monitoring
+      logger.warn('Client error', {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        url: error.config?.url,
+        timestamp: new Date().toISOString()
+      });
     }
-    return Promise.reject(error);
+    
+    // Create and throw a proper ApiError
+    const apiError = new ApiError(
+      error.response?.data?.message || error.message || 'An API error occurred',
+      error.response?.status,
+      error.response?.data,
+      error.config?.url
+    );
+    
+    return Promise.reject(apiError);
   }
 );
 

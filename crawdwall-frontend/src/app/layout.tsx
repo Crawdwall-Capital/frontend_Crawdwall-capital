@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import ErrorBoundary from '@/components/ErrorBoundary';
+import { ErrorHandlerWrapper } from '@/components/ErrorHandlerWrapper';
 
 export const metadata: Metadata = {
   title: "Crawdwall Capital - Investment Bank for Events",
@@ -26,9 +26,9 @@ export default function RootLayout({
       <body
         className="antialiased bg-background-light dark:bg-background-dark"
       >
-        <ErrorBoundary>
+        <ErrorHandlerWrapper>
           {children}
-        </ErrorBoundary>
+        </ErrorHandlerWrapper>
       </body>
     </html>
   );

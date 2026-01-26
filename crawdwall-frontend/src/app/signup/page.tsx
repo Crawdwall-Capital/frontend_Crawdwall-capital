@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,6 +11,7 @@ import { authAPI } from '@/lib/api';
 import { AuthResponse } from '@/types';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 // Define validation schema
 const registrationSchema = z.object({
@@ -24,8 +26,7 @@ type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function SignupPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { error, setError, clearError, handleApiError, isLoading, setIsLoading } = useErrorHandler();
 
   const {
     register,
@@ -44,7 +45,7 @@ export default function SignupPage() {
 
   const onSubmit = async (data: RegistrationFormData) => {
     setIsLoading(true);
-    setError(null);
+    clearError();
 
     try {
       let response;
@@ -84,30 +85,32 @@ export default function SignupPage() {
           // Redirect based on selected role (case-insensitive)
           const normalizedRole = data.role.toLowerCase();
           
-          // Immediate redirect attempt
-          try {
-            if (normalizedRole === 'organizer') {
-              console.log('Attempting redirect to organizer dashboard');
-              router.push('/organizer/dashboard');
-            } else if (normalizedRole === 'investor') {
-              console.log('Attempting redirect to investor dashboard');
-              router.push('/investor/dashboard');
-            } else {
-              console.log('Attempting redirect to home');
-              // Default redirect for other roles
-              router.push('/');
+          // Add a small delay to ensure state is properly saved before navigation
+          setTimeout(() => {
+            try {
+              if (normalizedRole === 'organizer') {
+                console.log('Attempting redirect to organizer dashboard');
+                router.push('/organizer/dashboard');
+              } else if (normalizedRole === 'investor') {
+                console.log('Attempting redirect to investor dashboard');
+                router.push('/investor/dashboard');
+              } else {
+                console.log('Attempting redirect to home');
+                // Default redirect for other roles
+                router.push('/');
+              }
+            } catch (redirectError) {
+              console.error('Navigation failed, falling back to window.location:', redirectError);
+              // Fallback to window.location if router.push fails
+              if (normalizedRole === 'organizer') {
+                window.location.href = '/organizer/dashboard';
+              } else if (normalizedRole === 'investor') {
+                window.location.href = '/investor/dashboard';
+              } else {
+                window.location.href = '/';
+              }
             }
-          } catch (redirectError) {
-            console.error('Navigation failed, falling back to window.location:', redirectError);
-            // Fallback to window.location if router.push fails
-            if (normalizedRole === 'organizer') {
-              window.location.href = '/organizer/dashboard';
-            } else if (normalizedRole === 'investor') {
-              window.location.href = '/investor/dashboard';
-            } else {
-              window.location.href = '/';
-            }
-          }
+          }, 100); // Small delay to ensure proper execution
         } else {
           setError(response.data.message || 'Registration failed - invalid response format');
         }
@@ -115,15 +118,7 @@ export default function SignupPage() {
         setError(response.data.message || response.data.error || 'Registration failed');
       }
     } catch (err: any) {
-      console.error('Registration error:', err);
-      console.error('Full error details:', err.message, err.stack);
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.message) {
-        setError(`Registration error: ${err.message}`);
-      } else {
-        setError('An error occurred during registration');
-      }
+      handleApiError(err);
     } finally {
       setIsLoading(false);
     }
