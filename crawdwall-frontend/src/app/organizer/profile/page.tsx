@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from 'react';
- '@/lib/api';
+import { authAPI } from '@/lib/api';
 
 export default function OrganizerProfilePage() {
   const [activeTab, setActiveTab] = useState('profile');

@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
     // Skip TypeScript checking during build if SKIP_TYPE_CHECK is set
     ignoreBuildErrors: process.env.SKIP_TYPE_CHECK === 'true',
   },
-  eslint: {
-    // Skip ESLint checking during build if SKIP_TYPE_CHECK is set
-    ignoreDuringBuilds: process.env.SKIP_TYPE_CHECK === 'true',
-  },
   images: {
     remotePatterns: [
       {

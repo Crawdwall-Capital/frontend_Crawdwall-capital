@@ -1,4 +1,4 @@
-import { useState, useRef, ChangeEvent,DragEvent } from 'react';
+import React, { useState, useRef, ChangeEvent,DragEvent } from 'react';
 
 
 interface FileUploadProps {

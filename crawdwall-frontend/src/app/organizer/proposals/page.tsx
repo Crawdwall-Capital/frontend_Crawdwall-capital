@@ -2,9 +2,9 @@
 export const dynamic = 'force-dynamic';
 import React from 'react';
 import Link from 'next/link';
- 'react';
+import { useState, useEffect } from 'react';
 import StatusBadge from '@/components/StatusBadge';
- '@/__mocks__/data';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function OrganizerProposalsPage() {
   const [proposals, setProposals] = useState<any[]>([]);

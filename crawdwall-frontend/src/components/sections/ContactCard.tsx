@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface ContactCardProps {
   icon: string;
   title: string;

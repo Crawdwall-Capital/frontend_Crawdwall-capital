@@ -1,3 +1,4 @@
+import React from 'react';
 import { PROPOSAL_STATUS_COLORS } from '@/constants';
 
 interface StatusBadgeProps {

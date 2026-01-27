@@ -1,9 +1,8 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
 
 export default function OrganizerNavbar() {
   const pathname = usePathname();

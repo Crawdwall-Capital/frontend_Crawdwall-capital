@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface ServicesCardProps {
   icon: string;
   title: string;

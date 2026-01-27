@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 const AUTH_TOKEN_KEY = 'crawdwall_auth_token';
 import { ApiResponse, AuthResponse, OtpLoginRequest, OtpVerifyRequest, User, Proposal, CreateProposalRequest } from '@/types';
- '@/__mocks__/data';
+import { mockAPI } from '@/__mocks__/data';
 import { ApiError, NetworkError, logger } from './errorHandler';
 
 // Create axios instance with base configuration

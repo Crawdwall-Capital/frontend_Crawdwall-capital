@@ -3,12 +3,11 @@ export const dynamic = 'force-dynamic';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-
 import { useRouter } from 'next/navigation';
- 'react-hook-form';
- '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
- '@/lib/api';
+import { authAPI } from '@/lib/api';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 

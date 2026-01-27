@@ -1,3 +1,4 @@
+import React from 'react';
 import AdminLayoutWrapper from '@/components/AdminLayoutWrapper';
 import type { ReactNode } from "react";
 
