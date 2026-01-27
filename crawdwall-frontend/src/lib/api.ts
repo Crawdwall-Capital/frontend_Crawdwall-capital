@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 const AUTH_TOKEN_KEY = 'crawdwall_auth_token';
 import { ApiResponse, AuthResponse, OtpLoginRequest, OtpVerifyRequest, User, Proposal, CreateProposalRequest } from '@/types';
-import { mockAPI } from '@/__mocks__/data';
+ '@/__mocks__/data';
 import { ApiError, NetworkError, logger } from './errorHandler';
 
 // Create axios instance with base configuration
@@ -115,9 +115,7 @@ export const authAPI = {
   // Organizer/Investor login
   login: async (credentials: { email: string; password: string }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
     return apiClient.post('/auth/login', {
-      email: credentials.email,
-      password: credentials.password
-    });
+      email: credentials.email});
   },
 
   // Organizer registration

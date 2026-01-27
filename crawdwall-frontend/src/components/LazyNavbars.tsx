@@ -1,5 +1,6 @@
 'use client';
-
+export const dynamic = 'force-dynamic';
+import React from 'react';
 import { lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
@@ -32,31 +33,31 @@ export const LazyOrganizerNavbar = lazy(() =>
 );
 
 // Export wrapped navbar components
-export const Navbar = (props: any) => (
+export const Navbar = (props: unknown) => (
   <Suspense fallback={<NavbarLoading />}>
     <LazyNavbar {...props} />
   </Suspense>
 );
 
-export const AdminNavbar = (props: any) => (
+export const AdminNavbar = (props: unknown) => (
   <Suspense fallback={<NavbarLoading />}>
     <LazyAdminNavbar {...props} />
   </Suspense>
 );
 
-export const InvestorNavbar = (props: any) => (
+export const InvestorNavbar = (props: unknown) => (
   <Suspense fallback={<NavbarLoading />}>
     <LazyInvestorNavbar {...props} />
   </Suspense>
 );
 
-export const OfficerNavbar = (props: any) => (
+export const OfficerNavbar = (props: unknown) => (
   <Suspense fallback={<NavbarLoading />}>
     <LazyOfficerNavbar {...props} />
   </Suspense>
 );
 
-export const OrganizerNavbar = (props: any) => (
+export const OrganizerNavbar = (props: unknown) => (
   <Suspense fallback={<NavbarLoading />}>
     <LazyOrganizerNavbar {...props} />
   </Suspense>

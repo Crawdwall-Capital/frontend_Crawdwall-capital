@@ -1,8 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
-import Link from "next/link";
+import React from 'react';
 import Head from "next/head";
 import { Fragment } from "react";
 import Navbar from "@/components/ui/Navbar";

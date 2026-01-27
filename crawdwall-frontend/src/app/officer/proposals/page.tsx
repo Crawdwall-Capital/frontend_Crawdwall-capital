@@ -1,11 +1,10 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
+import React from 'react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+ 'react';
 import StatusBadge from '@/components/StatusBadge';
-import { mockAPI } from '@/__mocks__/data';
+ '@/__mocks__/data';
 
 export default function OfficerProposalsPage() {
   const [proposals, setProposals] = useState<any[]>([]);
@@ -15,7 +14,7 @@ export default function OfficerProposalsPage() {
   useEffect(() => {
     const fetchProposals = async () => {
       try {
-        const response: any = await mockAPI.getOfficerProposals('7'); // Default to David Wilson
+        const response: unknown = await mockAPI.getOfficerProposals('7'); // Default to David Wilson
         if (response.success) {
           setProposals(response.data);
           setFilteredProposals(response.data);

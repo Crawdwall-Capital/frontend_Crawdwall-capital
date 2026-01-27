@@ -7,7 +7,7 @@ interface UseErrorHandlerResult {
   error: string | null;
   setError: (error: string | null) => void;
   clearError: () => void;
-  handleApiError: (error: any) => void;
+  handleApiError: (error: unknown) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 }
@@ -20,7 +20,7 @@ export function useErrorHandler(): UseErrorHandlerResult {
     setError(null);
   }, []);
 
-  const handleApiError = useCallback((error: any) => {
+  const handleApiError = useCallback((error: unknown) => {
     const errorMessage = formatErrorMessage(error);
     
     // Log the error

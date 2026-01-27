@@ -1,6 +1,7 @@
 'use client';
-
-import React, { ReactNode,ErrorInfo } from 'react';
+export const dynamic = 'force-dynamic';
+import React from 'react';
+import { ReactNode, ErrorInfo } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { logger } from '@/lib/errorHandler';
 

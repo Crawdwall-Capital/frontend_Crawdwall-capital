@@ -1,11 +1,10 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
+import React from 'react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+ 'react';
 import StatusBadge from '@/components/StatusBadge';
-import { mockAPI } from '@/__mocks__/data';
+ '@/__mocks__/data';
 
 export default function OrganizerProposalsPage() {
   const [proposals, setProposals] = useState<any[]>([]);
@@ -16,18 +15,18 @@ export default function OrganizerProposalsPage() {
     const fetchProposals = async () => {
       try {
         // Get current user to fetch their proposals
-        const userResponse: any = await mockAPI.getCurrentUser();
+        const userResponse: unknown = await mockAPI.getCurrentUser();
         if (!userResponse.success) {
           console.error('Failed to get current user');
           return;
         }
         
         const userId = userResponse.data.id;
-        const response: any = await mockAPI.getUserProposals(userId);
+        const response: unknown = await mockAPI.getUserProposals(userId);
         
         if (response.success) {
           // Transform the data to match the expected format
-          const transformedProposals = response.data.map((proposal: any) => ({
+          const transformedProposals = response.data.map((proposal: unknown) => ({
             id: proposal.id,
             title: proposal.title,
             status: proposal.status,

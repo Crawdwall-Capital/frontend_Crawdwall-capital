@@ -1,6 +1,6 @@
 'use client';
-
-import { useEffect, useState } from 'react';
+export const dynamic = 'force-dynamic';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/lib/api';
 import type { ReactNode } from "react";

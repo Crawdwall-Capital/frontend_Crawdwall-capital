@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+import { spawn } from 'child_process';
 
 // Simple test runner to verify Jest is working
 console.log('Running basic tests...');

@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { authAPI, proposalAPI, getCurrentUser } from '../lib/api';
+import {render, screen} from '@testing-library/react';
+import {proposalAPI, getCurrentUser} from '../lib/api';
 
 // Mock the API module
 jest.mock('@/lib/api', () => ({

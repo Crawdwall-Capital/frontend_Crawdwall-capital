@@ -1,6 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -24,7 +24,7 @@ const registrationSchema = z.object({
 type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function SignupPage() {
-  const router = useRouter();
+  // const $varName  = useRouter();
   const { error, setError, clearError, handleApiError, isLoading, setIsLoading } = useErrorHandler();
 
   const {
@@ -37,7 +37,6 @@ export default function SignupPage() {
       name: '',
       email: '',
       phoneNumber: '',
-      password: '',
       role: 'investor',
     },
   });
@@ -53,14 +52,12 @@ export default function SignupPage() {
           name: data.name,
           email: data.email,
           phoneNumber: data.phoneNumber,
-          password: data.password,
         });
       } else {
         response = await authAPI.registerInvestor({
           name: data.name,
           email: data.email,
           phoneNumber: data.phoneNumber,
-          password: data.password,
         });
       }
       
@@ -116,7 +113,7 @@ export default function SignupPage() {
       } else {
         setError(response.data.message || response.data.error || 'Registration failed');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       handleApiError(err);
     } finally {
       setIsLoading(false);

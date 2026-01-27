@@ -1,5 +1,6 @@
 'use client';
-
+export const dynamic = 'force-dynamic';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -10,7 +11,11 @@ export default function OrganizerNavbar() {
   
   // Close sidebar when route changes
   useEffect(() => {
-    setIsSidebarOpen(false);
+    // Close sidebar when route changes
+    const timer = setTimeout(() => {
+      setIsSidebarOpen(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   // Helper function to determine if a link is active

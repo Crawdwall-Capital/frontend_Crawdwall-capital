@@ -1,11 +1,10 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
+import React from 'react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+ 'react';
 import StatusBadge from '@/components/StatusBadge';
-import { mockAPI } from '@/__mocks__/data';
+ '@/__mocks__/data';
 
 interface Document {
   name: string;
@@ -53,7 +52,7 @@ export default function ProposalDetailPage(
   useEffect(() => {
     const fetchProposal = async () => {
       try {
-        const response: any = await mockAPI.getProposal(id);
+        const response: unknown = await mockAPI.getProposal(id);
 
         if (response.success && response.data) {
           setProposal({

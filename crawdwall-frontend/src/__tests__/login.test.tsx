@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useRouter } from 'next/navigation';
 import LoginPage from '../app/login/page';
@@ -33,10 +33,9 @@ jest.mock('@/components/ui/Footer', () => () => (
 jest.mock('react-hook-form', () => ({
   useForm: () => ({
     register: jest.fn(() => ({})),
-    handleSubmit: (fn: any) => () =>
+    handleSubmit: (fn: unknown) => () =>
       fn({
         email: 'test@example.com',
-        password: 'password123',
       }),
     formState: { errors: {} },
   }),
@@ -115,13 +114,11 @@ describe('LoginPage', () => {
     // Directly test the login API call without form submission
     await authAPI.login({
       email: 'test@example.com',
-      password: 'password123',
     });
 
     await waitFor(() => {
       expect(authAPI.login).toHaveBeenCalledWith({
         email: 'test@example.com',
-        password: 'password123',
       });
     });
 
@@ -148,7 +145,6 @@ describe('LoginPage', () => {
     // Directly test the login API call
     await authAPI.login({
       email: 'test@example.com',
-      password: 'password123',
     });
 
     await waitFor(() => {
@@ -172,9 +168,8 @@ describe('LoginPage', () => {
     try {
       await authAPI.login({
         email: 'test@example.com',
-        password: 'wrongpassword',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       expect(error.response.data.message).toBe('Invalid credentials');
     }
 

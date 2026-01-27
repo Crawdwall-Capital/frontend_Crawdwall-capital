@@ -1,9 +1,9 @@
 'use client';
-
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { authAPI, proposalAPI } from '@/lib/api';
+import { proposalAPI, authAPI } from '@/lib/api';
 
 
 interface PortfolioItem {
@@ -46,9 +46,9 @@ export default function InvestorPortfolioPage() {
   useEffect(() => {
     const fetchPortfolioData = async () => {
       try {
-        const userResponse = await authAPI.getCurrentUser();
+        const userResponse: any = await authAPI.getCurrentUser();
         if (userResponse.data.success && userResponse.data.data) {
-          const portfolioResponse = await proposalAPI.getUserProposals();
+          const portfolioResponse: any = await proposalAPI.getUserProposals();
           if (portfolioResponse.data.success && portfolioResponse.data.data) {
             const formattedPortfolio: PortfolioItem[] = portfolioResponse.data.data.map((item: any, index: number) => ({
               id: item.id || index + 1,

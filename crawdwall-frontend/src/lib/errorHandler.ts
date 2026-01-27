@@ -2,10 +2,10 @@ import { logger } from './logger';
 
 export class ApiError extends Error {
   public status?: number;
-  public data?: any;
+  public data?: unknown;
   public url?: string;
 
-  constructor(message: string, status?: number, data?: any, url?: string) {
+  constructor(message: string, status?: number, data?: unknown, url?: string) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -123,7 +123,7 @@ export async function handleApiCall<T>(
 }
 
 // Generic error message formatter
-export function formatErrorMessage(error: any): string {
+export function formatErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.status === 401) {
       return 'Session expired. Please sign in again.';

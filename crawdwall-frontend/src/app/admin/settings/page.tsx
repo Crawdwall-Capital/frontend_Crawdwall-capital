@@ -1,8 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState('platform');
@@ -58,8 +56,8 @@ export default function AdminSettingsPage() {
   }, []);
 
   // Handle platform settings change
-  const handlePlatformSettingChange = (field: string, value: any) => {
-    setPlatformSettings((prev: any) => ({
+  const handlePlatformSettingChange = (field: string, value: unknown) => {
+    setPlatformSettings((prev: unknown) => ({
       ...prev,
       [field]: value
     }));

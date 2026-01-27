@@ -1,11 +1,9 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import React from 'react';
+ 'react';
 import StatusBadge from '@/components/StatusBadge';
-import { mockAPI } from '@/__mocks__/data';
+ '@/__mocks__/data';
 
 export default function OfficerProposalDetailPage(props: { params: { id: string } }) {
   const { id } = props.params;
@@ -25,7 +23,7 @@ export default function OfficerProposalDetailPage(props: { params: { id: string 
         setLoading(true);
         setError(null);
 
-        const response: any = await mockAPI.getProposal(id);
+        const response: unknown = await mockAPI.getProposal(id);
 
         if (response.success && response.data) {
           const transformedProposal = {
@@ -54,7 +52,7 @@ export default function OfficerProposalDetailPage(props: { params: { id: string 
                 url: '#',
               })) || [],
             reviews:
-              response.data.votes?.map((vote: any) => ({
+              response.data.votes?.map((vote: unknown) => ({
                 officer: vote.officerName,
                 date: new Date(vote.timestamp).toLocaleDateString(),
                 status: vote.decision === 'ACCEPT' ? 'Accept' : 'Reject',
@@ -114,7 +112,7 @@ export default function OfficerProposalDetailPage(props: { params: { id: string 
             totalOfficers: 4,
             acceptanceThreshold: 4,
             myVote:
-              response.data.votes?.find((vote: any) => vote.officerId === '7')?.decision || null,
+              response.data.votes?.find((vote: unknown) => vote.officerId === '7')?.decision || null,
           };
 
           setProposal(transformedProposal);
@@ -152,7 +150,7 @@ export default function OfficerProposalDetailPage(props: { params: { id: string 
     );
   }
 
-  const hasVoted = proposal.myVote !== null;
+  // const $varName  = proposal.myVote !== null;
 
   return (
     <div className="space-y-8">

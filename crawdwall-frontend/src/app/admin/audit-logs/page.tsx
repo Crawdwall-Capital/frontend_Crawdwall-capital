@@ -1,7 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { mockAPI } from '@/__mocks__/data';
 
 export default function AdminAuditLogsPage() {

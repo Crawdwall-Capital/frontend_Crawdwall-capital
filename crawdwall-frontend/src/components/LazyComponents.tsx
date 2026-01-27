@@ -29,25 +29,25 @@ export const LazyWhyCrawdwallFeaturesSection = lazy(() =>
 );
 
 // Export wrapped components with suspense
-export const FileUpload = (props: any) => (
+export const FileUpload = (props: unknown) => (
   <Suspense fallback={<LoadingSpinner message="Loading file uploader..." />}>
     <LazyFileUpload {...props} />
   </Suspense>
 );
 
-export const HeroSection = (props: any) => (
+export const HeroSection = (props: unknown) => (
   <Suspense fallback={<LoadingSpinner message="Loading hero section..." />}>
     <LazyHeroSection {...props} />
   </Suspense>
 );
 
-export const ServicesCard = (props: any) => (
+export const ServicesCard = (props: unknown) => (
   <Suspense fallback={<LoadingSpinner message="Loading services..." />}>
     <LazyServicesCard {...props} />
   </Suspense>
 );
 
-export const WhyCrawdwallFeaturesSection = (props: any) => (
+export const WhyCrawdwallFeaturesSection = (props: unknown) => (
   <Suspense fallback={<LoadingSpinner message="Loading features..." />}>
     <LazyWhyCrawdwallFeaturesSection {...props} />
   </Suspense>

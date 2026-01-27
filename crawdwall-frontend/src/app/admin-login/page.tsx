@@ -1,15 +1,11 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
-import Link from 'next/link';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Footer from '@/components/ui/Footer';
-
 import { authAPI } from '@/lib/api';
 import Navbar from '@/components/ui/Navbar';
 

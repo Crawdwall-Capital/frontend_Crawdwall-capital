@@ -1,6 +1,7 @@
 'use client';
-
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+export const dynamic = 'force-dynamic';
+import React from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;

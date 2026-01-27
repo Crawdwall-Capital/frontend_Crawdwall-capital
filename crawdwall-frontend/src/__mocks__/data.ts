@@ -1,4 +1,4 @@
-import { Proposal, User, UserWithPassword, Vote } from '@/types';
+import {Proposal, User, UserWithPassword} from '@/types';
 
 // Store users in memory for registration
 // Store users in memory for registration
@@ -22,7 +22,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'admin@crawdwall.com',
       name: 'Admin User',
       role: 'admin',
-      password: 'admin123',
       createdAt: '2023-01-15T08:30:00Z',
       updatedAt: '2023-01-15T08:30:00Z',
     },
@@ -31,7 +30,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'organizer1@crawdwall.com',
       name: 'John Smith',
       role: 'organizer',
-      password: 'organizer123',
       createdAt: '2023-02-20T10:15:00Z',
       updatedAt: '2023-02-20T10:15:00Z',
     },
@@ -40,7 +38,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'organizer2@crawdwall.com',
       name: 'Sarah Johnson',
       role: 'organizer',
-      password: 'organizer123',
       createdAt: '2023-03-10T14:45:00Z',
       updatedAt: '2023-03-10T14:45:00Z',
     },
@@ -49,7 +46,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'organizer3@crawdwall.com',
       name: 'Emma Thompson',
       role: 'organizer',
-      password: 'organizer123',
       createdAt: '2023-03-25T16:30:00Z',
       updatedAt: '2023-03-25T16:30:00Z',
     },
@@ -58,7 +54,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'investor1@crawdwall.com',
       name: 'Michael Brown',
       role: 'investor',
-      password: 'investor123',
       createdAt: '2023-04-05T09:20:00Z',
       updatedAt: '2023-04-05T09:20:00Z',
     },
@@ -67,7 +62,6 @@ let mockUsers: UserWithPassword[] = (() => {
       email: 'investor2@crawdwall.com',
       name: 'Robert Johnson',
       role: 'investor',
-      password: 'investor123',
       createdAt: '2023-04-15T11:45:00Z',
       updatedAt: '2023-04-15T11:45:00Z',
     },
@@ -77,7 +71,6 @@ let mockUsers: UserWithPassword[] = (() => {
       name: 'David Wilson',
       role: 'officer',
       status: 'Active',
-      password: 'officer123',
       createdAt: '2023-05-10T13:45:00Z',
       updatedAt: '2023-05-10T13:45:00Z',
     },
@@ -87,7 +80,6 @@ let mockUsers: UserWithPassword[] = (() => {
       name: 'Lisa Thompson',
       role: 'officer',
       status: 'Active',
-      password: 'officer123',
       createdAt: '2023-05-20T09:30:00Z',
       updatedAt: '2023-05-20T09:30:00Z',
     },
@@ -97,7 +89,6 @@ let mockUsers: UserWithPassword[] = (() => {
       name: 'James Rodriguez',
       role: 'officer',
       status: 'Suspended',
-      password: 'officer123',
       createdAt: '2023-06-05T14:20:00Z',
       updatedAt: '2023-06-05T14:20:00Z',
     },
@@ -107,7 +98,6 @@ let mockUsers: UserWithPassword[] = (() => {
       name: 'Maria Garcia',
       role: 'officer',
       status: 'Active',
-      password: 'officer123',
       createdAt: '2023-06-15T11:15:00Z',
       updatedAt: '2023-06-15T11:15:00Z',
     }
@@ -157,7 +147,7 @@ export const findUserByEmail = (email: string): User | undefined => {
       }
     }
   }
-  return users.find((user: any) => user.email === email);
+  return users.find((user: unknown) => user.email === email);
 };
 
 // Function to find a user by ID
@@ -174,13 +164,12 @@ export const findUserById = (id: string): User | undefined => {
       }
     }
   }
-  return users.find((user: any) => user.id === id);
+  return users.find((user: unknown) => user.id === id);
 };
 
 // Function to validate admin credentials
 export const validateAdmin = (email: string, password: string): boolean => {
-  // Load users from localStorage if available
-  let users = mockUsers;
+  let users = [];
   if (typeof window !== 'undefined') {
     const savedUsers = localStorage.getItem('mockUsers');
     if (savedUsers) {
@@ -526,7 +515,7 @@ export const mockAPI = {
           }
         }
         
-        const user = users.find((u: any) => u.email === credentials.email && u.password === credentials.password);
+        const user = users.find((u: unknown) => u.email === credentials.email && u.password === credentials.password);
         if (user) {
           // Return user without password for security
           const { password, ...userWithoutPassword } = user;
@@ -554,7 +543,6 @@ export const mockAPI = {
           email: userData.email,
           name: userData.name,
           role: 'organizer',
-          password: userData.password,
         });
         
         resolve({
@@ -575,7 +563,6 @@ export const mockAPI = {
           email: userData.email,
           name: userData.name,
           role: 'investor',
-          password: userData.password,
         });
         
         resolve({
@@ -617,7 +604,7 @@ export const mockAPI = {
         // Get user from localStorage if available
         const userEmail = localStorage.getItem('user_email');
         if (userEmail) {
-          const user = users.find((u: any) => u.email === userEmail);
+          const user = users.find((u: unknown) => u.email === userEmail);
           if (user) {
             // Return user without password for security
             const { password, ...userWithoutPassword } = user;
@@ -631,7 +618,7 @@ export const mockAPI = {
         
         // Fallback to role-based lookup
         const role = localStorage.getItem('user_role') || 'organizer';
-        const user = users.find((u: any) => u.role === role);
+        const user = users.find((u: unknown) => u.role === role);
         
         if (user) {
           // Return user without password for security
@@ -919,7 +906,7 @@ export const mockAPI = {
     });
   },
 
-  createProposal: (data: any) => {
+  createProposal: (data: unknown) => {
     return new Promise((resolve) => {
       setTimeout(() => {
         const newProposal: Proposal = {
@@ -933,7 +920,7 @@ export const mockAPI = {
           organizerEmail: 'organizer1@crawdwall.com',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          documents: data.documents ? Array.from(data.documents).map((doc: any) => doc.name) : [],
+          documents: data.documents ? Array.from(data.documents).map((doc: unknown) => doc.name) : [],
           comments: []
         };
         

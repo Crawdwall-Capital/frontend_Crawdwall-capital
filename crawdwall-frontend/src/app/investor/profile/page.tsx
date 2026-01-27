@@ -1,14 +1,11 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authAPI } from '@/lib/api';
+ '@/lib/api';
 
 export default function InvestorProfilePage() {
-  const router = useRouter();
+  // const $varName  = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [notificationPreferences, setNotificationPreferences] = useState({
     email: true,

@@ -1,5 +1,5 @@
-const { exec } = require('child_process');
-const os = require('os');
+import { exec } from 'child_process';
+import os from 'os';
 
 console.log('Starting test execution...');
 

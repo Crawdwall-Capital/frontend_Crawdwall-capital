@@ -1,15 +1,14 @@
 'use client';
-import * as React from 'react';      
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+ 'react-hook-form';
+ '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { authAPI } from '@/lib/api';
+ '@/lib/api';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 
@@ -22,7 +21,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const router = useRouter();
+  // const $varName  = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +33,6 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
-      password: '',
     },
   });
 
@@ -46,9 +44,7 @@ export default function LoginPage() {
 
     try {
       const response = await authAPI.login({
-        email: data.email,
-        password: data.password
-      });
+        email: data.email});
       
       if (response.data.success && response.data.data) {
         // Handle the response data
@@ -111,7 +107,7 @@ export default function LoginPage() {
       } else {
         setError(response.data.message || response.data.error || 'Login failed');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
       if (err.response?.data?.message) {
         setError(err.response.data.message);

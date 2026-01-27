@@ -1,10 +1,8 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import * as React from 'react';
-
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { authAPI, proposalAPI } from '@/lib/api';
+import { proposalAPI, authAPI } from '@/lib/api';
 
 export default function InvestorDashboardPage() {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
@@ -44,7 +42,7 @@ export default function InvestorDashboardPage() {
           const userProposals = userProposalsResponse.data.data;
           
           // Map proposals to portfolio items format
-          const portfolio = userProposals.map((proposal: any) => ({
+          const portfolio = userProposals.map((proposal: unknown) => ({
             id: proposal.id,
             eventName: proposal.title,
             investmentAmount: `$${proposal.amount ? proposal.amount.toLocaleString() : '0'}`,
@@ -55,8 +53,8 @@ export default function InvestorDashboardPage() {
           setPortfolioItems(portfolio);
           
           // Calculate stats based on user proposals
-          const fundedProposals = userProposals.filter((p: any) => p.status === 'FUNDED');
-          const totalInvested = fundedProposals.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+          const fundedProposals = userProposals.filter((p: unknown) => p.status === 'FUNDED');
+          const totalInvested = fundedProposals.reduce((sum: number, p: unknown) => sum + (p.amount || 0), 0);
           const activeEvents = fundedProposals.length;
           
           setStats({
@@ -74,9 +72,9 @@ export default function InvestorDashboardPage() {
           
           // Filter proposals for new investment opportunities
           const opportunityList = allProposals
-            .filter((proposal: any) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW')
+            .filter((proposal: unknown) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW')
             .slice(0, 3)
-            .map((proposal: any) => ({
+            .map((proposal: unknown) => ({
               id: proposal.id,
               title: proposal.title,
               description: proposal.description,
