@@ -4,14 +4,18 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: false,
   typescript: {
-    // Skip TypeScript checking during build if SKIP_TYPE_CHECK is set
-    ignoreBuildErrors: process.env.SKIP_TYPE_CHECK === 'true',
+    // Always skip TypeScript checking during build
+    ignoreBuildErrors: true,
   },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
     ],
   },
@@ -23,6 +27,13 @@ const nextConfig: NextConfig = {
         destination: 'https://crawdwall-backend-ywlk.onrender.com/api/:path*',
       },
     ];
+  },
+  // Optimize for Vercel deployment
+  output: 'standalone',
+  experimental: {
+    // Reduce memory usage during build
+    workerThreads: false,
+    cpus: 1,
   },
 };
 

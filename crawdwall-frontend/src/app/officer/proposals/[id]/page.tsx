@@ -52,7 +52,7 @@ export default function OfficerProposalDetailPage(props: { params: { id: string 
                 url: '#',
               })) || [],
             reviews:
-              response.data.votes?.map((vote: unknown) => ({
+              response.data.votes?.map((vote: any) => ({
                 officer: vote.officerName,
                 date: new Date(vote.timestamp).toLocaleDateString(),
                 status: vote.decision === 'ACCEPT' ? 'Accept' : 'Reject',
@@ -112,7 +112,7 @@ export default function OfficerProposalDetailPage(props: { params: { id: string 
             totalOfficers: 4,
             acceptanceThreshold: 4,
             myVote:
-              response.data.votes?.find((vote: unknown) => vote.officerId === '7')?.decision || null,
+              response.data.votes?.find((vote: any) => vote.officerId === '7')?.decision || null,
           };
 
           setProposal(transformedProposal);

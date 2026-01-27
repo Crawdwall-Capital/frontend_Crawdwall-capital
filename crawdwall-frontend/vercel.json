@@ -2,5 +2,12 @@
   "buildCommand": "npm run build",
   "env": {
     "SKIP_TYPE_CHECK": "true"
+  },
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "build": {
+    "env": {
+      "SKIP_TYPE_CHECK": "true"
+    }
   }
 }

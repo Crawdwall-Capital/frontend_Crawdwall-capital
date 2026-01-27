@@ -26,7 +26,7 @@ export default function OrganizerProposalsPage() {
         
         if (response.success) {
           // Transform the data to match the expected format
-          const transformedProposals = response.data.map((proposal: unknown) => ({
+          const transformedProposals = response.data.map((proposal: any) => ({
             id: proposal.id,
             title: proposal.title,
             status: proposal.status,

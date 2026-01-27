@@ -56,8 +56,8 @@ export default function AdminSettingsPage() {
   }, []);
 
   // Handle platform settings change
-  const handlePlatformSettingChange = (field: string, value: unknown) => {
-    setPlatformSettings((prev: unknown) => ({
+  const handlePlatformSettingChange = (field: string, value: any) => {
+    setPlatformSettings((prev: any) => ({
       ...prev,
       [field]: value
     }));

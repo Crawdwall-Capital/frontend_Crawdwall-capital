@@ -23,8 +23,8 @@ export default function InvestorOpportunitiesPage() {
         if (proposalsResponse.data.success && proposalsResponse.data.data) {
           // Filter proposals to get only those that are suitable as investment opportunities
           const availableOpportunities = proposalsResponse.data.data
-            .filter((proposal: unknown) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW' || proposal.status === 'VETTED')
-            .map((proposal: unknown, index: number) => ({
+            .filter((proposal: any) => proposal.status === 'SUBMITTED' || proposal.status === 'IN_REVIEW' || proposal.status === 'VETTED')
+            .map((proposal: any, index: number) => ({
               id: proposal.id || index + 1,
               eventName: proposal.title,
               category: proposal.category || "Event",

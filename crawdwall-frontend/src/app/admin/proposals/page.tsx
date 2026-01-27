@@ -44,12 +44,12 @@ export default function AdminProposalsPage() {
             amount: `$${proposal.amount?.toLocaleString() || '0'}`,
             description: proposal.description,
             organizer: proposal.organizerName || 'Unknown Organizer',
-            officersAssigned: proposal.votes?.map((vote: unknown) => vote.officerName) || [],
+            officersAssigned: proposal.votes?.map((vote: any) => vote.officerName || 'Unknown Officer') || [],
             reviewsReceived: proposal.votes?.length || 0,
             votesReceived: proposal.votes?.length || 0,
             acceptanceThreshold: 4, // Default threshold
-            acceptVotes: proposal.votes?.filter((vote: unknown) => vote.decision === 'ACCEPT').length || 0,
-            rejectVotes: proposal.votes?.filter((vote: unknown) => vote.decision === 'REJECT').length || 0,
+            acceptVotes: proposal.votes?.filter((vote: any) => vote.decision === 'ACCEPT').length || 0,
+            rejectVotes: proposal.votes?.filter((vote: any) => vote.decision === 'REJECT').length || 0,
           }));
           
           setProposals(transformedProposals);
@@ -57,7 +57,7 @@ export default function AdminProposalsPage() {
           if (selectedFilter === 'all') {
             setFilteredProposals(transformedProposals);
           } else {
-            const filtered = transformedProposals.filter((proposal: unknown) => 
+            const filtered = transformedProposals.filter((proposal: any) => 
               proposal.status.toLowerCase().includes(selectedFilter.toLowerCase())
             );
             setFilteredProposals(filtered);
@@ -145,7 +145,7 @@ export default function AdminProposalsPage() {
                   ? 'bg-gray-600 text-white dark:bg-gray-500' 
                   : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'}`}
               >
-                Submitted ({proposals.filter((p: unknown) => p.status.toLowerCase().includes('submitted')).length})
+                Submitted ({proposals.filter((p: any) => p.status.toLowerCase().includes('submitted')).length})
               </button>
               <button 
                 onClick={() => filterProposals('review')}
@@ -153,7 +153,7 @@ export default function AdminProposalsPage() {
                   ? 'bg-yellow-600 text-white dark:bg-yellow-500' 
                   : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-800/30'}`}
               >
-                Under Review ({proposals.filter((p: unknown) => p.status.toLowerCase().includes('review')).length})
+                Under Review ({proposals.filter((p: any) => p.status.toLowerCase().includes('review')).length})
               </button>
               <button 
                 onClick={() => filterProposals('funded')}
@@ -161,7 +161,7 @@ export default function AdminProposalsPage() {
                   ? 'bg-green-600 text-white dark:bg-green-500' 
                   : 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-800/30'}`}
               >
-                Accepted ({proposals.filter((p: unknown) => p.status.toLowerCase().includes('funded')).length})
+                Accepted ({proposals.filter((p: any) => p.status.toLowerCase().includes('funded')).length})
               </button>
               <button 
                 onClick={() => filterProposals('rejected')}
@@ -169,7 +169,7 @@ export default function AdminProposalsPage() {
                   ? 'bg-red-600 text-white dark:bg-red-500' 
                   : 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-800/30'}`}
               >
-                Rejected ({proposals.filter((p: unknown) => p.status.toLowerCase().includes('rejected')).length})
+                Rejected ({proposals.filter((p: any) => p.status.toLowerCase().includes('rejected')).length})
               </button>
               <button 
                 onClick={() => filterProposals('callback')}
@@ -177,7 +177,7 @@ export default function AdminProposalsPage() {
                   ? 'bg-purple-600 text-white dark:bg-purple-500' 
                   : 'bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-800/30'}`}
               >
-                Callback ({proposals.filter((p: unknown) => p.status.toLowerCase().includes('callback')).length})
+                Callback ({proposals.filter((p: any) => p.status.toLowerCase().includes('callback')).length})
               </button>
               <button 
                 onClick={() => filterProposals('vetted')}
@@ -185,7 +185,7 @@ export default function AdminProposalsPage() {
                   ? 'bg-indigo-600 text-white dark:bg-indigo-500' 
                   : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-800/30'}`}
               >
-                Vetted ({proposals.filter((p: unknown) => p.status.toLowerCase().includes('vetted')).length})
+                Vetted ({proposals.filter((p: any) => p.status.toLowerCase().includes('vetted')).length})
               </button>
             </div>
           </div>
