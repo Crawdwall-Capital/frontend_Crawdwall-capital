@@ -24,7 +24,7 @@ const registrationSchema = z.object({
 type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function SignupPage() {
-  // const $varName  = useRouter();
+  const router = useRouter();
   const { error, setError, clearError, handleApiError, isLoading, setIsLoading } = useErrorHandler();
 
   const {
@@ -37,6 +37,7 @@ export default function SignupPage() {
       name: '',
       email: '',
       phoneNumber: '',
+      password: '',
       role: 'investor',
     },
   });
@@ -52,12 +53,14 @@ export default function SignupPage() {
           name: data.name,
           email: data.email,
           phoneNumber: data.phoneNumber,
+          password: data.password,
         });
       } else {
         response = await authAPI.registerInvestor({
           name: data.name,
           email: data.email,
           phoneNumber: data.phoneNumber,
+          password: data.password,
         });
       }
       

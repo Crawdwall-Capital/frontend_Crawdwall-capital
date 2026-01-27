@@ -20,7 +20,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  // const $varName  = useRouter();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +32,7 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
+      password: '',
     },
   });
 
@@ -43,7 +44,9 @@ export default function LoginPage() {
 
     try {
       const response = await authAPI.login({
-        email: data.email});
+        email: data.email,
+        password: data.password,
+      });
       
       if (response.data.success && response.data.data) {
         // Handle the response data
@@ -106,7 +109,7 @@ export default function LoginPage() {
       } else {
         setError(response.data.message || response.data.error || 'Login failed');
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Login error:', err);
       if (err.response?.data?.message) {
         setError(err.response.data.message);
