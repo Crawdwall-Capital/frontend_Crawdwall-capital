@@ -1,6 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -26,6 +26,38 @@ type RegistrationFormData = z.infer<typeof registrationSchema>;
 export default function SignupPage() {
   const router = useRouter();
   const { error, setError, clearError, handleApiError, isLoading, setIsLoading } = useErrorHandler();
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Auto-redirect after successful registration
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        const role = localStorage.getItem('user_role')?.toLowerCase();
+        console.log('🔄 Auto-redirect triggered for role:', role);
+        
+        try {
+          if (role === 'organizer') {
+            router.push('/organizer/dashboard');
+          } else if (role === 'investor') {
+            router.push('/investor/dashboard');
+          } else {
+            router.push('/');
+          }
+        } catch (error) {
+          console.error('Auto-redirect failed, using window.location:', error);
+          if (role === 'organizer') {
+            window.location.href = '/organizer/dashboard';
+          } else if (role === 'investor') {
+            window.location.href = '/investor/dashboard';
+          } else {
+            window.location.href = '/';
+          }
+        }
+      }, 2000); // 2 second delay
+
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage, router]);
 
   const {
     register,
@@ -45,6 +77,7 @@ export default function SignupPage() {
   const onSubmit = async (data: RegistrationFormData) => {
     setIsLoading(true);
     clearError();
+    setSuccessMessage(null);
 
     console.log('Attempting registration with data:', {
       name: data.name,
@@ -77,11 +110,21 @@ export default function SignupPage() {
       
       console.log('API response received:', response.data);
       
+      // More flexible response handling
       if (response.data.success && response.data.data) {
+        console.log('✅ Registration successful - processing response...');
+        
         // Handle the response data
         const authResponse = response.data.data as AuthResponse;
         const token = authResponse.token;
         const userData = authResponse.user;
+        
+        console.log('Auth response details:', {
+          hasToken: !!token,
+          hasUserData: !!userData,
+          tokenPreview: token ? token.substring(0, 20) + '...' : 'No token',
+          userRole: userData?.role || 'No role in userData'
+        });
         
         if (token && userData) {
           // Store the received token and user info
@@ -89,44 +132,71 @@ export default function SignupPage() {
           localStorage.setItem('user_role', data.role);
           localStorage.setItem('user_email', data.email || userData.email);
           
-          // Log for debugging
-          console.log('Registration successful, attempting redirect...');
-          console.log('Role:', data.role);
-          console.log('Token:', token.substring(0, 20) + '...'); // Log first 20 chars of token
+          console.log('✅ Auth data stored successfully');
+          console.log('Stored role:', data.role);
+          console.log('Attempting navigation...');
+          
+          // Show success message briefly before navigation
+          setSuccessMessage('Registration successful! Redirecting to your dashboard...');
           
           // Redirect based on selected role (case-insensitive)
           const normalizedRole = data.role.toLowerCase();
           
-          // Add a small delay to ensure state is properly saved before navigation
-          setTimeout(() => {
-            try {
-              if (normalizedRole === 'organizer') {
-                console.log('Attempting redirect to organizer dashboard');
-                router.push('/organizer/dashboard');
-              } else if (normalizedRole === 'investor') {
-                console.log('Attempting redirect to investor dashboard');
-                router.push('/investor/dashboard');
-              } else {
-                console.log('Attempting redirect to home');
-                // Default redirect for other roles
-                router.push('/');
-              }
-            } catch (redirectError) {
-              console.error('Navigation failed, falling back to window.location:', redirectError);
-              // Fallback to window.location if router.push fails
-              if (normalizedRole === 'organizer') {
-                window.location.href = '/organizer/dashboard';
-              } else if (normalizedRole === 'investor') {
-                window.location.href = '/investor/dashboard';
-              } else {
-                window.location.href = '/';
-              }
+          // Immediate navigation without delay
+          try {
+            if (normalizedRole === 'organizer') {
+              console.log('🚀 Navigating to organizer dashboard');
+              router.push('/organizer/dashboard');
+            } else if (normalizedRole === 'investor') {
+              console.log('🚀 Navigating to investor dashboard');
+              router.push('/investor/dashboard');
+            } else {
+              console.log('🚀 Navigating to home');
+              router.push('/');
             }
-          }, 100); // Small delay to ensure proper execution
+          } catch (redirectError) {
+            console.error('❌ Router navigation failed, using window.location:', redirectError);
+            // Fallback to window.location if router.push fails
+            if (normalizedRole === 'organizer') {
+              window.location.href = '/organizer/dashboard';
+            } else if (normalizedRole === 'investor') {
+              window.location.href = '/investor/dashboard';
+            } else {
+              window.location.href = '/';
+            }
+          }
         } else {
-          setError(response.data.message || 'Registration failed - invalid response format');
+          console.error('❌ Missing token or user data:', { hasToken: !!token, hasUserData: !!userData });
+          setError('Registration successful but authentication data is incomplete. Please try logging in.');
+        }
+      } else if (response.data.success) {
+        // Handle case where success is true but data structure is different
+        console.log('✅ Registration successful but unexpected data structure:', response.data);
+        
+        // Try to extract token and user data from different possible structures
+        const token = response.data.token || response.data.data?.token;
+        const userData = response.data.user || response.data.data?.user;
+        
+        if (token) {
+          localStorage.setItem('crawdwall_auth_token', token);
+          localStorage.setItem('user_role', data.role);
+          localStorage.setItem('user_email', data.email);
+          
+          console.log('🚀 Navigating with alternative data structure');
+          const normalizedRole = data.role.toLowerCase();
+          
+          if (normalizedRole === 'organizer') {
+            router.push('/organizer/dashboard');
+          } else if (normalizedRole === 'investor') {
+            router.push('/investor/dashboard');
+          } else {
+            router.push('/');
+          }
+        } else {
+          setError('Registration successful but no authentication token received. Please try logging in.');
         }
       } else {
+        console.error('❌ Registration failed:', response.data);
         setError(response.data.message || response.data.error || 'Registration failed');
       }
     } catch (err: any) {
@@ -282,6 +352,30 @@ export default function SignupPage() {
               {error && (
                 <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
                   <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4">
+                  <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
+                  <div className="mt-3 flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const role = localStorage.getItem('user_role')?.toLowerCase();
+                        if (role === 'organizer') {
+                          router.push('/organizer/dashboard');
+                        } else if (role === 'investor') {
+                          router.push('/investor/dashboard');
+                        } else {
+                          router.push('/');
+                        }
+                      }}
+                      className="text-sm font-medium text-green-700 dark:text-green-300 hover:text-green-600 dark:hover:text-green-200 underline"
+                    >
+                      Go to Dashboard →
+                    </button>
+                  </div>
                 </div>
               )}
 

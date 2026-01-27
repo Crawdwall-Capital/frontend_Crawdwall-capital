@@ -23,6 +23,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const {
     register,
@@ -41,6 +42,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       const response = await authAPI.login({
@@ -64,45 +66,45 @@ export default function LoginPage() {
           console.log('Login successful, attempting redirect...');
           console.log('Role:', userData.role);
           
+          // Show success message
+          setSuccessMessage('Login successful! Redirecting to your dashboard...');
+          
           // Redirect based on user's role (case-insensitive)
           const normalizedRole = userData.role.toLowerCase();
           
-          // Add a small delay to ensure state is properly saved before navigation
-          setTimeout(() => {
-            try {
-              if (normalizedRole === 'organizer') {
-                console.log('Redirecting to organizer dashboard');
-                router.push('/organizer/dashboard');
-              } else if (normalizedRole === 'investor') {
-                console.log('Redirecting to investor dashboard');
-                router.push('/investor/dashboard');
-              } else if (normalizedRole === 'admin') {
-                console.log('Redirecting to admin dashboard');
-                router.push('/admin/dashboard');
-              } else if (normalizedRole === 'officer') {
-                console.log('Redirecting to officer dashboard');
-                router.push('/officer/dashboard');
-              } else {
-                console.log('Redirecting to home');
-                // Default redirect for unknown roles
-                router.push('/');
-              }
-            } catch (redirectError) {
-              console.error('Navigation failed, falling back to window.location:', redirectError);
-              // Fallback to window.location if router.push fails
-              if (normalizedRole === 'organizer') {
-                window.location.href = '/organizer/dashboard';
-              } else if (normalizedRole === 'investor') {
-                window.location.href = '/investor/dashboard';
-              } else if (normalizedRole === 'admin') {
-                window.location.href = '/admin/dashboard';
-              } else if (normalizedRole === 'officer') {
-                window.location.href = '/officer/dashboard';
-              } else {
-                window.location.href = '/';
-              }
+          // Immediate navigation
+          try {
+            if (normalizedRole === 'organizer') {
+              console.log('Redirecting to organizer dashboard');
+              router.push('/organizer/dashboard');
+            } else if (normalizedRole === 'investor') {
+              console.log('Redirecting to investor dashboard');
+              router.push('/investor/dashboard');
+            } else if (normalizedRole === 'admin') {
+              console.log('Redirecting to admin dashboard');
+              router.push('/admin/dashboard');
+            } else if (normalizedRole === 'officer') {
+              console.log('Redirecting to officer dashboard');
+              router.push('/officer/dashboard');
+            } else {
+              console.log('Redirecting to home');
+              router.push('/');
             }
-          }, 100); // Small delay to ensure proper execution
+          } catch (redirectError) {
+            console.error('Navigation failed, falling back to window.location:', redirectError);
+            // Fallback to window.location if router.push fails
+            if (normalizedRole === 'organizer') {
+              window.location.href = '/organizer/dashboard';
+            } else if (normalizedRole === 'investor') {
+              window.location.href = '/investor/dashboard';
+            } else if (normalizedRole === 'admin') {
+              window.location.href = '/admin/dashboard';
+            } else if (normalizedRole === 'officer') {
+              window.location.href = '/officer/dashboard';
+            } else {
+              window.location.href = '/';
+            }
+          }
         } else {
           setError(response.data.message || 'Login failed - invalid response format');
         }
@@ -188,6 +190,12 @@ export default function LoginPage() {
               {error && (
                 <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
                   <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4">
+                  <p className="text-sm text-green-700 dark:text-green-300">{successMessage}</p>
                 </div>
               )}
 
