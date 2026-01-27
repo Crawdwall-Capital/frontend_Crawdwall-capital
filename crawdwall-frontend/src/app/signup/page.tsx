@@ -110,11 +110,61 @@ export default function SignupPage() {
       
       console.log('API response received:', response.data);
       
-      // More flexible response handling
-      if (response.data.success && response.data.data) {
+      // Handle the actual API response structure
+      if (response.data.token && response.data.message === 'Registration successful') {
         console.log('✅ Registration successful - processing response...');
         
-        // Handle the response data
+        const token = response.data.token;
+        const userRole = response.data.role;
+        
+        console.log('Auth response details:', {
+          hasToken: !!token,
+          userRole: userRole,
+          tokenPreview: token ? token.substring(0, 20) + '...' : 'No token'
+        });
+        
+        // Store the received token and user info
+        localStorage.setItem('crawdwall_auth_token', token);
+        localStorage.setItem('user_role', data.role.toLowerCase()); // Use the form role, not API role
+        localStorage.setItem('user_email', data.email);
+        
+        console.log('✅ Auth data stored successfully');
+        console.log('Stored role:', data.role);
+        console.log('Attempting navigation...');
+        
+        // Show success message briefly before navigation
+        setSuccessMessage('Registration successful! Redirecting to your dashboard...');
+        
+        // Redirect based on selected role (case-insensitive)
+        const normalizedRole = data.role.toLowerCase();
+        
+        // Immediate navigation without delay
+        try {
+          if (normalizedRole === 'organizer') {
+            console.log('🚀 Navigating to organizer dashboard');
+            router.push('/organizer/dashboard');
+          } else if (normalizedRole === 'investor') {
+            console.log('🚀 Navigating to investor dashboard');
+            router.push('/investor/dashboard');
+          } else {
+            console.log('🚀 Navigating to home');
+            router.push('/');
+          }
+        } catch (redirectError) {
+          console.error('❌ Router navigation failed, using window.location:', redirectError);
+          // Fallback to window.location if router.push fails
+          if (normalizedRole === 'organizer') {
+            window.location.href = '/organizer/dashboard';
+          } else if (normalizedRole === 'investor') {
+            window.location.href = '/investor/dashboard';
+          } else {
+            window.location.href = '/';
+          }
+        }
+      } else if (response.data.success && response.data.data) {
+        // Handle the expected API response structure (fallback)
+        console.log('✅ Registration successful - processing expected response structure...');
+        
         const authResponse = response.data.data as AuthResponse;
         const token = authResponse.token;
         const userData = authResponse.user;
