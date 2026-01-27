@@ -46,9 +46,19 @@ export default function SignupPage() {
     setIsLoading(true);
     clearError();
 
+    console.log('Attempting registration with data:', {
+      name: data.name,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      role: data.role,
+      // Don't log password for security
+      hasPassword: !!data.password
+    });
+
     try {
       let response;
       if (data.role === 'organizer') {
+        console.log('Calling registerOrganizer API...');
         response = await authAPI.registerOrganizer({
           name: data.name,
           email: data.email,
@@ -56,6 +66,7 @@ export default function SignupPage() {
           password: data.password,
         });
       } else {
+        console.log('Calling registerInvestor API...');
         response = await authAPI.registerInvestor({
           name: data.name,
           email: data.email,
@@ -63,6 +74,8 @@ export default function SignupPage() {
           password: data.password,
         });
       }
+      
+      console.log('API response received:', response.data);
       
       if (response.data.success && response.data.data) {
         // Handle the response data
@@ -116,8 +129,31 @@ export default function SignupPage() {
       } else {
         setError(response.data.message || response.data.error || 'Registration failed');
       }
-    } catch (err: unknown) {
-      handleApiError(err);
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      
+      // More detailed error handling
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.response?.status === 500) {
+        setError('Server error. Please check if the backend is running and try again.');
+      } else if (err.response?.status === 400) {
+        setError('Invalid registration data. Please check your inputs.');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Network error. Please check your connection and backend availability.');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+      
+      // Log detailed error for debugging
+      console.error('Full error details:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.url
+      });
     } finally {
       setIsLoading(false);
     }

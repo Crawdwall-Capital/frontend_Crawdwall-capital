@@ -10,7 +10,9 @@ const apiClient = axios.create({
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
+  withCredentials: false, // Explicitly set for CORS
 });
 
 // Request interceptor to add auth token
@@ -115,7 +117,9 @@ export const authAPI = {
   // Organizer/Investor login
   login: async (credentials: { email: string; password: string }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
     return apiClient.post('/auth/login', {
-      email: credentials.email});
+      email: credentials.email,
+      password: credentials.password
+    });
   },
 
   // Organizer registration
