@@ -1,5 +1,6 @@
 'use client';
-
+export const dynamic = 'force-dynamic';
+import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { mockAPI } from '@/__mocks__/data';
 
@@ -91,7 +92,7 @@ export default function AdminAuditLogsPage() {
           </p>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow">
+        < div className="bg-white dark:bg-gray-800 rounded-xl shadow">
           <div className="px-6 py-5">
             <div className="text-center py-12">
               <p className="text-red-600 dark:text-red-400 text-lg font-medium">{error}</p>

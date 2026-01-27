@@ -1,11 +1,12 @@
 import OfficerNavbar from '@/components/ui/OfficerNavbar';
 import Footer from '@/components/ui/Footer';
 import AuthGuard from '@/components/AuthGuard';
+import type { ReactNode } from "react";
 
 export default function OfficerLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <AuthGuard allowedRoles={['officer']} redirectTo='/login'>

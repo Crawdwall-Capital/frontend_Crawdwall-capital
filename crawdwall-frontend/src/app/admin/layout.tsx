@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import AdminNavbar from '@/components/ui/AdminNavbar';
 import Footer from '@/components/ui/Footer';
 import AuthGuard from '@/components/AuthGuard';
@@ -5,7 +6,7 @@ import AuthGuard from '@/components/AuthGuard';
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <AuthGuard allowedRoles={['admin']} redirectTo='/login'>

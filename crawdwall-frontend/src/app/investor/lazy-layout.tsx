@@ -1,4 +1,8 @@
 'use client';
+export const dynamic = 'force-dynamic';
+import * as React from 'react';
+
+import type { ReactNode } from "react";
 
 import { lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -30,7 +34,7 @@ const LazyInvestorDashboard = lazy(() =>
 export default function LazyInvestorLayout({ 
   children 
 }: { 
-  children: React.ReactNode 
+  children: ReactNode 
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-white flex flex-col">

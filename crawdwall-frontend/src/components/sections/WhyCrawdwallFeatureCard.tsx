@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface WhyCrawdwallFeatureCardProps {
   title: string;
   description: string;

@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface CardWithImageProps {
   title: string;
   description: string;

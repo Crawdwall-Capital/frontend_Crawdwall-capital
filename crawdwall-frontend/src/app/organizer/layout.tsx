@@ -1,11 +1,12 @@
 import OrganizerNavbar from '@/components/ui/OrganizerNavbar';
 import Footer from '@/components/ui/Footer';
 import AuthGuard from '@/components/AuthGuard';
+import type { ReactNode } from "react";
 
 export default function OrganizerLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <AuthGuard allowedRoles={['organizer']} redirectTo='/login'>

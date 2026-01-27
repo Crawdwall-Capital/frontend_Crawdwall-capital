@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/lib/api';
+import type { ReactNode } from "react";
 
 interface AuthGuardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   allowedRoles?: string[];
   redirectTo?: string;
 }

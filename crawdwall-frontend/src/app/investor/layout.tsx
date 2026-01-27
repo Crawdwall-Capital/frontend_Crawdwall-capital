@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: 'Investor Dashboard | Crawdwall Capital',
@@ -12,7 +13,7 @@ import AuthGuard from '@/components/AuthGuard';
 export default function InvestorLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <AuthGuard allowedRoles={['investor']} redirectTo='/login'>

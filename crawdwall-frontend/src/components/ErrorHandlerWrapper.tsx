@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode,ErrorInfo } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { logger } from '@/lib/errorHandler';
 
@@ -15,7 +15,7 @@ export function ErrorHandlerWrapper({
   onError,
   fallback 
 }: ErrorHandlerWrapperProps): ReactNode {
-  const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
+  const handleError = (error: Error, errorInfo: ErrorInfo) => {
     // Log the error
     logger.error('React component error', {
       message: error.message,

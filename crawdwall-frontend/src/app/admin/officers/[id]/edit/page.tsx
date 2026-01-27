@@ -1,4 +1,11 @@
 'use client';
+export const dynamic = 'force-dynamic';
+import * as React from 'react';
+import type {
+  FormEvent,
+  ChangeEvent,
+  DragEvent
+} from "react";
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -55,7 +62,7 @@ export default function EditOfficerPage() {
     }
   }, [officerId]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError(null);
@@ -75,7 +82,7 @@ export default function EditOfficerPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
