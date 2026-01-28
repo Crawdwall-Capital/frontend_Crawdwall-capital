@@ -1,8 +1,8 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { proposalAPI, authAPI } from '@/lib/api';
+import { mockAPI } from '@/__mocks__/data';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function OrganizerDashboardPage() {
@@ -14,72 +14,57 @@ export default function OrganizerDashboardPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        console.log('Fetching organizer dashboard data...');
+        console.log('Fetching organizer dashboard data using mock API...');
         
-        // Get current user from real API
-        const userResponse = await authAPI.getCurrentUser();
-        console.log('User response:', userResponse.data);
-        
-        if (userResponse.data && (userResponse.data as any).data && (userResponse.data as any).data.name) {
-          setUserName((userResponse.data as any).data.name);
-          console.log('Set user name to:', (userResponse.data as any).data.name);
-        } else if (userResponse.data && (userResponse.data as any).name) {
-          setUserName((userResponse.data as any).name);
-          console.log('Set user name to:', (userResponse.data as any).name);
+        // First try to get user name from localStorage (from real authentication)
+        const storedUserName = localStorage.getItem('user_name');
+        const storedUserEmail = localStorage.getItem('user_email');
+        if (storedUserName) {
+          setUserName(storedUserName);
+          console.log('Set user name from localStorage:', storedUserName);
+        } else if (storedUserEmail) {
+          setUserName(storedUserEmail.split('@')[0]);
+          console.log('Set user name from email:', storedUserEmail.split('@')[0]);
         } else {
-          // Fallback to localStorage if API doesn't return user data
-          const storedUserName = localStorage.getItem('user_name');
-          const storedUserEmail = localStorage.getItem('user_email');
-          if (storedUserName) {
-            setUserName(storedUserName);
-            console.log('Set user name from localStorage:', storedUserName);
-          } else if (storedUserEmail) {
-            setUserName(storedUserEmail.split('@')[0]);
-            console.log('Set user name from email:', storedUserEmail.split('@')[0]);
+          // Fallback to mock API to get current user
+          const response: any = await mockAPI.getCurrentUser();
+          if (response.success && response.data) {
+            setUserName(response.data.name || 'Organizer');
+            console.log('Set user name from mock API:', response.data.name);
           }
         }
         
-        // Fetch user's proposals from real API
-        const userProposalsResponse = await proposalAPI.getUserProposals();
-        console.log('User proposals response:', userProposalsResponse.data);
-        
-        if (userProposalsResponse.data && userProposalsResponse.data.success && userProposalsResponse.data.data) {
-          const userProposals = userProposalsResponse.data.data;
-          console.log('User proposals:', userProposals);
+        // Use mock API to get user proposals for demonstration
+        const mockUserResponse: any = await mockAPI.getCurrentUser();
+        if (mockUserResponse.success && mockUserResponse.data) {
+          const userId = mockUserResponse.data.id;
+          const userProposalsResponse: any = await mockAPI.getUserProposals(userId);
           
-          // Set recent proposals (last 4)
-          setRecentProposals(userProposals.slice(0, 4).map((proposal: any) => ({
-            id: proposal.id,
-            title: proposal.title,
-            status: proposal.status,
-            date: new Date(proposal.createdAt).toLocaleDateString(),
-            amount: `$${proposal.amount?.toLocaleString() || '0'}`
-          })));
-          
-          // Calculate stats
-          const totalProposals = userProposals.length;
-          const accepted = userProposals.filter((p: any) => p.status === 'FUNDED').length;
-          const rejected = userProposals.filter((p: any) => p.status === 'REJECTED').length;
-          const pendingReviews = userProposals.filter((p: any) => p.status === 'IN_REVIEW' || p.status === 'SUBMITTED').length;
-          
-          setStats([
-            { name: 'Total Proposals', value: totalProposals, icon: 'description', color: 'blue' },
-            { name: 'Pending Reviews', value: pendingReviews, icon: 'hourglass_top', color: 'yellow' },
-            { name: 'Accepted', value: accepted, icon: 'check_circle', color: 'green' },
-            { name: 'Rejected', value: rejected, icon: 'cancel', color: 'red' },
-          ]);
-          
-          console.log('Set stats:', { totalProposals, accepted, rejected, pendingReviews });
-        } else {
-          console.log('No user proposals found or API error, setting empty stats');
-          // Set empty stats if no proposals found
-          setStats([
-            { name: 'Total Proposals', value: 0, icon: 'description', color: 'blue' },
-            { name: 'Pending Reviews', value: 0, icon: 'hourglass_top', color: 'yellow' },
-            { name: 'Accepted', value: 0, icon: 'check_circle', color: 'green' },
-            { name: 'Rejected', value: 0, icon: 'cancel', color: 'red' },
-          ]);
-          setRecentProposals([]);
+          if (userProposalsResponse.success) {
+            const proposals = userProposalsResponse.data.slice(0, 4).map((proposal: any) => ({
+              id: proposal.id,
+              title: proposal.title,
+              status: proposal.status,
+              date: new Date(proposal.createdAt).toLocaleDateString(),
+              amount: `$${proposal.amount?.toLocaleString() || '0'}`
+            }));
+            setRecentProposals(proposals);
+            
+            // Calculate stats
+            const totalProposals = userProposalsResponse.data.length;
+            const accepted = userProposalsResponse.data.filter((p: any) => p.status === 'FUNDED').length;
+            const rejected = userProposalsResponse.data.filter((p: any) => p.status === 'REJECTED').length;
+            const pendingReviews = userProposalsResponse.data.filter((p: any) => p.status === 'IN_REVIEW' || p.status === 'SUBMITTED').length;
+            
+            setStats([
+              { name: 'Total Proposals', value: totalProposals, icon: 'description', color: 'blue' },
+              { name: 'Pending Reviews', value: pendingReviews, icon: 'hourglass_top', color: 'yellow' },
+              { name: 'Accepted', value: accepted, icon: 'check_circle', color: 'green' },
+              { name: 'Rejected', value: rejected, icon: 'cancel', color: 'red' },
+            ]);
+            
+            console.log('Set mock stats:', { totalProposals, accepted, rejected, pendingReviews });
+          }
         }
       } catch (error) {
         console.error('Error fetching organizer dashboard data:', error);
@@ -95,7 +80,7 @@ export default function OrganizerDashboardPage() {
           setUserName('Organizer');
         }
         
-        // Set empty stats on error
+        // Set default stats on error
         setStats([
           { name: 'Total Proposals', value: 0, icon: 'description', color: 'blue' },
           { name: 'Pending Reviews', value: 0, icon: 'hourglass_top', color: 'yellow' },

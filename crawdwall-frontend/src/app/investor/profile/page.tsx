@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
- '@/lib/api';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function InvestorProfilePage() {
   // const $varName  = useRouter();
@@ -18,17 +18,21 @@ export default function InvestorProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Get current user data
-        const userResponse = await authAPI.getCurrentUser();
+        // First try to get user name from localStorage (from real authentication)
+        const storedUserName = localStorage.getItem('user_name');
+        const storedUserEmail = localStorage.getItem('user_email');
         
-        if (userResponse.data.success && userResponse.data.data) {
-          const user = userResponse.data.data;
+        // Use mock API to get user data for demonstration
+        const userResponse = await mockAPI.getCurrentUser();
+        
+        if (userResponse.success && userResponse.data) {
+          const user = userResponse.data;
           
           // Format user data for display
           const formattedData = {
             id: user.id,
-            name: user.name || user.email.split('@')[0], // Use email prefix if name not available
-            email: user.email,
+            name: storedUserName || user.name || (storedUserEmail || user.email).split('@')[0], // Use stored name or email prefix
+            email: storedUserEmail || user.email,
             phone: "+1 (555) 123-4567", // Phone not in user object, using default
             accountType: user.role === 'investor' ? "Accredited Investor" : user.role.charAt(0).toUpperCase() + user.role.slice(1),
             memberSince: user.createdAt || "January 15, 2023",

@@ -2,8 +2,8 @@
 export const dynamic = 'force-dynamic';
 import React from 'react';
 import Link from 'next/link';
- 'react';
-import { proposalAPI } from '@/lib/api';
+import { useState, useEffect } from 'react';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function InvestorOpportunitiesPage() {
   const [filters, setFilters] = useState({
@@ -17,8 +17,8 @@ export default function InvestorOpportunitiesPage() {
   useEffect(() => {
     const fetchOpportunities = async () => {
       try {
-        // Get all proposals that are in appropriate status for investment opportunities
-        const proposalsResponse = await proposalAPI.getAllProposals();
+        // Get all proposals that are in appropriate status for investment opportunities using mock API
+        const proposalsResponse = await mockAPI.getAllProposals();
         
         if (proposalsResponse.data.success && proposalsResponse.data.data) {
           // Filter proposals to get only those that are suitable as investment opportunities

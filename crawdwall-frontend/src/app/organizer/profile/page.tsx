@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 import React, { useState, useEffect } from 'react';
-import { authAPI } from '@/lib/api';
+import { mockAPI } from '@/__mocks__/data';
 
 export default function OrganizerProfilePage() {
   const [activeTab, setActiveTab] = useState('profile');
@@ -11,21 +11,28 @@ export default function OrganizerProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await authAPI.getCurrentUser();
-        if (response.data.success && response.data.data) {
-          // Format user data to include phone (since it's not in the User type)
-          const userData = response.data.data;
+        // First try to get user name from localStorage (from real authentication)
+        const storedUserName = localStorage.getItem('user_name');
+        const storedUserEmail = localStorage.getItem('user_email');
+        
+        // Use mock API to get user data for demonstration
+        const response = await mockAPI.getCurrentUser();
+        if (response.success && response.data) {
+          // Format user data to include phone and use real auth data if available
+          const userData = response.data;
           setUserData({
             ...userData,
+            name: storedUserName || userData.name,
+            email: storedUserEmail || userData.email,
             phone: '+1 (555) 123-4567' // Default phone since not in User type
           });
         } else {
-          console.error('Failed to fetch user data:', response.data.message);
+          console.error('Failed to fetch user data:', response.message);
           // Set default data if API call fails
           setUserData({
             id: '2',
-            name: 'John Smith',
-            email: 'organizer1@crawdwall.com',
+            name: storedUserName || 'John Smith',
+            email: storedUserEmail || 'organizer1@crawdwall.com',
             phone: '+1 (555) 123-4567',
             createdAt: '2023-02-20T10:15:00Z',
             role: 'organizer'
