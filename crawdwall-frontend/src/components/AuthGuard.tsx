@@ -42,12 +42,14 @@ export default function AuthGuard({
           return;
         }
 
-        // Optionally verify token validity by calling API
+        // Verify token validity by calling the backend API
         try {
+          console.log('🔍 Verifying token with backend API...');
           await authAPI.getCurrentUser();
+          console.log('✅ Token verification successful');
           setIsAuthorized(true);
         } catch (error) {
-          console.error('Token verification failed:', error);
+          console.error('❌ Token verification failed:', error);
           // Clear invalid auth data
           localStorage.removeItem('crawdwall_auth_token');
           localStorage.removeItem('user_role');

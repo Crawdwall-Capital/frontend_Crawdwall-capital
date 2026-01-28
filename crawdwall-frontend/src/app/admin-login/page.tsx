@@ -1,6 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +26,16 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Debug: Log API configuration on component mount
+  useEffect(() => {
+    console.log('🔧 Admin Login Configuration:', {
+      backendUrl: process.env.NEXT_PUBLIC_API_URL,
+      sendOtpEndpoint: '/api/auth/admin/request-otp',
+      verifyOtpEndpoint: '/api/auth/admin/verify-otp',
+      getCurrentUserEndpoint: '/api/auth/me'
+    });
+  }, []);
 
   // Remove auto-redirect useEffect since we're doing immediate navigation
 
@@ -53,8 +63,19 @@ export default function AdminLoginPage() {
     try {
       const email = getValues('email');
       
+      console.log('🔄 Sending OTP request to backend:', {
+        email: email,
+        endpoint: '/api/auth/admin/request-otp',
+        backendUrl: process.env.NEXT_PUBLIC_API_URL
+      });
+      
       // Call the API to request OTP
       const response = await authAPI.sendOtp({ email: email || '' });
+      
+      console.log('✅ OTP request response:', {
+        status: response.status,
+        data: response.data
+      });
       
       if (response.data.success || response.status === 200) {
         setOtpSent(true);
@@ -63,11 +84,24 @@ export default function AdminLoginPage() {
         setError(response.data.message || response.data.error || 'Failed to send OTP');
       }
     } catch (err: any) {
-      console.error('Error sending OTP:', err);
+      console.error('❌ Error sending OTP:', err);
+      console.error('Full error details:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.url
+      });
+      
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.response?.data?.error) {
         setError(err.response.data.error);
+      } else if (err.response?.status === 503) {
+        setError('Backend service is currently unavailable. Please try again later.');
+      } else if (err.response?.status >= 500) {
+        setError('Server error. Please try again later.');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Network error. Please check your connection and backend availability.');
       } else {
         setError('An error occurred while sending OTP');
       }
@@ -90,13 +124,23 @@ export default function AdminLoginPage() {
       const email = getValues('email');
       const otp = getValues('otp');
       
+      console.log('🔄 Verifying OTP with backend:', {
+        email: email,
+        otp: otp,
+        endpoint: '/api/auth/admin/verify-otp',
+        backendUrl: process.env.NEXT_PUBLIC_API_URL
+      });
+      
       // Call the API to verify OTP
       const response = await authAPI.verifyOtp({ 
         email: email || '', 
         otp: otp || '' 
       });
       
-      console.log('OTP verification response:', response.data);
+      console.log('✅ OTP verification response:', {
+        status: response.status,
+        data: response.data
+      });
       
       // Handle the actual API response structure - flat response with token and message
       if (response.data && typeof response.data === 'object' && 'token' in response.data && 'message' in response.data) {
@@ -164,12 +208,26 @@ export default function AdminLoginPage() {
         setError(response.data.message || response.data.error || 'Invalid OTP');
       }
     } catch (err: any) {
-      console.error('Error verifying OTP:', err);
-      console.error('Full error details:', err.message, err.stack);
+      console.error('❌ Error verifying OTP:', err);
+      console.error('Full error details:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.url
+      });
+      
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.response?.data?.error) {
         setError(err.response.data.error);
+      } else if (err.response?.status === 503) {
+        setError('Backend service is currently unavailable. Please try again later.');
+      } else if (err.response?.status === 401) {
+        setError('Invalid OTP or expired. Please try again.');
+      } else if (err.response?.status >= 500) {
+        setError('Server error. Please try again later.');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Network error. Please check your connection and backend availability.');
       } else if (err.message) {
         setError(`Verification error: ${err.message}`);
       } else {
