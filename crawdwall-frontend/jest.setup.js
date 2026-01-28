@@ -6,6 +6,11 @@
 import '@testing-library/jest-dom';
 
 // --------------------
+// Mock environment variables
+// --------------------
+process.env.NEXT_PUBLIC_API_URL = 'https://crawdwall-backend-ywlk.onrender.com';
+
+// --------------------
 // Mock localStorage
 // --------------------
 global.localStorage = {

@@ -1,8 +1,8 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { mockAPI } from '@/__mocks__/data';
+import { proposalAPI, authAPI } from '@/lib/api';
 import StatusBadge from '@/components/StatusBadge';
 
 export default function OrganizerDashboardPage() {
@@ -14,36 +14,95 @@ export default function OrganizerDashboardPage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Using the mock API to get current user
-        const response: any = await mockAPI.getCurrentUser();
-        if (response.success && response.data) {
-          setUserName(response.data.name || 'Organizer');
-          
-          // Fetch user-specific data
-          const userId = response.data.id;
-          const userProposalsResponse: any = await mockAPI.getUserProposals(userId);
-          
-          if (userProposalsResponse.success) {
-            setRecentProposals(userProposalsResponse.data.slice(0, 4));
-            
-            // Calculate stats
-            const totalProposals = userProposalsResponse.data.length;
-            const accepted = userProposalsResponse.data.filter((p: any) => p.status === 'FUNDED').length;
-            const rejected = userProposalsResponse.data.filter((p: any) => p.status === 'REJECTED').length;
-            const pendingReviews = userProposalsResponse.data.filter((p: any) => p.status === 'IN_REVIEW' || p.status === 'SUBMITTED').length;
-            
-            setStats([
-              { name: 'Total Proposals', value: totalProposals, icon: 'description', color: 'blue' },
-              { name: 'Pending Reviews', value: pendingReviews, icon: 'hourglass_top', color: 'yellow' },
-              { name: 'Accepted', value: accepted, icon: 'check_circle', color: 'green' },
-              { name: 'Rejected', value: rejected, icon: 'cancel', color: 'red' },
-            ]);
+        console.log('Fetching organizer dashboard data...');
+        
+        // Get current user from real API
+        const userResponse = await authAPI.getCurrentUser();
+        console.log('User response:', userResponse.data);
+        
+        if (userResponse.data && (userResponse.data as any).data && (userResponse.data as any).data.name) {
+          setUserName((userResponse.data as any).data.name);
+          console.log('Set user name to:', (userResponse.data as any).data.name);
+        } else if (userResponse.data && (userResponse.data as any).name) {
+          setUserName((userResponse.data as any).name);
+          console.log('Set user name to:', (userResponse.data as any).name);
+        } else {
+          // Fallback to localStorage if API doesn't return user data
+          const storedUserName = localStorage.getItem('user_name');
+          const storedUserEmail = localStorage.getItem('user_email');
+          if (storedUserName) {
+            setUserName(storedUserName);
+            console.log('Set user name from localStorage:', storedUserName);
+          } else if (storedUserEmail) {
+            setUserName(storedUserEmail.split('@')[0]);
+            console.log('Set user name from email:', storedUserEmail.split('@')[0]);
           }
         }
+        
+        // Fetch user's proposals from real API
+        const userProposalsResponse = await proposalAPI.getUserProposals();
+        console.log('User proposals response:', userProposalsResponse.data);
+        
+        if (userProposalsResponse.data && userProposalsResponse.data.success && userProposalsResponse.data.data) {
+          const userProposals = userProposalsResponse.data.data;
+          console.log('User proposals:', userProposals);
+          
+          // Set recent proposals (last 4)
+          setRecentProposals(userProposals.slice(0, 4).map((proposal: any) => ({
+            id: proposal.id,
+            title: proposal.title,
+            status: proposal.status,
+            date: new Date(proposal.createdAt).toLocaleDateString(),
+            amount: `$${proposal.amount?.toLocaleString() || '0'}`
+          })));
+          
+          // Calculate stats
+          const totalProposals = userProposals.length;
+          const accepted = userProposals.filter((p: any) => p.status === 'FUNDED').length;
+          const rejected = userProposals.filter((p: any) => p.status === 'REJECTED').length;
+          const pendingReviews = userProposals.filter((p: any) => p.status === 'IN_REVIEW' || p.status === 'SUBMITTED').length;
+          
+          setStats([
+            { name: 'Total Proposals', value: totalProposals, icon: 'description', color: 'blue' },
+            { name: 'Pending Reviews', value: pendingReviews, icon: 'hourglass_top', color: 'yellow' },
+            { name: 'Accepted', value: accepted, icon: 'check_circle', color: 'green' },
+            { name: 'Rejected', value: rejected, icon: 'cancel', color: 'red' },
+          ]);
+          
+          console.log('Set stats:', { totalProposals, accepted, rejected, pendingReviews });
+        } else {
+          console.log('No user proposals found or API error, setting empty stats');
+          // Set empty stats if no proposals found
+          setStats([
+            { name: 'Total Proposals', value: 0, icon: 'description', color: 'blue' },
+            { name: 'Pending Reviews', value: 0, icon: 'hourglass_top', color: 'yellow' },
+            { name: 'Accepted', value: 0, icon: 'check_circle', color: 'green' },
+            { name: 'Rejected', value: 0, icon: 'cancel', color: 'red' },
+          ]);
+          setRecentProposals([]);
+        }
       } catch (error) {
-        console.error('Error fetching user data:', error);
-        // Fallback to a default name
-        setUserName('Organizer');
+        console.error('Error fetching organizer dashboard data:', error);
+        
+        // Fallback to localStorage for user name
+        const storedUserName = localStorage.getItem('user_name');
+        const storedUserEmail = localStorage.getItem('user_email');
+        if (storedUserName) {
+          setUserName(storedUserName);
+        } else if (storedUserEmail) {
+          setUserName(storedUserEmail.split('@')[0]);
+        } else {
+          setUserName('Organizer');
+        }
+        
+        // Set empty stats on error
+        setStats([
+          { name: 'Total Proposals', value: 0, icon: 'description', color: 'blue' },
+          { name: 'Pending Reviews', value: 0, icon: 'hourglass_top', color: 'yellow' },
+          { name: 'Accepted', value: 0, icon: 'check_circle', color: 'green' },
+          { name: 'Rejected', value: 0, icon: 'cancel', color: 'red' },
+        ]);
+        setRecentProposals([]);
       }
     };
 
@@ -110,28 +169,37 @@ export default function OrganizerDashboardPage() {
             </div>
           </div>
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {recentProposals.map((proposal) => (
-              <div key={proposal.id} className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {proposal.title}
+            {recentProposals.length > 0 ? (
+              recentProposals.map((proposal) => (
+                <div key={proposal.id} className="px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {proposal.title}
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <StatusBadge status={proposal.status} />
+                      <Link
+                        href={`/organizer/proposals/${proposal.id}`}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        View
+                      </Link>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-3">
-                    <StatusBadge status={proposal.status} />
-                    <Link
-                      href={`/organizer/proposals/${proposal.id}`}
-                      className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-                    >
-                      View
-                    </Link>
+                  <div className="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
+                    <span>{proposal.date}</span>
+                    <span>{proposal.amount}</span>
                   </div>
                 </div>
-                <div className="mt-2 flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <span>{proposal.date}</span>
-                  <span>{proposal.amount}</span>
-                </div>
+              ))
+            ) : (
+              <div className="px-6 py-8 text-center">
+                <p className="text-gray-500 dark:text-gray-400">No proposals yet</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                  Create your first proposal to get started
+                </p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 

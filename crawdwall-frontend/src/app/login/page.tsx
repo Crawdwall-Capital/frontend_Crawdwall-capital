@@ -92,6 +92,14 @@ export default function LoginPage() {
         localStorage.setItem('user_role', userRole.toLowerCase());
         localStorage.setItem('user_email', data.email);
         
+        // Try to get user name from API response or use email as fallback
+        if (responseData.name) {
+          localStorage.setItem('user_name', responseData.name);
+        } else {
+          // Use email prefix as name fallback
+          localStorage.setItem('user_name', data.email.split('@')[0]);
+        }
+        
         // Log for debugging
         console.log('Login successful, attempting redirect...');
         console.log('Role:', userRole);
@@ -146,6 +154,14 @@ export default function LoginPage() {
           localStorage.setItem('crawdwall_auth_token', token);
           localStorage.setItem('user_role', userData.role);
           localStorage.setItem('user_email', userData.email);
+          
+          // Store user name
+          if (userData.name) {
+            localStorage.setItem('user_name', userData.name);
+          } else {
+            // Use email prefix as name fallback
+            localStorage.setItem('user_name', userData.email.split('@')[0]);
+          }
           
           // Log for debugging
           console.log('Login successful, attempting redirect...');

@@ -129,6 +129,7 @@ export default function SignupPage() {
         localStorage.setItem('crawdwall_auth_token', token);
         localStorage.setItem('user_role', userRole ? userRole.toLowerCase() : data.role.toLowerCase()); // Use API role if available, fallback to form role
         localStorage.setItem('user_email', data.email);
+        localStorage.setItem('user_name', data.name); // Store the user's name from the form
         
         console.log('✅ Auth data stored successfully');
         console.log('Stored role:', data.role);

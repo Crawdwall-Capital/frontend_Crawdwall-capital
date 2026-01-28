@@ -32,6 +32,7 @@ describe('Form Validation Tests', () => {
         name: 'John Doe',
         email: 'john@example.com',
         phoneNumber: '1234567890',
+        password: 'password123',
         role: 'investor'
       };
 
@@ -95,7 +96,8 @@ describe('Form Validation Tests', () => {
       const invalidData = {
         name: 'John Doe',
         email: 'john@example.com',
-        phoneNumber: '1234567890', // Too short
+        phoneNumber: '1234567890',
+        password: '123', // Too short
         role: 'investor'
       };
 
@@ -113,6 +115,7 @@ describe('Form Validation Tests', () => {
         name: 'John Doe',
         email: 'john@example.com',
         phoneNumber: '1234567890',
+        password: 'password123',
         role: 'invalid-role' as any // Invalid role
       };
 
@@ -148,6 +151,7 @@ describe('Form Validation Tests', () => {
         name: '',
         email: '',
         phoneNumber: '',
+        password: '',
         role: '' as any
       };
 
@@ -156,7 +160,7 @@ describe('Form Validation Tests', () => {
       
       if (!result.success) {
         // Check that we have multiple errors (at least one per required field)
-        expect(result.error.issues.length).toBeGreaterThanOrEqual(4);
+        expect(result.error.issues.length).toBeGreaterThanOrEqual(5);
       }
     });
   });
@@ -164,7 +168,9 @@ describe('Form Validation Tests', () => {
   describe('Login Form Validation', () => {
     test('Valid login data passes validation', () => {
       const validData: LoginFormData = {
-        email: 'user@example.com'};
+        email: 'user@example.com',
+        password: 'password123'
+      };
 
       const result = loginSchema.safeParse(validData);
       expect(result.success).toBe(true);
@@ -172,7 +178,9 @@ describe('Form Validation Tests', () => {
 
     test('Invalid email triggers validation error', () => {
       const invalidData = {
-        email: 'invalid-email'};
+        email: 'invalid-email',
+        password: 'password123'
+      };
 
       const result = loginSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
@@ -185,7 +193,9 @@ describe('Form Validation Tests', () => {
 
     test('Empty password triggers validation error', () => {
       const invalidData = {
-        email: 'user@example.com'};
+        email: 'user@example.com',
+        password: ''
+      };
 
       const result = loginSchema.safeParse(invalidData);
       expect(result.success).toBe(false);
@@ -294,6 +304,7 @@ describe('Form Validation Tests', () => {
           name: 'John Doe',
           email: email,
           phoneNumber: '1234567890',
+          password: 'password123',
           role: 'investor'
         };
 
@@ -315,6 +326,7 @@ describe('Form Validation Tests', () => {
           name: 'John Doe',
           email: 'john@example.com',
           phoneNumber: phone,
+          password: 'password123',
           role: 'investor'
         };
 
@@ -335,6 +347,7 @@ describe('Form Validation Tests', () => {
           name: 'John Doe',
           email: 'john@example.com',
           phoneNumber: '1234567890',
+          password: password,
           role: 'investor'
         };
 
@@ -357,6 +370,7 @@ describe('Form Validation Tests', () => {
           name: 'Test User',
           email: email,
           phoneNumber: '1234567890',
+          password: 'password123',
           role: 'investor'
         };
 
@@ -374,6 +388,7 @@ describe('Form Validation Tests', () => {
         name: 'J',
         email: 'invalid',
         phoneNumber: '123',
+        password: '123',
         role: 'investor'
       };
 

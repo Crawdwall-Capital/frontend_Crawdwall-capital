@@ -165,6 +165,14 @@ export default function AdminLoginPage() {
         localStorage.setItem('user_role', userRole.toLowerCase());
         localStorage.setItem('user_email', email || '');
         
+        // Try to get user name from API response or use email as fallback
+        if (responseData.name) {
+          localStorage.setItem('user_name', responseData.name);
+        } else {
+          // Use email prefix as name fallback for admin
+          localStorage.setItem('user_name', (email || '').split('@')[0] || 'Admin');
+        }
+        
         console.log('✅ Auth data stored successfully');
         console.log('Stored role:', userRole);
         console.log('Attempting navigation...');
@@ -189,6 +197,14 @@ export default function AdminLoginPage() {
           localStorage.setItem('crawdwall_auth_token', token);
           localStorage.setItem('user_role', (userData.role || 'ADMIN').toLowerCase());
           localStorage.setItem('user_email', userData.email || email);
+          
+          // Store user name
+          if (userData.name) {
+            localStorage.setItem('user_name', userData.name);
+          } else {
+            // Use email prefix as name fallback for admin
+            localStorage.setItem('user_name', (userData.email || email || '').split('@')[0] || 'Admin');
+          }
           
           console.log('Admin login successful, attempting redirect...');
           console.log('Role:', userData.role);
