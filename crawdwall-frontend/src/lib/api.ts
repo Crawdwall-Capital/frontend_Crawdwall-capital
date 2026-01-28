@@ -6,7 +6,7 @@ import { ApiError, NetworkError, logger } from './errorHandler';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api', // Use environment variable or relative path
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api` || '/api', // Add /api to the base URL
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
@@ -101,14 +101,14 @@ apiClient.interceptors.response.use(
 export const authAPI = {
   // Admin OTP login - Request OTP
   sendOtp: async (data: OtpLoginRequest): Promise<AxiosResponse<ApiResponse<null>>> => {
-    return apiClient.post('/api/auth/admin/request-otp', {
+    return apiClient.post('/auth/admin/request-otp', {
       email: data.email
     });
   },
 
   // Admin OTP login - Verify OTP
   verifyOtp: async (data: OtpVerifyRequest): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
-    return apiClient.post('/api/auth/admin/verify-otp', {
+    return apiClient.post('/auth/admin/verify-otp', {
       email: data.email,
       otp: data.otp
     });
@@ -116,7 +116,7 @@ export const authAPI = {
 
   // Organizer/Investor login
   login: async (credentials: { email: string; password: string }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
-    return apiClient.post('/api/auth/login', {
+    return apiClient.post('/auth/login', {
       email: credentials.email,
       password: credentials.password
     });
@@ -129,7 +129,7 @@ export const authAPI = {
     phoneNumber: string; 
     password: string 
   }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
-    return apiClient.post('/api/auth/register', {
+    return apiClient.post('/auth/register', {
       ...userData,
       role: 'ORGANIZER' // Backend expects 'ORGANIZER' in uppercase
     });
@@ -142,7 +142,7 @@ export const authAPI = {
     phoneNumber: string; 
     password: string 
   }): Promise<AxiosResponse<ApiResponse<AuthResponse>>> => {
-    return apiClient.post('/api/auth/register', {
+    return apiClient.post('/auth/register', {
       ...userData,
       role: 'INVESTOR' // Backend expects 'INVESTOR' in uppercase
     });
@@ -156,7 +156,7 @@ export const authAPI = {
 
   // Get current user
   getCurrentUser: async (): Promise<AxiosResponse<ApiResponse<User>>> => {
-    return apiClient.get('/api/auth/me');
+    return apiClient.get('/auth/me');
   },
 };
 
@@ -164,22 +164,22 @@ export const authAPI = {
 export const proposalAPI = {
   // Get all proposals (admin only)
   getAllProposals: async (): Promise<AxiosResponse<ApiResponse<Proposal[]>>> => {
-    return apiClient.get('/api/proposals');
+    return apiClient.get('/proposals');
   },
 
   // Get proposals by user (organizer only)
   getUserProposals: async (): Promise<AxiosResponse<ApiResponse<Proposal[]>>> => {
-    return apiClient.get('/api/proposals/my-proposals');
+    return apiClient.get('/proposals/my-proposals');
   },
 
   // Get single proposal
   getProposal: async (id: string): Promise<AxiosResponse<ApiResponse<Proposal>>> => {
-    return apiClient.get(`/api/proposals/${id}`);
+    return apiClient.get(`/proposals/${id}`);
   },
 
   // Create proposal
   createProposal: async (data: CreateProposalRequest): Promise<AxiosResponse<ApiResponse<Proposal>>> => {
-    return apiClient.post('/api/proposals', data);
+    return apiClient.post('/proposals', data);
   },
 
   // Update proposal status (admin only)
@@ -188,7 +188,7 @@ export const proposalAPI = {
     status: string,
     comment?: string
   ): Promise<AxiosResponse<ApiResponse<Proposal>>> => {
-    return apiClient.patch(`/api/proposals/${id}/status`, { status, comment });
+    return apiClient.patch(`/proposals/${id}/status`, { status, comment });
   },
 
   // Add comment to proposal
@@ -197,7 +197,7 @@ export const proposalAPI = {
     content: string,
     isInternal: boolean = false
   ): Promise<AxiosResponse<ApiResponse<any>>> => {
-    return apiClient.post(`/api/proposals/${id}/comments`, { content, isInternal });
+    return apiClient.post(`/proposals/${id}/comments`, { content, isInternal });
   },
 };
 

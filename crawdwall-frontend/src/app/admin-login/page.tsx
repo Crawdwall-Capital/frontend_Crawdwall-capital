@@ -31,9 +31,12 @@ export default function AdminLoginPage() {
   useEffect(() => {
     console.log('🔧 Admin Login Configuration:', {
       backendUrl: process.env.NEXT_PUBLIC_API_URL,
-      sendOtpEndpoint: '/api/auth/admin/request-otp',
-      verifyOtpEndpoint: '/api/auth/admin/verify-otp',
-      getCurrentUserEndpoint: '/api/auth/me'
+      fullBaseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+      sendOtpEndpoint: '/auth/admin/request-otp',
+      verifyOtpEndpoint: '/auth/admin/verify-otp',
+      getCurrentUserEndpoint: '/auth/me',
+      fullSendOtpUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/admin/request-otp`,
+      fullVerifyOtpUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/admin/verify-otp`
     });
   }, []);
 
@@ -65,8 +68,8 @@ export default function AdminLoginPage() {
       
       console.log('🔄 Sending OTP request to backend:', {
         email: email,
-        endpoint: '/api/auth/admin/request-otp',
-        backendUrl: process.env.NEXT_PUBLIC_API_URL
+        endpoint: '/auth/admin/request-otp',
+        fullUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/admin/request-otp`
       });
       
       // Call the API to request OTP
@@ -127,8 +130,8 @@ export default function AdminLoginPage() {
       console.log('🔄 Verifying OTP with backend:', {
         email: email,
         otp: otp,
-        endpoint: '/api/auth/admin/verify-otp',
-        backendUrl: process.env.NEXT_PUBLIC_API_URL
+        endpoint: '/auth/admin/verify-otp',
+        fullUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/admin/verify-otp`
       });
       
       // Call the API to verify OTP

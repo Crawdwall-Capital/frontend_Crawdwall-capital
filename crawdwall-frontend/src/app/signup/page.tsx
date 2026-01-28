@@ -85,7 +85,9 @@ export default function SignupPage() {
       phoneNumber: data.phoneNumber,
       role: data.role,
       // Don't log password for security
-      hasPassword: !!data.password
+      hasPassword: !!data.password,
+      backendUrl: process.env.NEXT_PUBLIC_API_URL,
+      fullApiUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`
     });
 
     try {
@@ -125,7 +127,7 @@ export default function SignupPage() {
         
         // Store the received token and user info
         localStorage.setItem('crawdwall_auth_token', token);
-        localStorage.setItem('user_role', data.role.toLowerCase()); // Use the form role, not API role
+        localStorage.setItem('user_role', userRole ? userRole.toLowerCase() : data.role.toLowerCase()); // Use API role if available, fallback to form role
         localStorage.setItem('user_email', data.email);
         
         console.log('✅ Auth data stored successfully');

@@ -1,7 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -25,6 +25,16 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Debug: Log API configuration on component mount
+  useEffect(() => {
+    console.log('🔧 Login Page Configuration:', {
+      backendUrl: process.env.NEXT_PUBLIC_API_URL,
+      fullBaseUrl: `${process.env.NEXT_PUBLIC_API_URL}/api`,
+      loginEndpoint: '/auth/login',
+      fullLoginUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`
+    });
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -44,18 +54,38 @@ export default function LoginPage() {
     setError(null);
     setSuccessMessage(null);
 
+    console.log('🔄 Attempting login with data:', {
+      email: data.email,
+      hasPassword: !!data.password,
+      backendUrl: process.env.NEXT_PUBLIC_API_URL,
+      fullApiUrl: `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`
+    });
+
     try {
       const response = await authAPI.login({
         email: data.email,
         password: data.password,
       });
       
-      if (response.data.token && response.data.message) {
-        // Handle the actual API response structure
-        console.log('✅ Login successful - processing response...');
+      console.log('✅ Login API response received:', {
+        status: response.status,
+        data: response.data
+      });
+      
+      // Handle the actual API response structure - flat response with token and message
+      if (response.data && typeof response.data === 'object' && 'token' in response.data && 'message' in response.data) {
+        console.log('✅ Login successful - processing flat response...');
         
-        const token = response.data.token;
-        const userRole = response.data.role;
+        const responseData = response.data as any; // Type assertion for the actual response structure
+        const token = responseData.token;
+        const userRole = responseData.role;
+        
+        console.log('Auth response details:', {
+          hasToken: !!token,
+          userRole: userRole,
+          tokenPreview: token ? token.substring(0, 20) + '...' : 'No token',
+          message: responseData.message
+        });
         
         // Store the token and user info
         localStorage.setItem('crawdwall_auth_token', token);
@@ -161,17 +191,36 @@ export default function LoginPage() {
             }
           }
         } else {
+          console.error('❌ Login failed - unexpected response structure:', response.data);
           setError(response.data.message || 'Login failed - invalid response format');
         }
       } else {
+        console.error('❌ Login failed:', response.data);
         setError(response.data.message || response.data.error || 'Login failed');
       }
     } catch (err: any) {
-      console.error('Login error:', err);
+      console.error('❌ Login error:', err);
+      console.error('Full error details:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.url
+      });
+      
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else if (err.response?.data?.error) {
         setError(err.response.data.error);
+      } else if (err.response?.status === 503) {
+        setError('Backend service is currently unavailable. Please try again later.');
+      } else if (err.response?.status === 401) {
+        setError('Invalid email or password. Please check your credentials.');
+      } else if (err.response?.status === 404) {
+        setError('Login endpoint not found. Please check backend configuration.');
+      } else if (err.response?.status >= 500) {
+        setError('Server error. Please try again later.');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Network error. Please check your connection and backend availability.');
       } else {
         setError('An error occurred during login');
       }
