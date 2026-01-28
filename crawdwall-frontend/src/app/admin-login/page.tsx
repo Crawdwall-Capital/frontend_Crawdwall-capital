@@ -1,6 +1,6 @@
 'use client';
 export const dynamic = 'force-dynamic';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,25 +26,8 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Auto-redirect after successful login
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        console.log('🔄 Auto-redirect triggered for admin');
-        
-        try {
-          router.push('/admin/dashboard');
-        } catch (error) {
-          console.error('Auto-redirect failed, using window.location:', error);
-          window.location.href = '/admin/dashboard';
-        }
-      }, 2000); // 2 second delay
-
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage, router]);
+  // Remove auto-redirect useEffect since we're doing immediate navigation
 
   const {
     register,
@@ -102,7 +85,6 @@ export default function AdminLoginPage() {
 
     setIsLoading(true);
     setError(null);
-    setSuccessMessage(null);
 
     try {
       const email = getValues('email');
@@ -117,17 +99,18 @@ export default function AdminLoginPage() {
       console.log('OTP verification response:', response.data);
       
       // Handle the actual API response structure - flat response with token and message
-      if (response.data.token && response.data.message) {
+      if (response.data && typeof response.data === 'object' && 'token' in response.data && 'message' in response.data) {
         console.log('✅ OTP verification successful - processing flat response...');
         
-        const token = response.data.token;
-        const userRole = response.data.role || 'ADMIN';
+        const responseData = response.data as any; // Type assertion for the actual response structure
+        const token = responseData.token;
+        const userRole = responseData.role || 'ADMIN';
         
         console.log('Auth response details:', {
           hasToken: !!token,
           userRole: userRole,
           tokenPreview: token ? token.substring(0, 20) + '...' : 'No token',
-          message: response.data.message
+          message: responseData.message
         });
         
         // Store auth data
@@ -139,18 +122,14 @@ export default function AdminLoginPage() {
         console.log('Stored role:', userRole);
         console.log('Attempting navigation...');
         
-        // Show success message
-        setSuccessMessage('Login successful! Redirecting to admin dashboard...');
-        setMessage(null); // Clear the OTP sent message
+        // Clear messages and navigate immediately
+        setMessage(null);
+        setError(null);
         
-        // Immediate redirect attempt
-        try {
-          console.log('🚀 Navigating to admin dashboard');
-          router.push('/admin/dashboard');
-        } catch (redirectError) {
-          console.error('❌ Router navigation failed, using window.location:', redirectError);
-          window.location.href = '/admin/dashboard';
-        }
+        console.log('🚀 Navigating immediately to admin dashboard');
+        
+        // Use window.location for immediate navigation (more reliable than router.push)
+        window.location.href = '/admin/dashboard';
       } else if (response.data.success && response.data.data) {
         // Handle the expected API response structure (fallback)
         console.log('✅ OTP verification successful - processing expected response structure...');
@@ -168,18 +147,14 @@ export default function AdminLoginPage() {
           console.log('Role:', userData.role);
           console.log('Token:', token.substring(0, 20) + '...'); // Log first 20 chars of token
           
-          // Show success message
-          setSuccessMessage('Login successful! Redirecting to admin dashboard...');
-          setMessage(null); // Clear the OTP sent message
+          // Clear messages and navigate immediately
+          setMessage(null);
+          setError(null);
           
-          // Immediate redirect attempt
-          try {
-            console.log('🚀 Navigating to admin dashboard');
-            router.push('/admin/dashboard');
-          } catch (redirectError) {
-            console.error('❌ Router navigation failed, using window.location:', redirectError);
-            window.location.href = '/admin/dashboard';
-          }
+          console.log('🚀 Navigating immediately to admin dashboard');
+          
+          // Use window.location for immediate navigation (more reliable than router.push)
+          window.location.href = '/admin/dashboard';
         } else {
           console.error('❌ Missing token or user data:', { hasToken: !!token, hasUserData: !!userData });
           setError('Authentication successful but data is incomplete. Please try again.');
@@ -270,26 +245,7 @@ export default function AdminLoginPage() {
                 {message}
               </div>
             )}
-            {successMessage && (
-              <div className="mb-4 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/20 p-2 rounded">
-                {successMessage}
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      try {
-                        router.push('/admin/dashboard');
-                      } catch (error) {
-                        window.location.href = '/admin/dashboard';
-                      }
-                    }}
-                    className="text-sm font-medium text-green-700 dark:text-green-300 hover:text-green-600 dark:hover:text-green-200 underline"
-                  >
-                    Go to Admin Dashboard →
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Success message removed since we navigate immediately */}
             {error && (
               <div className="mb-4 text-sm text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 p-2 rounded">
                 {error}
